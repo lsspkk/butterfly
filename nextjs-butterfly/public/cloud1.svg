@@ -1,14 +1,8 @@
-<svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
-  <g fill="#dfdfdf" stroke="none">
-    <ellipse cx="200" cy="150" rx="150" ry="90"/>
-    <ellipse cx="320" cy="170" rx="200" ry="120"/>
-    <ellipse cx="480" cy="150" rx="180" ry="100"/>
-    <ellipse cx="600" cy="170" rx="160" ry="90"/>
-  </g>
-  <g fill="#ffffff" stroke="none" opacity="0.9">
-    <ellipse cx="240" cy="170" rx="120" ry="70"/>
-    <ellipse cx="360" cy="190" rx="150" ry="80"/>
-    <ellipse cx="500" cy="170" rx="140" ry="70"/>
-    <ellipse cx="620" cy="190" rx="130" ry="80"/>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:svgjs="http://svgjs.dev/svgjs" viewBox="0 0 800 800" id="cccloud">
+  <g fill="hsl(157, 11%, 29%)" id="cloud" transform="matrix(1,0,0,1,0,-10)">
+    <path
+      d="M 300 600 A  135 135 0 1 1 200 400 A  135 135 0 1 1 200 250 A  135 135 0 1 1 350 200 A  135 135 0 1 1 500 250 A  135 135 0 1 1 650 400 A  135 135 0 1 1 550 500 A  135 135 0 1 1 450 550 A  135 135 0 1 1 300 600 Z"
+      stroke-linecap="round" stroke-linejoin="round"></path>
   </g>
 </svg>
