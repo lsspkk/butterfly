@@ -30,9 +30,17 @@ export class Level {
     em.addComponent(beeId, 'Graphics', new Bee(app, beeAssets, 300, 300))
     em.addComponent(beeId, 'Animation', new BeeAnimation())
 
-    const butterflyId = em.create('Butterfly')
-    em.addComponent(butterflyId, 'Movement', new Movement(500, 500, 1, 0))
-    em.addComponent(butterflyId, 'Graphics', new Butterfly(app, 500, 500))
+    const bu1 = em.create('Butterfly')
+    em.addComponent(bu1, 'Movement', new Movement(500, 500, 1, 0))
+    em.addComponent(bu1, 'Graphics', new Butterfly(app, 500, 500, 'sitruunaperhonen.json'))
+
+    const bu2 = em.create('Butterfly')
+    em.addComponent(bu2, 'Movement', new Movement(500, 200, 1, 0))
+    em.addComponent(bu2, 'Graphics', new Butterfly(app, 500, 200, 'ohdakeperhonen.json'))
+
+    const bu3 = em.create('Butterfly')
+    em.addComponent(bu3, 'Movement', new Movement(200, 500, 1, 0))
+    em.addComponent(bu3, 'Graphics', new Butterfly(app, 200, 500, 'amiraaliperhonen.json'))
 
     this.createFLowers(em, 10)
     this.createClouds(em, 20, cloudAssets)

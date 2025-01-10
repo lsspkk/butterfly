@@ -1,0 +1,6 @@
+*.png
+*.jpg
+*.sh
+data_venv
+*.json
+*.tps

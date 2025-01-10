@@ -1,95 +1,97 @@
-{"frames": {
-
-"ohdakeperhonen/01.png":
 {
-	"frame": {"x":0,"y":0,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/02.png":
-{
-	"frame": {"x":800,"y":0,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/03.png":
-{
-	"frame": {"x":1600,"y":0,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/04.png":
-{
-	"frame": {"x":2400,"y":0,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/05.png":
-{
-	"frame": {"x":3200,"y":0,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/06.png":
-{
-	"frame": {"x":0,"y":559,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/07.png":
-{
-	"frame": {"x":800,"y":559,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/08.png":
-{
-	"frame": {"x":1600,"y":559,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/09.png":
-{
-	"frame": {"x":2400,"y":559,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-},
-"ohdakeperhonen/10.png":
-{
-	"frame": {"x":3200,"y":559,"w":800,"h":559},
-	"rotated": false,
-	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":800,"h":559},
-	"sourceSize": {"w":800,"h":559}
-}},
-"animations": {
-	"ohdakeperhonen": ["ohdakeperhonen/01.png","ohdakeperhonen/02.png","ohdakeperhonen/03.png","ohdakeperhonen/04.png","ohdakeperhonen/05.png","ohdakeperhonen/06.png","ohdakeperhonen/07.png","ohdakeperhonen/08.png","ohdakeperhonen/09.png","ohdakeperhonen/10.png"]
-},
-"meta": {
-	"app": "https://www.codeandweb.com/texturepacker",
-	"version": "1.1",
-	"image": "ohdakeperhonen_a.png",
-	"format": "RGBA8888",
-	"size": {"w":4000,"h":1118},
-	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:0e8784863074818049a59a4085d77ad2:cda43efc57734ad307245433bb438051:367481eadfe08bb59b6f89f473299997$"
-}
+  "frames": {
+    "ohdakeperhonen_01.png": {
+      "frame": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_02.png": {
+      "frame": { "x": 800, "y": 0, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_03.png": {
+      "frame": { "x": 1600, "y": 0, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_04.png": {
+      "frame": { "x": 2400, "y": 0, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_05.png": {
+      "frame": { "x": 3200, "y": 0, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_06.png": {
+      "frame": { "x": 0, "y": 559, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_07.png": {
+      "frame": { "x": 800, "y": 559, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_08.png": {
+      "frame": { "x": 1600, "y": 559, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_09.png": {
+      "frame": { "x": 2400, "y": 559, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    },
+    "ohdakeperhonen_10.png": {
+      "frame": { "x": 3200, "y": 559, "w": 800, "h": 559 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 800, "h": 559 },
+      "sourceSize": { "w": 800, "h": 559 }
+    }
+  },
+  "animations": {
+    "fly": [
+      "ohdakeperhonen_01.png",
+      "ohdakeperhonen_02.png",
+      "ohdakeperhonen_03.png",
+      "ohdakeperhonen_04.png",
+      "ohdakeperhonen_05.png",
+      "ohdakeperhonen_06.png",
+      "ohdakeperhonen_07.png",
+      "ohdakeperhonen_08.png",
+      "ohdakeperhonen_09.png",
+      "ohdakeperhonen_10.png"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.1",
+    "image": "ohdakeperhonen.png",
+    "format": "RGBA8888",
+    "size": { "w": 4000, "h": 1118 },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:0e8784863074818049a59a4085d77ad2:cda43efc57734ad307245433bb438051:367481eadfe08bb59b6f89f473299997$"
+  }
 }

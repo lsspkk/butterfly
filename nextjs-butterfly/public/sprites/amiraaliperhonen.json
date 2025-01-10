@@ -1,0 +1,97 @@
+{
+  "frames": {
+    "amiraaliperhonen_01.png": {
+      "frame": { "x": 0, "y": 1306, "w": 740, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 740, "h": 653 },
+      "sourceSize": { "w": 740, "h": 653 }
+    },
+    "amiraaliperhonen_02.png": {
+      "frame": { "x": 1120, "y": 653, "w": 650, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 650, "h": 653 },
+      "sourceSize": { "w": 650, "h": 653 }
+    },
+    "amiraaliperhonen_03.png": {
+      "frame": { "x": 0, "y": 653, "w": 560, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 560, "h": 653 },
+      "sourceSize": { "w": 560, "h": 653 }
+    },
+    "amiraaliperhonen_04.png": {
+      "frame": { "x": 1250, "y": 0, "w": 470, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 470, "h": 653 },
+      "sourceSize": { "w": 470, "h": 653 }
+    },
+    "amiraaliperhonen_05.png": {
+      "frame": { "x": 490, "y": 0, "w": 380, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 380, "h": 653 },
+      "sourceSize": { "w": 380, "h": 653 }
+    },
+    "amiraaliperhonen_06.png": {
+      "frame": { "x": 200, "y": 0, "w": 290, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 290, "h": 653 },
+      "sourceSize": { "w": 290, "h": 653 }
+    },
+    "amiraaliperhonen_07.png": {
+      "frame": { "x": 0, "y": 0, "w": 200, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 200, "h": 653 },
+      "sourceSize": { "w": 200, "h": 653 }
+    },
+    "amiraaliperhonen_08.png": {
+      "frame": { "x": 870, "y": 0, "w": 380, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 380, "h": 653 },
+      "sourceSize": { "w": 380, "h": 653 }
+    },
+    "amiraaliperhonen_09.png": {
+      "frame": { "x": 560, "y": 653, "w": 560, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 560, "h": 653 },
+      "sourceSize": { "w": 560, "h": 653 }
+    },
+    "amiraaliperhonen_10.png": {
+      "frame": { "x": 740, "y": 1306, "w": 740, "h": 653 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 740, "h": 653 },
+      "sourceSize": { "w": 740, "h": 653 }
+    }
+  },
+  "animations": {
+    "fly": [
+      "amiraaliperhonen_01.png",
+      "amiraaliperhonen_02.png",
+      "amiraaliperhonen_03.png",
+      "amiraaliperhonen_04.png",
+      "amiraaliperhonen_05.png",
+      "amiraaliperhonen_06.png",
+      "amiraaliperhonen_07.png",
+      "amiraaliperhonen_08.png",
+      "amiraaliperhonen_09.png",
+      "amiraaliperhonen_10.png"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.1",
+    "image": "amiraaliperhonen.png",
+    "format": "RGBA8888",
+    "size": { "w": 1770, "h": 1959 },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:1572e5715a45d1757a967d7a3a528246:0c43194d26f951c8e6f1e33355d86f48:830ab4d4f1450669838864765fc819f6$"
+  }
+}

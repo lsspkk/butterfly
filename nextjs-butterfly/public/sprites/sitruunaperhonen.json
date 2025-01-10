@@ -1,0 +1,97 @@
+{
+  "frames": {
+    "sitruunaperhonen_01.png": {
+      "frame": { "x": 0, "y": 1104, "w": 740, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 740, "h": 552 },
+      "sourceSize": { "w": 740, "h": 552 }
+    },
+    "sitruunaperhonen_02.png": {
+      "frame": { "x": 1120, "y": 552, "w": 650, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 650, "h": 552 },
+      "sourceSize": { "w": 650, "h": 552 }
+    },
+    "sitruunaperhonen_03.png": {
+      "frame": { "x": 0, "y": 552, "w": 560, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 560, "h": 552 },
+      "sourceSize": { "w": 560, "h": 552 }
+    },
+    "sitruunaperhonen_04.png": {
+      "frame": { "x": 1250, "y": 0, "w": 470, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 470, "h": 552 },
+      "sourceSize": { "w": 470, "h": 552 }
+    },
+    "sitruunaperhonen_05.png": {
+      "frame": { "x": 490, "y": 0, "w": 380, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 380, "h": 552 },
+      "sourceSize": { "w": 380, "h": 552 }
+    },
+    "sitruunaperhonen_06.png": {
+      "frame": { "x": 200, "y": 0, "w": 290, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 290, "h": 552 },
+      "sourceSize": { "w": 290, "h": 552 }
+    },
+    "sitruunaperhonen_07.png": {
+      "frame": { "x": 0, "y": 0, "w": 200, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 200, "h": 552 },
+      "sourceSize": { "w": 200, "h": 552 }
+    },
+    "sitruunaperhonen_08.png": {
+      "frame": { "x": 870, "y": 0, "w": 380, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 380, "h": 552 },
+      "sourceSize": { "w": 380, "h": 552 }
+    },
+    "sitruunaperhonen_09.png": {
+      "frame": { "x": 560, "y": 552, "w": 560, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 560, "h": 552 },
+      "sourceSize": { "w": 560, "h": 552 }
+    },
+    "sitruunaperhonen_10.png": {
+      "frame": { "x": 740, "y": 1104, "w": 740, "h": 552 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 740, "h": 552 },
+      "sourceSize": { "w": 740, "h": 552 }
+    }
+  },
+  "animations": {
+    "fly": [
+      "sitruunaperhonen_01.png",
+      "sitruunaperhonen_02.png",
+      "sitruunaperhonen_03.png",
+      "sitruunaperhonen_04.png",
+      "sitruunaperhonen_05.png",
+      "sitruunaperhonen_06.png",
+      "sitruunaperhonen_07.png",
+      "sitruunaperhonen_08.png",
+      "sitruunaperhonen_09.png",
+      "sitruunaperhonen_10.png"
+    ]
+  },
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "1.1",
+    "image": "sitruunaperhonen_female.png",
+    "format": "RGBA8888",
+    "size": { "w": 1770, "h": 1656 },
+    "scale": "1",
+    "smartupdate": "$TexturePacker:SmartUpdate:26b0edc7e4902db82011b8f5bf55777c:ab75c5ec80ab91ce10c0b5ebb3313f81:0427da93dfc275bfd48fd526ae57c0c2$"
+  }
+}

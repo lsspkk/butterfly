@@ -22,7 +22,9 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   }
   const cloudAssets = [await loadSvg('cloud1.svg')]
 
-  await PIXI.Assets.load(['/sprites/ohdakeperhonen.json', '/sprites/ohdakeperhonen_a.png'])
+  await PIXI.Assets.load(['/sprites/ohdakeperhonen.json', '/sprites/ohdakeperhonen.png'])
+  await PIXI.Assets.load(['/sprites/sitruunaperhonen.json', '/sprites/sitruunaperhonen_female.png'])
+  await PIXI.Assets.load(['/sprites/amiraaliperhonen.json', '/sprites/amiraaliperhonen.png'])
 
   return { app, beeAssets, cloudAssets }
 }
