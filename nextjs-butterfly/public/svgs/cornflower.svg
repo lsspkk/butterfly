@@ -1,0 +1,18 @@
+<svg height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<!-- Many spiky petals (8) -->
+<path d="M50,25 
+               L46,35 L50,30 L54,35 Z" fill="#2196F3" stroke="black" stroke-width="3"></path>
+<use href="#cornPetal" transform="rotate(45,50,50)"></use>
+<use href="#cornPetal" transform="rotate(90,50,50)"></use>
+<use href="#cornPetal" transform="rotate(135,50,50)"></use>
+<use href="#cornPetal" transform="rotate(180,50,50)"></use>
+<use href="#cornPetal" transform="rotate(225,50,50)"></use>
+<use href="#cornPetal" transform="rotate(270,50,50)"></use>
+<use href="#cornPetal" transform="rotate(315,50,50)"></use>
+<!-- Center circle -->
+<circle cx="50" cy="50" fill="#0D47A1" r="6" stroke="black" stroke-width="2"></circle>
+<!-- Define petal shape once, reuse with <use> -->
+<defs>
+<path d="M50,25 L46,35 L50,30 L54,35 Z" fill="#2196F3" id="cornPetal" stroke="black" stroke-width="3"></path>
+</defs>
+</svg>

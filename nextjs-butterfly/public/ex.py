@@ -11,7 +11,7 @@ def sanitize_filename(filename):
     Replace non-alphanumeric characters with underscores
     to keep filenames safe for most file systems.
     """
-    return re.sub(r'[^A-Za-z0-9]+', '_', filename).strip('_')
+    return re.sub(r'[^A-Za-z0-9]+', '_', filename).strip('_').lower()
 
 
 # Create output directory if it doesn't exist
