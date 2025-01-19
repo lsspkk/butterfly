@@ -28,7 +28,7 @@ export default class Cat implements EGraphics {
   constructor(app: Application, props: CatProps) {
     this.timerId = 0
 
-    const { animations } = Assets.cache.get<CatAnimations>('/sprites/cat1.json').data
+    const { animations } = Assets.cache.get<CatAnimations>(`/sprites/cats/${props.animations}`).data
     this.sprites = { idle: this.readSprite(animations['idle']), walk: this.readSprite(animations['walk']) }
 
     this.activeAction = 'Idle'
@@ -38,7 +38,7 @@ export default class Cat implements EGraphics {
     this.baseScale = app.screen.width / 10 / this.activeSprite.width
 
     this.sprites.idle.scale.set(this.baseScale)
-    this.view.pivot.set(this.activeSprite.width / 2, this.activeSprite.height / 2)
+    //this.view.pivot.set(this.activeSprite.width / 2, this.activeSprite.height / 2)
     this.sprites.walk.scale.set(this.baseScale)
 
     this.view.addChild(this.activeSprite)

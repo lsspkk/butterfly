@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:svgjs="http://svgjs.dev/svgjs" viewBox="0 0 800 800" id="cccloud">
-  <g fill="hsl(157, 11%, 29%)" id="cloud" transform="matrix(1,0,0,1,0,-10)">
+  <g fill="#3ddaff" id="cloud" transform="matrix(1,0,0,1,0,-10)">
     <path
       d="M 300 600 A  135 135 0 1 1 200 400 A  135 135 0 1 1 200 250 A  135 135 0 1 1 350 200 A  135 135 0 1 1 500 250 A  135 135 0 1 1 650 400 A  135 135 0 1 1 550 500 A  135 135 0 1 1 450 550 A  135 135 0 1 1 300 600 Z"
       stroke-linecap="round" stroke-linejoin="round"></path>

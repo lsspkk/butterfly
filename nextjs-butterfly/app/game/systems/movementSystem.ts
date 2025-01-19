@@ -29,6 +29,11 @@ export function movementSystem(em: EManager, width: number, height: number, scre
       readWorldInput(eType, m, width, height, screen)
     }
 
+    if (eType === 'Cloud') {
+      m.x += Math.sin(m.rotation) * m.speed
+      m.y -= Math.cos(m.rotation) * m.speed
+    }
+
     const graphics = em.getComponent<EGraphics>(id, 'Graphics')
     if (graphics) {
       graphics.render(m)
@@ -82,10 +87,12 @@ function readWorldInput(eType: EntityType, m: Movement, width: number, height: n
 
   const { s, w, d, a } = keyMap
 
-  if (keyMap.s && m.y - 50 > -yLimit - margin) m.y -= 50
-  if (keyMap.w && m.y + 50 < margin) m.y += 50
-  if (keyMap.d && m.x - 50 > -xLimit - margin) m.x -= 50
-  if (keyMap.a && m.x + 50 < margin) m.x += 50
+  const speed = 15
+
+  if (keyMap.s && m.y - speed > -yLimit - margin) m.y -= speed
+  if (keyMap.w && m.y + speed < margin) m.y += speed
+  if (keyMap.d && m.x - speed > -xLimit - margin) m.x -= speed
+  if (keyMap.a && m.x + speed < margin) m.x += speed
 
   if (eType !== 'Cat') {
     return

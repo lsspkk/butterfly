@@ -1,5 +1,6 @@
 import { Graphics, GraphicsContext, Application } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
+import World from './World'
 
 export default class Cloud implements EGraphics {
   app: Application
@@ -9,16 +10,16 @@ export default class Cloud implements EGraphics {
   y: number
   scale: number
 
-  constructor(app: Application, asset: GraphicsContext, x: number, y: number) {
+  constructor(app: Application, world: World, asset: GraphicsContext, x: number, y: number) {
     this.count = 0
     this.app = app
     this.cloud = new Graphics(asset)
-    this.cloud.alpha = 0.2 + Math.random() * 0.2
+    this.cloud.alpha = 0.9 + Math.random() * 0.2
     this.x = x
     this.y = y
-    this.scale = app.screen.width / 800 / 10
+    this.scale = app.screen.width / 800 / 4
     this.setPositions()
-    app.stage.addChild(this.cloud)
+    world.addChild(this.cloud)
   }
 
   setPositions() {

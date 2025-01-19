@@ -1,5 +1,6 @@
 import { Application, Container, AnimatedSprite, Assets } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
+import World from './World'
 
 export type ButteflyAnimations = {
   data: {
@@ -15,7 +16,7 @@ export default class Butterfly implements EGraphics {
   timerId: number | NodeJS.Timeout
   currentSpeedFactor: number
 
-  constructor(app: Application, x: number, y: number, animationFile: string) {
+  constructor(app: Application, world: World, x: number, y: number, animationFile: string) {
     this.timerId = 0
     this.currentSpeedFactor = 3
 
@@ -29,7 +30,7 @@ export default class Butterfly implements EGraphics {
     this.baseScale = app.screen.width / 10 / this.sprite.width
     this.sprite.scale.set(this.baseScale)
     this.view.addChild(this.sprite)
-    app.stage.addChild(this.view)
+    world.addChild(this.view)
   }
 
   render(m: Movement) {

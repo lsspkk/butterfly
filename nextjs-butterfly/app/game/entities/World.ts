@@ -56,18 +56,22 @@ export default class World implements EGraphics {
 
     const { width: ew, height: eh } = app.screen
 
-    this.edges = new PIXI.Graphics().rect(-ew, -eh, width + ew, height + eh).fill(0x113300)
+    this.edges = new PIXI.Graphics().rect(-ew, -eh, width + ew * 2, height + eh * 2).fill(0x113300)
     this.container.addChild(this.edges)
 
     this.background = new PIXI.Graphics().rect(0, 0, width, height).fill(getRandomShadeOfGreen())
     this.container.addChild(this.background)
 
-    this.container.height = height + eh
-    this.container.width = width + ew
+    this.container.height = height + eh * 2
+    this.container.width = width + ew * 2
     app.stage.addChild(this.container)
 
     this.grass = this.createGrass()
     this.grass.forEach((blade) => this.container.addChild(blade))
+  }
+
+  addChild(child: PIXI.Container) {
+    this.container.addChild(child)
   }
 
   resetPosition() {

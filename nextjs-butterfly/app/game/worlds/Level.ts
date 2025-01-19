@@ -11,6 +11,7 @@ import Cat from '../entities/Cat'
 export class Level {
   em = new EManager()
   worldId?: string
+  world: World
   height: number
   width: number
   screen: Rectangle
@@ -25,10 +26,11 @@ export class Level {
     this.width = app.screen.width * 3
     this.screen = app.screen
     const { em, height, width } = this
+    this.world = new World(app, height, width)
 
     const worldId = em.create('World')
     em.addComponent(worldId, 'Movement', new Movement(0, 0, 1))
-    em.addComponent(worldId, 'Graphics', new World(app, height, width))
+    em.addComponent(worldId, 'Graphics', this.world)
     this.worldId = worldId
 
     const catId = em.create('Cat')
@@ -38,23 +40,23 @@ export class Level {
     this.createFLowers(em, 10)
 
     const beeId = em.create('Bee')
-    em.addComponent(beeId, 'Movement', new Movement(100, 100, 1, 0))
-    em.addComponent(beeId, 'Graphics', new Bee(app, beeAssets, 300, 300))
+    em.addComponent(beeId, 'Movement', new Movement(app.screen.width - 100, app.screen.height - 100, 1, 0))
+    em.addComponent(beeId, 'Graphics', new Bee(app, this.world, beeAssets, -1000, -1000))
     em.addComponent(beeId, 'Animation', new BeeAnimation())
 
     const bu1 = em.create('Butterfly')
     em.addComponent(bu1, 'Movement', new Movement(500, 500, 1, 0))
-    em.addComponent(bu1, 'Graphics', new Butterfly(app, 500, 500, 'sitruunaperhonen.json'))
+    em.addComponent(bu1, 'Graphics', new Butterfly(app, this.world, 500, 500, 'sitruunaperhonen.json'))
 
     const bu2 = em.create('Butterfly')
     em.addComponent(bu2, 'Movement', new Movement(500, 200, 1, 0))
-    em.addComponent(bu2, 'Graphics', new Butterfly(app, 500, 200, 'ohdakeperhonen.json'))
+    em.addComponent(bu2, 'Graphics', new Butterfly(app, this.world, 500, 200, 'ohdakeperhonen.json'))
 
     const bu3 = em.create('Butterfly')
     em.addComponent(bu3, 'Movement', new Movement(200, 500, 1, 0))
-    em.addComponent(bu3, 'Graphics', new Butterfly(app, 200, 500, 'amiraaliperhonen.json'))
+    em.addComponent(bu3, 'Graphics', new Butterfly(app, this.world, 200, 500, 'amiraaliperhonen.json'))
 
-    this.createClouds(em, 20, cloudAssets)
+    this.createClouds(em, 3, cloudAssets)
   }
 
   createFLowers(em: EManager, count: number) {
@@ -87,10 +89,10 @@ export class Level {
           1 + Math.random() * 5,
           // random degrees
           baseDegrees - (Math.random() * Math.PI) / 2,
-          Math.random() * 0.3
+          0.3 + Math.random() * 0.3
         )
       )
-      em.addComponent(cloudId, 'Graphics', new Cloud(this.app, asset, x, y))
+      em.addComponent(cloudId, 'Graphics', new Cloud(this.app, this.world, asset, x, y))
       clouds.push(cloudId)
     }
     return clouds

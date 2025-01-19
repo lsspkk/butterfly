@@ -1,5 +1,6 @@
 import { Graphics, GraphicsContext, Application, FillInput } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
+import World from './World'
 
 export type BeeAssets = {
   body: GraphicsContext
@@ -22,7 +23,7 @@ export default class Bee implements EGraphics {
   y: number
   scale: number
 
-  constructor(app: Application, assets: BeeAssets, x: number, y: number) {
+  constructor(app: Application, world: World, assets: BeeAssets, x: number, y: number) {
     this.count = 0
     this.app = app
 
@@ -39,14 +40,14 @@ export default class Bee implements EGraphics {
 
     this.setPositions()
 
-    app.stage.addChild(this.bee)
-    app.stage.addChild(this.leftWing)
-    app.stage.addChild(this.rightWing)
+    world.addChild(this.bee)
+    world.addChild(this.leftWing)
+    world.addChild(this.rightWing)
 
     this.wingFlapSpeed = 0.1 // Speed of wing flapping
     this.wingFlapAngle = 0
     //    this.debugPoints();
-    this.app.stage.addChild(this.points)
+    world.addChild(this.points)
   }
 
   debugPoints() {
