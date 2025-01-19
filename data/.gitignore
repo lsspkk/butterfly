@@ -2,5 +2,7 @@
 *.jpg
 *.sh
 data_venv
+venv
 *.json
 *.tps
+*.png

@@ -102,12 +102,12 @@ export default class Bee implements EGraphics {
     this.y = m.y
     const { leftWing, rightWing, bee } = this
 
-    if (bee.rotation !== m.direction) {
+    if (bee.rotation !== m.rotation) {
       this.points.clear()
     }
-    bee.rotation = m.direction
-    leftWing.rotation = m.direction
-    rightWing.rotation = -m.direction
+    bee.rotation = m.rotation
+    leftWing.rotation = m.rotation
+    rightWing.rotation = -m.rotation
     this.setPositions()
 
     //  this.debugPoints();

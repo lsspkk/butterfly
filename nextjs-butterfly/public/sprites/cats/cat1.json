@@ -1,0 +1,54 @@
+{
+  "frames": {
+    "sitting.png": {
+      "frame": { "x": 0, "y": 0, "w": 200, "h": 200 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 200,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      }
+    },
+    "walking.png": {
+      "frame": {
+        "x": 0,
+        "y": 200,
+        "w": 200,
+        "h": 200
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 200,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      }
+    }
+  },
+  "animations": {
+    "walk": ["walking.png", "walking.png", "walking.png", "walking.png", "sitting.png", "sitting.png", "sitting.png"],
+    "idle": ["sitting.png"]
+  },
+  "meta": {
+    "app": "https://chatgpt.com/",
+    "version": "4",
+    "images": "cat1.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 200,
+      "h": 400
+    },
+    "scale": "1"
+  }
+}

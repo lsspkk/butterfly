@@ -33,7 +33,7 @@ export default class Butterfly implements EGraphics {
   }
 
   render(m: Movement) {
-    const { speed, direction, action } = m
+    const { speed, rotation, action } = m
 
     const s = this.currentSpeedFactor
 
@@ -51,13 +51,13 @@ export default class Butterfly implements EGraphics {
       this.view.y -= s * Math.sin(angle)
     }
 
-    if (direction < 0) this.view.rotation -= this.currentSpeedFactor / 40
-    if (direction > 0) this.view.rotation += this.currentSpeedFactor / 40
+    if (rotation < 0) this.view.rotation -= this.currentSpeedFactor / 40
+    if (rotation > 0) this.view.rotation += this.currentSpeedFactor / 40
 
     let randomScale = this.baseScale / 10 + this.baseScale * 2 * Math.random()
     if (randomScale < 0.042) randomScale = 0.042
 
-    if (action > 0 && !this.timerId) {
+    if (action === 'Transform' && !this.timerId) {
       this.currentSpeedFactor = (this.baseScale - randomScale) * 140
       if (this.currentSpeedFactor < 1) this.currentSpeedFactor = 1
       this.sprite.scale.set(randomScale)

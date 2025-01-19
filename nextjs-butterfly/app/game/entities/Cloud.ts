@@ -33,7 +33,7 @@ export default class Cloud implements EGraphics {
     this.x = m.x
     this.y = m.y
     const { cloud } = this
-    cloud.rotation = m.direction
+    cloud.rotation = m.rotation
     this.setPositions()
 
     // when cloud is outside the screen, move it to the other side

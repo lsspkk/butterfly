@@ -1,9 +1,9 @@
 import { Rectangle } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
-import { EManager, EntityType, getEType } from '../entities/EManager'
+import { EManager, getEType } from '../entities/EManager'
 import { keyMap } from './KeyboardListener'
 
-export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
+export function movementSystemForCatchGame(em: EManager, width: number, height: number, screen: Rectangle) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
   for (const [id] of relevantEntities) {
     const m = em.getComponent<Movement>(id, 'Movement')!
@@ -25,8 +25,10 @@ export function movementSystem(em: EManager, width: number, height: number, scre
       m.y -= Math.cos(m.rotation) * m.speed
     }
 
-    if (eType === 'World' || eType === 'Cat') {
-      readWorldInput(eType, m, width, height, screen)
+    if (eType === 'World') {
+      readWorldInput(m, width, height, screen)
+      m.speed *= 1.001
+      if (m.speed > 10) m.speed = 10
     }
 
     const graphics = em.getComponent<EGraphics>(id, 'Graphics')
@@ -74,34 +76,15 @@ function readButterflyInput(m: Movement) {
   m.action = keyMap.space ? 'Transform' : 'Fly'
 }
 
-function readWorldInput(eType: EntityType, m: Movement, width: number, height: number, screen: Rectangle) {
+function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle) {
+  console.debug(m.x, m.y, width, height)
   const margin = 100
 
   const xLimit = width - screen.width
   const yLimit = height - screen.height
 
-  const { s, w, d, a } = keyMap
-
   if (keyMap.s && m.y - 50 > -yLimit - margin) m.y -= 50
   if (keyMap.w && m.y + 50 < margin) m.y += 50
   if (keyMap.d && m.x - 50 > -xLimit - margin) m.x -= 50
   if (keyMap.a && m.x + 50 < margin) m.x += 50
-
-  if (eType !== 'Cat') {
-    return
-  }
-  if (keyMap.a || keyMap.w || keyMap.d || keyMap.s) {
-    m.action = 'Walk'
-  } else {
-    m.action = 'Idle'
-  }
-
-  if (a && s) m.rotation = (Math.PI / 4) * 5
-  else if (a && w) m.rotation = (Math.PI / 4) * 7
-  else if (w && d) m.rotation = (Math.PI / 4) * 1
-  else if (d && s) m.rotation = (Math.PI / 4) * 3
-  else if (a) m.rotation = (Math.PI / 4) * 6
-  else if (w) m.rotation = (Math.PI / 4) * 0
-  else if (d) m.rotation = (Math.PI / 4) * 2
-  else if (s) m.rotation = (Math.PI / 4) * 4
 }

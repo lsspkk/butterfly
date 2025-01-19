@@ -25,6 +25,7 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   await PIXI.Assets.load(['/sprites/ohdakeperhonen.json', '/sprites/ohdakeperhonen.png'])
   await PIXI.Assets.load(['/sprites/sitruunaperhonen.json', '/sprites/sitruunaperhonen_female.png'])
   await PIXI.Assets.load(['/sprites/amiraaliperhonen.json', '/sprites/amiraaliperhonen.png'])
+  await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
   return { app, beeAssets, cloudAssets }
 }

@@ -17,6 +17,8 @@ export type CType =
   | 'Goal'
   | 'Story'
 
+export type MAction = 'Idle' | 'Walk' | 'Run' | 'Jump' | 'Win' | 'Lose' | 'Transform' | 'Fly'
+
 export class Movement {
   constructor(
     public x: number,
@@ -27,7 +29,7 @@ export class Movement {
     public rotation: number = 0,
     public acceleration: number = 0,
     public maxSpeed: number = 10,
-    public action: number = 0
+    public action: MAction = 'Idle'
   ) {}
 }
 

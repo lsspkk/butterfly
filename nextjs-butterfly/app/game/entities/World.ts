@@ -15,7 +15,7 @@ function getRandomShadeOfGreen(): number {
 }
 
 // Helper function to convert HSL to RGB
-function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
   let r: number, g: number, b: number
 
   if (s === 0) {
@@ -46,19 +46,24 @@ export default class World implements EGraphics {
   grass: PIXI.Graphics[]
   count: number
   background: PIXI.Graphics
+  edges: PIXI.Graphics
 
-  constructor(app: PIXI.Application) {
+  constructor(app: PIXI.Application, height: number, width: number) {
     this.count = 0
     this.app = app
 
     this.container = new PIXI.Container()
-    this.background = new PIXI.Graphics()
-      .rect(-app.screen.width * 10, -app.screen.height * 10, app.screen.width * 20, app.screen.height * 20)
-      .fill(getRandomShadeOfGreen())
+
+    const { width: ew, height: eh } = app.screen
+
+    this.edges = new PIXI.Graphics().rect(-ew, -eh, width + ew, height + eh).fill(0x113300)
+    this.container.addChild(this.edges)
+
+    this.background = new PIXI.Graphics().rect(0, 0, width, height).fill(getRandomShadeOfGreen())
     this.container.addChild(this.background)
 
-    this.container.height = app.screen.height * 10
-    this.container.width = app.screen.width * 10
+    this.container.height = height + eh
+    this.container.width = width + ew
     app.stage.addChild(this.container)
 
     this.grass = this.createGrass()
@@ -105,16 +110,8 @@ export default class World implements EGraphics {
       blade.rect(0, 0, 3, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
       blade.fill(getRandomShadeOfGreen())
-      // console.debug(
-      //   this.container.x,
-      //   this.container.y,
-      //   this.container.width,
-      //   this.container.height,
-      //   this.app.screen.width,
-      //   this.app.screen.height
-      // )
-      blade.x = Math.random() * this.container.width - this.container.width / 2
-      blade.y = Math.random() * this.container.height - this.container.height / 2
+      blade.x = Math.random() * this.container.width
+      blade.y = Math.random() * this.container.height
       grass.push(blade)
     }
     return grass
@@ -123,24 +120,6 @@ export default class World implements EGraphics {
   render(m: Movement) {
     this.container.x = m.x
     this.container.y = m.y
-
-    // if the container close to the edge of the screen, move it to the center of the screen
-    if (this.container.x > this.app.screen.width / 2) {
-      this.container.x = 0
-      m.x = 0
-    }
-    if (this.container.x < -this.app.screen.width / 2) {
-      this.container.x = 0
-      m.x = 0
-    }
-    if (this.container.y > this.app.screen.height / 2) {
-      this.container.y = 0
-      m.y = 0
-    }
-    if (this.container.y < -this.app.screen.height / 2) {
-      this.container.y = 0
-      m.y = 0
-    }
 
     this.animateGrass()
   }
