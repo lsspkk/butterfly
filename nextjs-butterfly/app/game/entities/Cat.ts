@@ -1,5 +1,6 @@
-import { Application, Container, Sprite, Assets, AnimatedSprite } from 'pixi.js'
+import { Container, Sprite, Assets, AnimatedSprite } from 'pixi.js'
 import { EGraphics, MAction, Movement } from '../components/CTypes'
+import World from './World'
 
 export type CatProps = {
   name: string
@@ -24,25 +25,28 @@ export default class Cat implements EGraphics {
   }
   baseScale: number
   timerId: number | NodeJS.Timeout
+  world: World
 
-  constructor(app: Application, props: CatProps) {
+  constructor(world: World, props: CatProps) {
     this.timerId = 0
-
+    this.world = world
     const { animations } = Assets.cache.get<CatAnimations>(`/sprites/cats/${props.animations}`).data
     this.sprites = { idle: this.readSprite(animations['idle']), walk: this.readSprite(animations['walk']) }
 
     this.activeAction = 'Idle'
     this.activeSprite = this.sprites.idle
-    this.view.x = app.screen.width / 2
-    this.view.y = app.screen.height / 2
-    this.baseScale = app.screen.width / 10 / this.activeSprite.width
-
+    this.view.width = world.width
+    this.view.height = world.height
+    this.view.x = world.screen.width / 2
+    this.view.y = world.screen.height / 2
+    this.baseScale = world.screen.width / 10 / this.activeSprite.width
+    if (this.baseScale > 1) this.baseScale = 1
     this.sprites.idle.scale.set(this.baseScale)
     //this.view.pivot.set(this.activeSprite.width / 2, this.activeSprite.height / 2)
     this.sprites.walk.scale.set(this.baseScale)
 
     this.view.addChild(this.activeSprite)
-    app.stage.addChild(this.view)
+    world.addChild(this.view)
   }
 
   readSprite(frames: string[]): AnimatedSprite {
@@ -68,5 +72,7 @@ export default class Cat implements EGraphics {
       this.view.addChild(this.activeSprite)
     }
     this.view.rotation = m.rotation
+    this.view.x = m.x + this.world.screen.width / 2
+    this.view.y = m.y + this.world.screen.height / 2
   }
 }

@@ -14,7 +14,7 @@ export default class Cloud implements EGraphics {
     this.count = 0
     this.app = app
     this.cloud = new Graphics(asset)
-    this.cloud.alpha = 0.9 + Math.random() * 0.2
+    this.cloud.alpha = 0.4 + Math.random() * 0.4
     this.x = x
     this.y = y
     this.scale = app.screen.width / 800 / 4

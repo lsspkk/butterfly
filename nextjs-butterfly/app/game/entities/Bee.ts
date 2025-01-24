@@ -1,4 +1,4 @@
-import { Graphics, GraphicsContext, Application, FillInput } from 'pixi.js'
+import { Graphics, GraphicsContext, FillInput } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 
@@ -9,7 +9,6 @@ export type BeeAssets = {
 }
 
 export default class Bee implements EGraphics {
-  app: Application
   bee: Graphics
   leftWing: Graphics
   rightWing: Graphics
@@ -23,9 +22,8 @@ export default class Bee implements EGraphics {
   y: number
   scale: number
 
-  constructor(app: Application, world: World, assets: BeeAssets, x: number, y: number) {
+  constructor(world: World, assets: BeeAssets, x: number, y: number) {
     this.count = 0
-    this.app = app
 
     // Create a graphics object to draw the bird
     this.bee = new Graphics(assets.body)
@@ -34,9 +32,9 @@ export default class Bee implements EGraphics {
     this.leftWing.alpha = 0.6
     this.rightWing.alpha = 0.6
 
-    this.x = x
-    this.y = y
-    this.scale = 0.2 + Math.random() * 0.1
+    this.x = x - this.bee.width / 2
+    this.y = y - this.bee.height / 2
+    this.scale = 0.1 + Math.random() * 0.1
 
     this.setPositions()
 
@@ -99,8 +97,6 @@ export default class Bee implements EGraphics {
   }
 
   render(m: Movement) {
-    this.x = m.x
-    this.y = m.y
     const { leftWing, rightWing, bee } = this
 
     if (bee.rotation !== m.rotation) {

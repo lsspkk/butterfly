@@ -1,44 +1,6 @@
 import * as PIXI from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
-
-function getRandomShadeOfGreen(): number {
-  // Generate random variations for green
-  const hue = Math.floor(Math.random() * 20 + 100) // Slightly varied green hue (100-120)
-  const saturation = Math.floor(Math.random() * 30 + 70) // High saturation (70-100)
-  const lightness = Math.floor(Math.random() * 20 + 40) // Moderate lightness (40-60)
-
-  // Convert HSL to RGB
-  const rgb = hslToRgb(hue / 360, saturation / 100, lightness / 100)
-
-  // Convert RGB to hexadecimal
-  return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]
-}
-
-// Helper function to convert HSL to RGB
-export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
-  let r: number, g: number, b: number
-
-  if (s === 0) {
-    r = g = b = l // Achromatic
-  } else {
-    const hue2rgb = (p: number, q: number, t: number): number => {
-      if (t < 0) t += 1
-      if (t > 1) t -= 1
-      if (t < 1 / 6) return p + (q - p) * 6 * t
-      if (t < 1 / 2) return q
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-      return p
-    }
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-    const p = 2 * l - q
-    r = hue2rgb(p, q, h + 1 / 3)
-    g = hue2rgb(p, q, h)
-    b = hue2rgb(p, q, h - 1 / 3)
-  }
-
-  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
-}
+import { randomColor } from '../helpers'
 
 export default class World implements EGraphics {
   app: PIXI.Application
@@ -47,10 +9,16 @@ export default class World implements EGraphics {
   count: number
   background: PIXI.Graphics
   edges: PIXI.Graphics
+  screen: PIXI.Rectangle
+  width: number
+  height: number
 
   constructor(app: PIXI.Application, height: number, width: number) {
     this.count = 0
     this.app = app
+    this.screen = app.screen
+    this.width = width
+    this.height = height
 
     this.container = new PIXI.Container()
 
@@ -59,7 +27,7 @@ export default class World implements EGraphics {
     this.edges = new PIXI.Graphics().rect(-ew, -eh, width + ew * 2, height + eh * 2).fill(0x113300)
     this.container.addChild(this.edges)
 
-    this.background = new PIXI.Graphics().rect(0, 0, width, height).fill(getRandomShadeOfGreen())
+    this.background = new PIXI.Graphics().rect(0, 0, width, height).fill(randomColor([100, 120], [70, 100], [40, 60]))
     this.container.addChild(this.background)
 
     this.container.height = height + eh * 2
@@ -113,7 +81,7 @@ export default class World implements EGraphics {
       const blade = new PIXI.Graphics()
       blade.rect(0, 0, 3, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
-      blade.fill(getRandomShadeOfGreen())
+      blade.fill(randomColor([100, 120], [70, 100], [40, 60]))
       blade.x = Math.random() * this.container.width
       blade.y = Math.random() * this.container.height
       grass.push(blade)

@@ -1,6 +1,17 @@
 import { CType } from '../components/CTypes'
 
-export type EntityType = 'Bee' | 'Butterfly' | 'Flower' | 'Cloud' | 'Raindrop' | 'Grass' | 'Pond' | 'River' | 'World' | 'Cat'
+export type EntityType =
+  | 'Bee'
+  | 'Butterfly'
+  | 'Flower'
+  | 'Cloud'
+  | 'Raindrop'
+  | 'Grass'
+  | 'Pond'
+  | 'River'
+  | 'World'
+  | 'Cat'
+  | 'Hud'
 
 export function getEType(id: string): EntityType {
   return id.split('_')[0] as EntityType
@@ -24,7 +35,15 @@ export class EManager {
     return this.entityMap.get(id)?.get(cType) as T | undefined
   }
 
+  getEntitiesByEType(eType: EntityType): string[] {
+    return Array.from(this.entityMap.entries())
+      .filter(([id]) => getEType(id) === eType)
+      ?.map(([id]) => id)
+  }
+
   getEntitiesByComponents(...components: CType[]) {
-    return Array.from(this.entityMap.entries()).filter(([, entityComponents]) => components.every((c) => entityComponents.has(c)))
+    return Array.from(this.entityMap.entries()).filter(([, entityComponents]) =>
+      components.every((c) => entityComponents.has(c))
+    )
   }
 }

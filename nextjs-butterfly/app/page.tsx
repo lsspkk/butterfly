@@ -27,7 +27,38 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   await PIXI.Assets.load(['/sprites/amiraaliperhonen.json', '/sprites/amiraaliperhonen.png'])
   await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
-  return { app, beeAssets, cloudAssets }
+  const flowerAssets = await loadFlowers()
+  const leafAssets = await loadLeaves()
+  console.debug(flowerAssets, leafAssets)
+
+  return { app, beeAssets, cloudAssets, flowerAssets, leafAssets }
+}
+
+export const flowers = [
+  'bluebell',
+  'chrysanthenum',
+  'cornflower',
+  'daffodil',
+  'dahlia',
+  'daisy',
+  'gerbera',
+  'hibiscus',
+  'magnolia',
+  'marigold',
+  'orchid',
+  'petunia',
+  'poppy',
+  'rose',
+  'sunflower',
+  'tulip',
+]
+export const leaves = ['oak_leaf', 'simple_rounded_leaf', 'heart_shaped_leaf']
+
+async function loadFlowers() {
+  return await Promise.all(flowers.map((flower) => loadSvg(`flowers/${flower}.svg`)))
+}
+async function loadLeaves() {
+  return await Promise.all(leaves.map((leaf) => loadSvg(`leaves/${leaf}.svg`)))
 }
 
 async function loadSvg(src: string) {
@@ -45,10 +76,10 @@ export default function Home() {
     let keyboard: undefined | KeyboardListener = undefined
 
     if (canvasRef.current) {
-      initPixiApp(canvasRef.current).then(({ app, beeAssets, cloudAssets }) => {
+      initPixiApp(canvasRef.current).then(({ app, beeAssets, cloudAssets, flowerAssets, leafAssets }) => {
         pixiApp = app
         keyboard = new KeyboardListener()
-        const level = new Level(app, beeAssets, cloudAssets)
+        const level = new Level(app, beeAssets, cloudAssets, flowerAssets, leafAssets)
         app.ticker.add(() => level.update())
       })
 

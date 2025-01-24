@@ -1,4 +1,4 @@
-import { Application, Container, AnimatedSprite, Assets } from 'pixi.js'
+import { Container, AnimatedSprite, Assets } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 
@@ -16,7 +16,7 @@ export default class Butterfly implements EGraphics {
   timerId: number | NodeJS.Timeout
   currentSpeedFactor: number
 
-  constructor(app: Application, world: World, x: number, y: number, animationFile: string) {
+  constructor(world: World, x: number, y: number, animationFile: string) {
     this.timerId = 0
     this.currentSpeedFactor = 3
 
@@ -27,8 +27,8 @@ export default class Butterfly implements EGraphics {
     this.sprite.anchor.set(0.5)
     this.view.x = x
     this.view.y = y
-    this.baseScale = app.screen.width / 10 / this.sprite.width
-    this.sprite.scale.set(this.baseScale)
+    this.baseScale = world.screen.width / 10 / this.sprite.width
+    this.sprite.scale.set((this.baseScale * Math.random()) / 2 + this.baseScale / 10)
     this.view.addChild(this.sprite)
     world.addChild(this.view)
   }
@@ -52,8 +52,11 @@ export default class Butterfly implements EGraphics {
       this.view.y -= s * Math.sin(angle)
     }
 
-    if (rotation < 0) this.view.rotation -= this.currentSpeedFactor / 40
-    if (rotation > 0) this.view.rotation += this.currentSpeedFactor / 40
+    this.view.rotation = rotation
+
+    // keyboardinput
+    //if (rotation < 0) this.view.rotation -= this.currentSpeedFactor / 40
+    //if (rotation > 0) this.view.rotation += this.currentSpeedFactor / 40
 
     let randomScale = this.baseScale / 10 + this.baseScale * 2 * Math.random()
     if (randomScale < 0.042) randomScale = 0.042
