@@ -47,12 +47,11 @@ export class Level {
     this.worldId = worldId
 
     const hudId = em.create('Hud')
-    hud = new Hud(app, 'Toivo')
+    hud = new Hud(app, 'The Cat')
     em.addComponent(hudId, 'Graphics', hud)
 
     const flowers = this.createFLowers(em, 10)
     const indexes = randomIndexArray(flowers.length)
-    const beeFlowerIndex = indexes.pop()!
 
     const butterflies: LevelButterFly[] = [
       { x: 500, y: 500, asset: 'sitruunaperhonen.json' },
@@ -62,15 +61,19 @@ export class Level {
 
     const catId = em.create('Cat')
     em.addComponent(catId, 'Movement', new Movement(0, 0, 1))
-    em.addComponent(catId, 'Graphics', new Cat(this.world, { name: 'Toivo', animations: 'cat1.json' }))
+    em.addComponent(catId, 'Graphics', new Cat(this.world, { name: 'The Cat', animations: 'cat1.json' }))
 
-    const beeId = em.create('Bee')
-    const beeXY = getFlowerRandomXY(flowers[beeFlowerIndex], em)
-    // hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
+    // 3 bees
+    for (let i = 0; i < 3; i++) {
+      const beeId = em.create('Bee')
+      const flowerId = flowers[indexes.pop()!]
+      const beeXY = getFlowerRandomXY(flowerId, em)
+      // hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
 
-    em.addComponent(beeId, 'Movement', new Movement(beeXY.x, beeXY.y, 1, 0))
-    em.addComponent(beeId, 'Graphics', new Bee(this.world, beeAssets, beeXY.x, beeXY.y))
-    em.addComponent(beeId, 'Animation', new BeeAnimation())
+      em.addComponent(beeId, 'Movement', new Movement(beeXY.x, beeXY.y, 1, 0, 2))
+      em.addComponent(beeId, 'Graphics', new Bee(this.world, beeAssets, beeXY.x, beeXY.y))
+      em.addComponent(beeId, 'Animation', new BeeAnimation())
+    }
 
     for (const b of butterflies) {
       const flowerId = flowers[indexes.pop()!]

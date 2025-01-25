@@ -30,7 +30,8 @@ export class Movement {
     public rotation: number = 0,
     public acceleration: number = 0,
     public maxSpeed: number = 10,
-    public action: MAction = 'Idle'
+    public action: MAction = 'Idle',
+    public detectDistance: number = 500
   ) {}
 }
 

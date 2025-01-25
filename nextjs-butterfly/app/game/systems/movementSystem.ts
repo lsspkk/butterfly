@@ -4,6 +4,7 @@ import { EManager, getEType } from '../entities/EManager'
 import { keyMap } from './KeyboardListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
+import { audioEngine } from './AudioSystem'
 
 export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
@@ -62,13 +63,45 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
 const beeTargets = new Map<string, Movement>()
 
+let catDetectedCounter = 0
+let catAttackedCounter = 0
+
 function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
   if (cat) {
-    const catx = cat.x + screen.width / 2
-    const caty = cat.y + screen.height / 2
+    const catx = cat?.x + screen.width / 2
+    const caty = cat?.y + screen.height / 2
     const a = Math.atan2(caty - m.y, catx - m.x) + Math.PI / 2
     m.rotation = a
 
+    // if cat is close to the bee and set movement speed to 2
+    const dx = catx - m.x
+    const dy = caty - m.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+    if (distance < m.detectDistance) {
+      catDetectedCounter = 100 + Math.round(Math.random() * 100)
+    }
+    if (catDetectedCounter > 0) {
+      m.speed = 2 + Math.random() * 0.5
+      catDetectedCounter--
+      hud?.setMessage(`Bee attack: ${catDetectedCounter}`)
+    } else {
+      m.speed = 0
+    }
+    if (catDetectedCounter === 1) {
+      hud?.setMessage(``)
+    }
+
+    if (distance < 100 && catAttackedCounter === 0) {
+      catAttackedCounter = 1000
+      audioEngine?.playSound('cat_hurts')
+    }
+    if (catAttackedCounter > 0) {
+      catAttackedCounter--
+      hud?.setMessage(`Cat attacked: ${catAttackedCounter}`)
+    }
+
+    m.x += Math.sin(m.rotation) * m.speed
+    m.y -= Math.cos(m.rotation) * m.speed
     //    hud?.setMessage(`targetAngle: ${((a * 180) / Math.PI).toFixed(2)}, cat: ${cat.x}, ${cat.y}, bee: ${m.x.toFixed()}, ${m.y.toFixed()}`)
 
     return
@@ -189,7 +222,7 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   } else {
     m.action = 'Idle'
   }
-  const { ArrowLeft: a, ArrowUp: w, ArrowDown: d, ArrowRight: s } = keyMap
+  const { ArrowLeft: a, ArrowUp: w, ArrowRight: d, ArrowDown: s } = keyMap
   if (a && s) m.rotation = (Math.PI / 4) * 5
   else if (a && w) m.rotation = (Math.PI / 4) * 7
   else if (w && d) m.rotation = (Math.PI / 4) * 1

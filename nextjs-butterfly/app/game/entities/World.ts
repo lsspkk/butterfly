@@ -82,14 +82,15 @@ export default class World implements EGraphics {
 
   createGrass() {
     const grass = []
+    const { width: ew, height: eh } = this.screen
 
     for (let i = 0; i < 3000; i++) {
       const blade = new PIXI.Graphics()
       blade.rect(0, 0, 3, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
       blade.fill(randomColor([100, 120], [70, 100], [40, 60]))
-      blade.x = Math.random() * this.container.width
-      blade.y = Math.random() * this.container.height
+      blade.x = Math.random() * (this.container.width - ew * 2)
+      blade.y = Math.random() * (this.container.height - eh * 2)
       grass.push(blade)
     }
     return grass

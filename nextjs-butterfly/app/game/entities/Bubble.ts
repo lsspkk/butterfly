@@ -25,10 +25,10 @@ export default class Bubble implements EGraphics {
     this.sprites = { edge: load(bType, '1'), light: load(bType, '2') }
     this.sprites.edge.x = owner.x
     this.sprites.edge.y = owner.y
-    this.sprites.edge.alpha = 0.7
+    this.sprites.edge.alpha = 0.9
     this.sprites.light.x = owner.x
     this.sprites.light.y = owner.y
-    this.sprites.light.alpha = 0.6
+    this.sprites.light.alpha = 0.8
 
     this.sprites.edge.scale = HEIGHT / this.sprites.edge.height
     this.sprites.light.scale = HEIGHT / this.sprites.light.height

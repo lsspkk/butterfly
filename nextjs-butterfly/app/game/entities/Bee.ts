@@ -47,7 +47,7 @@ export default class Bee implements EGraphics {
     this.wingFlapAngle = 0
     //this.debugPoints(world)
     //world.add(cross({ x, y }, 0x00ffff))
-    world.add(cross({ x: this.bee.x, y: this.bee.y }, 0x00aaff))
+    //world.add(cross({ x: this.bee.x, y: this.bee.y }, 0x00aaff))
     //    world.add(new Graphics().rect(this.bee.bounds.x, this.bee.bounds.y, this.bee.bounds.width, this.bee.bounds.height).fill(0xff0000))
   }
 
@@ -92,9 +92,9 @@ export default class Bee implements EGraphics {
 
   render(m: Movement) {
     const { leftWing, rightWing, bee } = this
-    if (bee.x !== m.x || bee.y !== m.y) {
-      this.world.add(cross(this.bee, 0xffccaa))
-    }
+
+    this.x = m.x
+    this.y = m.y
 
     bee.rotation = m.rotation
     leftWing.rotation = m.rotation
