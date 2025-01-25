@@ -16,6 +16,7 @@ export type CType =
   | 'Dialog'
   | 'Goal'
   | 'Story'
+  | 'Prison'
 
 export type MAction = 'Idle' | 'Walk' | 'Run' | 'Jump' | 'Win' | 'Lose' | 'Transform' | 'Fly'
 
@@ -30,6 +31,16 @@ export class Movement {
     public acceleration: number = 0,
     public maxSpeed: number = 10,
     public action: MAction = 'Idle'
+  ) {}
+}
+
+export class Prison {
+  constructor(
+    public deltaMS: number,
+    public strength: number = 10,
+    public locked: boolean = true,
+    public lockChangeTime: number = Math.random() * 1000,
+    public lockDuration: number = 10
   ) {}
 }
 

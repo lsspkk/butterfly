@@ -1,6 +1,7 @@
-import { Graphics, GraphicsContext, FillInput } from 'pixi.js'
+import { Graphics, GraphicsContext } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
+import { cross } from '../helpers'
 
 export type BeeAssets = {
   body: GraphicsContext
@@ -16,11 +17,10 @@ export default class Bee implements EGraphics {
   wingFlapAngle: number
   count: number
 
-  points: Graphics = new Graphics()
-
   x: number
   y: number
   scale: number
+  world: World
 
   constructor(world: World, assets: BeeAssets, x: number, y: number) {
     this.count = 0
@@ -32,11 +32,12 @@ export default class Bee implements EGraphics {
     this.leftWing.alpha = 0.6
     this.rightWing.alpha = 0.6
 
-    this.x = x - this.bee.width / 2
-    this.y = y - this.bee.height / 2
+    this.x = x
+    this.y = y
     this.scale = 0.1 + Math.random() * 0.1
 
     this.setPositions()
+    this.world = world
 
     world.addChild(this.bee)
     world.addChild(this.leftWing)
@@ -44,28 +45,21 @@ export default class Bee implements EGraphics {
 
     this.wingFlapSpeed = 0.1 // Speed of wing flapping
     this.wingFlapAngle = 0
-    //    this.debugPoints();
-    world.addChild(this.points)
+    //this.debugPoints(world)
+    //world.add(cross({ x, y }, 0x00ffff))
+    world.add(cross({ x: this.bee.x, y: this.bee.y }, 0x00aaff))
+    //    world.add(new Graphics().rect(this.bee.bounds.x, this.bee.bounds.y, this.bee.bounds.width, this.bee.bounds.height).fill(0xff0000))
   }
 
-  debugPoints() {
-    const { leftWing, rightWing, bee, cross } = this
-    cross(leftWing.pivot, 0xff0000)
-    cross(leftWing, 0xffaaaa)
-    cross(rightWing.pivot, 0xaa0000)
-    cross(rightWing, 0xffffff)
+  debugPoints(world: World) {
+    const { leftWing, rightWing, bee } = this
+    world.add(cross(leftWing.pivot, 0xff0000))
+    world.add(cross(leftWing, 0xffaaaa))
+    world.add(cross(rightWing.pivot, 0xaa0000))
+    world.add(cross(rightWing, 0xffffff))
 
-    cross(bee, 0xbbbbff)
-    cross(bee.pivot, 0xaaaaff)
-  }
-
-  cross({ x, y }: { x: number; y: number }, c: FillInput) {
-    const p = this.points
-    p.setStrokeStyle({ color: 0xff0000, width: 2 })
-    p.fill(c)
-
-    p.rect(x - 10, y - 1, 20, 2)
-    p.rect(x - 1, y - 10, 2, 20)
+    world.add(cross(bee, 0xbbbbff))
+    world.add(cross(bee.pivot, 0xaaaaff))
   }
 
   setPositions() {
@@ -98,10 +92,10 @@ export default class Bee implements EGraphics {
 
   render(m: Movement) {
     const { leftWing, rightWing, bee } = this
-
-    if (bee.rotation !== m.rotation) {
-      this.points.clear()
+    if (bee.x !== m.x || bee.y !== m.y) {
+      this.world.add(cross(this.bee, 0xffccaa))
     }
+
     bee.rotation = m.rotation
     leftWing.rotation = m.rotation
     rightWing.rotation = -m.rotation

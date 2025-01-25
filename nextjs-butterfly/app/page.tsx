@@ -1,11 +1,13 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import * as PIXI from 'pixi.js'
-import KeyboardListener from './game/systems/KeyboardListener'
+import KeyboardListener, { TouchListener } from './game/systems/KeyboardListener'
 import { Level } from './game/worlds/Level'
+import { flowerNames, leafNames } from './game/entities/Bush'
 
 // initialize the pixi application
 // and make a full screen view
+
 async function initPixiApp(canvas: HTMLCanvasElement) {
   const app = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>()
   await app.init({
@@ -27,38 +29,23 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   await PIXI.Assets.load(['/sprites/amiraaliperhonen.json', '/sprites/amiraaliperhonen.png'])
   await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
+  await loadBubbles()
+
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
-  console.debug(flowerAssets, leafAssets)
 
   return { app, beeAssets, cloudAssets, flowerAssets, leafAssets }
 }
 
-export const flowers = [
-  'bluebell',
-  'chrysanthenum',
-  'cornflower',
-  'daffodil',
-  'dahlia',
-  'daisy',
-  'gerbera',
-  'hibiscus',
-  'magnolia',
-  'marigold',
-  'orchid',
-  'petunia',
-  'poppy',
-  'rose',
-  'sunflower',
-  'tulip',
-]
-export const leaves = ['oak_leaf', 'simple_rounded_leaf', 'heart_shaped_leaf']
-
 async function loadFlowers() {
-  return await Promise.all(flowers.map((flower) => loadSvg(`flowers/${flower}.svg`)))
+  return await Promise.all(flowerNames.map((flower) => loadSvg(`flowers/${flower}.svg`)))
 }
 async function loadLeaves() {
-  return await Promise.all(leaves.map((leaf) => loadSvg(`leaves/${leaf}.svg`)))
+  return await Promise.all(leafNames.map((leaf) => loadSvg(`leaves/${leaf}.svg`)))
+}
+const bubblePngs = ['bubbleA1.png', 'bubbleA2.png', 'bubbleB1.png', 'bubbleB2.png']
+async function loadBubbles() {
+  return await Promise.all(bubblePngs.map((bubble) => PIXI.Assets.load(`/bubbles/${bubble}`)))
 }
 
 async function loadSvg(src: string) {
@@ -74,17 +61,20 @@ export default function Home() {
   useEffect(() => {
     let pixiApp: undefined | PIXI.Application = undefined
     let keyboard: undefined | KeyboardListener = undefined
+    let touch: undefined | TouchListener = undefined
 
     if (canvasRef.current) {
       initPixiApp(canvasRef.current).then(({ app, beeAssets, cloudAssets, flowerAssets, leafAssets }) => {
         pixiApp = app
         keyboard = new KeyboardListener()
+        touch = new TouchListener()
         const level = new Level(app, beeAssets, cloudAssets, flowerAssets, leafAssets)
         app.ticker.add(() => level.update())
       })
 
       return () => {
         keyboard?.destroy()
+        touch?.destroy()
         pixiApp?.destroy(true, { children: true, texture: true })
       }
     }

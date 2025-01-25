@@ -1,3 +1,4 @@
+import { Graphics } from 'pixi.js'
 import Bush from './entities/Bush'
 import { EManager } from './entities/EManager'
 
@@ -51,4 +52,8 @@ export function getFlowerRandomXY(flowerId: string, em: EManager): { x: number; 
 
   console.debug({ b })
   return b.getRandomXY()
+}
+
+export function cross({ x, y }: { x: number; y: number }, c = 0xff0000): Graphics {
+  return new Graphics({ x, y }).rect(-20, -5, 40, 10).fill(c).rect(-5, -20, 10, 40).fill(c)
 }
