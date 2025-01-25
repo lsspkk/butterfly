@@ -66,7 +66,7 @@ export class Level {
 
     const beeId = em.create('Bee')
     const beeXY = getFlowerRandomXY(flowers[beeFlowerIndex], em)
-    hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
+    // hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
 
     em.addComponent(beeId, 'Movement', new Movement(beeXY.x, beeXY.y, 1, 0))
     em.addComponent(beeId, 'Graphics', new Bee(this.world, beeAssets, beeXY.x, beeXY.y))

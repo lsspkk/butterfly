@@ -68,7 +68,8 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
     const caty = cat.y + screen.height / 2
     const a = Math.atan2(caty - m.y, catx - m.x) + Math.PI / 2
     m.rotation = a
-    hud?.setMessage(`targetAngle: ${((a * 180) / Math.PI).toFixed(2)}, cat: ${cat.x}, ${cat.y}, bee: ${m.x.toFixed()}, ${m.y.toFixed()}`)
+
+    //    hud?.setMessage(`targetAngle: ${((a * 180) / Math.PI).toFixed(2)}, cat: ${cat.x}, ${cat.y}, bee: ${m.x.toFixed()}, ${m.y.toFixed()}`)
 
     return
   }
@@ -132,7 +133,7 @@ function flyBee(m: Movement, cat?: Movement): Movement {
   if (cat) {
     targetAngle = Math.atan2(cat.y - m.y, cat.x - m.x)
   }
-  hud?.setMessage(`targetAngle: ${((targetAngle * 180) / Math.PI).toFixed(2)}`)
+  //? hud?.setMessage(`targetAngle: ${((targetAngle * 180) / Math.PI).toFixed(2)}`)
   const target = new Movement(m.x, m.y, 0, targetAngle)
   target.rotation = m.rotation
   return target
@@ -188,7 +189,7 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   } else {
     m.action = 'Idle'
   }
-  const { a, w, d, s } = keyMap
+  const { ArrowLeft: a, ArrowUp: w, ArrowDown: d, ArrowRight: s } = keyMap
   if (a && s) m.rotation = (Math.PI / 4) * 5
   else if (a && w) m.rotation = (Math.PI / 4) * 7
   else if (w && d) m.rotation = (Math.PI / 4) * 1
@@ -198,5 +199,5 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   else if (d) m.rotation = (Math.PI / 4) * 2
   else if (s) m.rotation = (Math.PI / 4) * 4
 
-  //hud?.setPos(m.x, m.y)
+  hud?.setPos(m.x, m.y)
 }

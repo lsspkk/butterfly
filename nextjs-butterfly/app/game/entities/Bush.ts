@@ -2,7 +2,6 @@ import { Container, Graphics, GraphicsContext } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 import { randomColor } from '../helpers'
-import { hud } from '../worlds/Level'
 
 export const HEIGHT = 100
 export const WIDTH = 100
@@ -30,8 +29,6 @@ export default class Bush implements EGraphics {
 
     this.flowers = this.createBush(flowerAssets, leafAssets)
     this.flowers.forEach((blade) => this.container.addChild(blade))
-
-    hud?.setPosMessage(`x: ${x.toFixed()}, y: ${y.toFixed()}, x: ${this.container.x.toFixed()}, y: ${this.container.y.toFixed()}`)
   }
 
   randomXY(graphics: Graphics) {
