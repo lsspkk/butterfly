@@ -83,8 +83,11 @@ export default function Home() {
     let keyboard: undefined | KeyboardListener = undefined
     let touch: undefined | TouchListener = undefined
     keyboard = new KeyboardListener()
-    touch = new TouchListener()
 
+    if (Math.random() > 1) {
+      // FIXME: This is a bug
+      touch = new TouchListener()
+    }
     loadApp()
 
     return () => {
