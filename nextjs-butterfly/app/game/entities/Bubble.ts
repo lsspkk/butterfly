@@ -1,26 +1,50 @@
-import { Container, Sprite } from 'pixi.js'
+import { AnimatedSprite, Assets, Container, Sprite } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 import { HEIGHT } from './Bush'
+import { audioEngine } from '../systems/AudioSystem'
+import { gameState, updateGameState } from '../systems/movementSystem'
 
 export type BubbleType = 'A' | 'B'
 
+export type AngleTwister = {
+  targetAngle: number
+  currentAngle: number
+  turnSpeed: number
+  idleMin: number
+  idleMax: number
+  isIdle: boolean
+  timerId?: number | NodeJS.Timeout
+}
+
+export type PopAnimations = {
+  data: {
+    animations: {
+      pop: string[]
+    }
+  }
+}
 export default class Bubble implements EGraphics {
   view: Container = new Container()
   sprites: {
     edge: Sprite
     light: Sprite
   }
-  target: number
-  rotation: number
-  timerId: number | NodeJS.Timeout
+  pops: {
+    edge: AnimatedSprite
+    light: AnimatedSprite
+  }
+  popped: boolean
+  edgeTwist: AngleTwister
+  lightTwist: AngleTwister
+
   moving: boolean
   world: World
   action?: string
 
   constructor(world: World, bType: BubbleType, owner: Movement) {
-    this.timerId = 0
     this.world = world
+    this.popped = false
 
     this.sprites = { edge: load(bType, '1'), light: load(bType, '2') }
     this.sprites.edge.x = owner.x
@@ -30,17 +54,57 @@ export default class Bubble implements EGraphics {
     this.sprites.light.y = owner.y
     this.sprites.light.alpha = 0.8
 
-    this.sprites.edge.scale = HEIGHT / this.sprites.edge.height
-    this.sprites.light.scale = HEIGHT / this.sprites.light.height
+    scale(this.sprites.edge)
+    scale(this.sprites.light)
 
-    this.target = Math.random() * 2 * Math.PI
-    this.rotation = Math.random() * 2 * Math.PI
-    this.sprites.edge.rotation = this.rotation
+    this.edgeTwist = { targetAngle: bigTwist(), currentAngle: Math.random() * 2 * Math.PI, turnSpeed: 0.01, idleMin: 500, idleMax: 3000, isIdle: true }
+    this.lightTwist = { targetAngle: smallTwist(), currentAngle: 0, turnSpeed: 0.005, idleMin: 50, idleMax: 300, isIdle: true }
+
     this.moving = false
-    this.timerId = setInterval(() => (this.moving = !this.moving), Math.random() * 3000 + 3000)
+    setTwistTimer(this.edgeTwist)
+    setTwistTimer(this.lightTwist)
+
+    this.pops = {
+      edge: this.loadPop(bType + '1', owner),
+      light: this.loadPop(bType + '2', owner),
+    }
 
     world.addChild(this.sprites.edge)
     world.addChild(this.sprites.light)
+  }
+
+  loadPop(name: string, owner: Movement) {
+    const { animations } = Assets.cache.get<PopAnimations>(`/bubbles/pop${name}_sprites.json`).data
+    console.debug(animations)
+    const s = AnimatedSprite.fromFrames(animations['pop'])
+    s.animationSpeed = 1 / (24 + Math.random() * 24)
+    s.loop = false
+    s.rotation = Math.random() * 2 * Math.PI
+    s.anchor.set(0.5)
+    s.x = owner.x
+    s.y = owner.y
+    s.scale = this.sprites.edge.scale
+    return s
+  }
+
+  pop() {
+    const { edge, light } = this.pops
+    if (this.popped) return
+    this.world.addChild(edge)
+    this.world.addChild(light)
+    edge.play()
+    light.play()
+    audioEngine?.playSound('pop')
+    updateGameState({ score: gameState.score + 1, inPrison: gameState.inPrison - 1 })
+
+    this.world.removeChild(this.sprites.edge)
+    this.world.removeChild(this.sprites.light)
+    this.popped = true
+
+    setTimeout(() => {
+      this.world.removeChild(edge)
+      this.world.removeChild(light)
+    }, 1000)
   }
 
   setLocked(locked: boolean) {
@@ -49,16 +113,42 @@ export default class Bubble implements EGraphics {
   }
 
   render(m: Movement) {
+    // wiggle the outer bubble location a bit, base is owner
+    wiggle(this.sprites.edge, m, 0.1)
+    wiggle(this.sprites.light, m, 0.05)
+
     this.action = m.action
-    if (!this.moving) return
-    if (this.rotation < this.target) this.rotation += 0.01
-    if (this.rotation > this.target) this.rotation -= 0.01
-    if (Math.abs(this.rotation - this.target) < 0.01) {
-      this.target = Math.random() * 2 * Math.PI
-      this.moving = false
-      this.timerId = setInterval(() => (this.moving = !this.moving), Math.random() * 3000 + 3000)
-    }
-    this.sprites.edge.rotation = this.rotation
+
+    updateTwist(this.edgeTwist, this.sprites.edge, bigTwist)
+    updateTwist(this.lightTwist, this.sprites.light, smallTwist)
+  }
+}
+function scale(s: Sprite) {
+  s.scale.set(HEIGHT / s.width)
+}
+
+function smallTwist(): number {
+  return (Math.random() * Math.PI) / 4 - Math.PI / 8
+}
+function bigTwist(): number {
+  return Math.random() * Math.PI * 2 - Math.PI
+}
+function setTwistTimer(twist: AngleTwister) {
+  twist.timerId = setInterval(() => (twist.isIdle = !twist.isIdle), Math.random() * (twist.idleMax - twist.idleMin) + twist.idleMin)
+}
+
+function updateTwist(twist: AngleTwister, s: Sprite, newTwist: () => number) {
+  if (twist.isIdle) {
+    return
+  }
+  if (twist.currentAngle < twist.targetAngle) twist.currentAngle += twist.turnSpeed
+  if (twist.currentAngle > twist.targetAngle) twist.currentAngle -= twist.turnSpeed
+  s.rotation = twist.currentAngle
+
+  if (Math.abs(twist.currentAngle - twist.targetAngle) < twist.turnSpeed) {
+    twist.targetAngle = twist.currentAngle + newTwist()
+    twist.isIdle = true
+    setTwistTimer(twist)
   }
 }
 
@@ -67,4 +157,10 @@ function load(bType: BubbleType, suffix: string) {
   s.pivot.set(s.width / 2, s.height / 2)
   s.scale.set(HEIGHT / (s.height - 40) / 2)
   return s
+}
+
+function wiggle(s: Sprite, m: Movement, factor: number) {
+  if (Math.random() < 0.1) return
+  s.x = m.x + Math.sin(Math.random() * 2 * Math.PI) * 10 * factor
+  s.y = m.y + Math.cos(Math.random() * 2 * Math.PI) * 10 * factor
 }

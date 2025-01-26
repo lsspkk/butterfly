@@ -41,6 +41,9 @@ export default class World implements EGraphics {
   addChild(child: PIXI.Container) {
     this.container.addChild(child)
   }
+  removeChild(child: PIXI.Container) {
+    this.container.removeChild(child)
+  }
 
   add(child: PIXI.Container) {
     child.x = this.app.screen.width + child.x

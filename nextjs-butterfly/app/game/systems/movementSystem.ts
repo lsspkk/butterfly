@@ -5,11 +5,50 @@ import { keyMap } from './KeyboardListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
+import { Dispatch, SetStateAction } from 'react'
+import { DialogState } from '@/app/page'
+
+export type GameState = {
+  score: number
+  level: number
+  lives: number
+  paused: boolean
+  musicOn?: boolean
+  soundOn?: boolean
+  inPrison: number
+  useMobileControls?: boolean
+  showDialog?: boolean
+  dialogState?: DialogState
+  setDialogState?: Dispatch<SetStateAction<DialogState>>
+}
+
+export const gameState: GameState = {
+  score: 0,
+  level: 1,
+  lives: 3,
+  paused: false,
+  inPrison: 100,
+  dialogState: 'start',
+}
+
+export function updateGameState(newState: Partial<GameState>) {
+  Object.assign(gameState, newState)
+}
 
 export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
   const catId = em.getEntitiesByEType('Cat')?.[0]
   const cat = catId ? em.getComponent<Movement>(catId, 'Movement') : undefined
+
+  if (gameState.paused) {
+    return
+  }
+  if (gameState.inPrison === 0) {
+    gameState.showDialog = true
+    gameState.dialogState = 'level'
+    gameState.paused = true
+    return
+  }
 
   const cm = em.getComponent<Movement>(catId, 'Movement')
   if (cm) {
@@ -53,11 +92,23 @@ export function movementSystem(em: EManager, width: number, height: number, scre
           bubble?.setLocked(prison.locked)
         }
       }
+      if (cat && bubble) popBubble(m, bubble, cat, screen)
       bubble?.render(m)
       continue
     }
 
     em.getComponent<EGraphics>(id, 'Graphics')?.render(m)
+  }
+}
+
+const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle) => {
+  const catx = cat?.x + screen.width / 2
+  const caty = cat?.y + screen.height / 2
+  const dx = catx - m.x
+  const dy = caty - m.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+  if (distance < 150) {
+    bubble.pop()
   }
 }
 
@@ -78,6 +129,10 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
     const dy = caty - m.y
     const distance = Math.sqrt(dx * dx + dy * dy)
     if (distance < m.detectDistance) {
+      if (catDetectedCounter < 10) {
+        audioEngine?.playSound('buzz', 0)
+      }
+
       catDetectedCounter = 100 + Math.round(Math.random() * 100)
     }
     if (catDetectedCounter > 0) {
@@ -92,8 +147,9 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
     }
 
     if (distance < 100 && catAttackedCounter === 0) {
-      catAttackedCounter = 1000
-      audioEngine?.playSound('cat_hurts')
+      catAttackedCounter = 2000
+      audioEngine?.playSound('sting', 2)
+      setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
     }
     if (catAttackedCounter > 0) {
       catAttackedCounter--

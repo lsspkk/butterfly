@@ -2,9 +2,9 @@ import os
 import json
 from PIL import Image
 
-def create_spritesheet():
+def create_spritesheet(input_image_path='.'):
     # Get all PNG files in the current folder
-    images = [f for f in os.listdir('.') if f.endswith('.png')]
+    images = [f for f in os.listdir(input_image_path) if f.endswith('.png')]
     images.sort()  # Sort files alphabetically
 
     if not images:
@@ -12,7 +12,7 @@ def create_spritesheet():
         return
 
     # Open images and calculate the total height and max width
-    opened_images = [Image.open(img) for img in images]
+    opened_images = [Image.open(input_image_path+'/'+img) for img in images]
     total_height = sum(img.height for img in opened_images)
     max_width = max(img.width for img in opened_images)
 
@@ -34,7 +34,7 @@ def create_spritesheet():
         y_offset += img.height
 
     # Save the spritesheet image
-    spritesheet_filename = "spritesheet.png"
+    spritesheet_filename = input_image_path+".png"
     spritesheet.save(spritesheet_filename)
 
     # Create the spritesheet metadata
@@ -44,7 +44,7 @@ def create_spritesheet():
         "meta": {
             "app": "https://chatgpt.com/",
             "version": "4",
-            "images": spritesheet_filename,
+            "image": spritesheet_filename,
             "format": "RGBA8888",
             "size": {"w": max_width, "h": total_height},
             "scale": "1"
@@ -52,7 +52,7 @@ def create_spritesheet():
     }
 
     # Save the JSON metadata
-    json_filename = "spritesheet.json"
+    json_filename = input_image_path+"_sprites.json"
     with open(json_filename, 'w') as json_file:
         json.dump(spritesheet_data, json_file, indent=4)
 
@@ -60,4 +60,11 @@ def create_spritesheet():
     print(f"Metadata saved as {json_filename}")
 
 if __name__ == "__main__":
-    create_spritesheet()
+    import sys, os
+
+    if len(sys.argv) != 2:
+        print(f"Usage: python {os.path.basename(__file__)} <input_image_path> ")
+        sys.exit(1)
+
+    input_image_path = sys.argv[1]
+    create_spritesheet(input_image_path)

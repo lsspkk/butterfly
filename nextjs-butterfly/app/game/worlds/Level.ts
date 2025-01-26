@@ -1,8 +1,8 @@
 import { EManager } from '../entities/EManager'
 import { Rectangle, Application, GraphicsContext, Ticker } from 'pixi.js'
 import { BeeAnimation, Movement, Prison } from '../components/CTypes'
-import Bee, { BeeAssets } from '../entities/Bee'
-import { movementSystem } from '../systems/movementSystem'
+import Bee from '../entities/Bee'
+import { gameState, movementSystem, updateGameState } from '../systems/movementSystem'
 import World from '../entities/World'
 import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
@@ -11,6 +11,8 @@ import Bush from '../entities/Bush'
 import Hud from '../entities/Hud'
 import { getFlowerRandomXY, randomIndexArray } from '../helpers'
 import Bubble from '../entities/Bubble'
+import { AllAssets } from '@/app/page'
+import { audioEngine } from '../systems/AudioSystem'
 
 export let hud: Hud | undefined = undefined
 export type LevelButterFly = {
@@ -19,6 +21,13 @@ export type LevelButterFly = {
   asset: string
   id?: string
 }
+export type LevelSettings = {
+  level: number
+  bees: number
+  flowers: number
+  butterflies: number
+}
+
 export class Level {
   em = new EManager()
   worldId?: string
@@ -27,14 +36,7 @@ export class Level {
   width: number
   screen: Rectangle
 
-  constructor(
-    public app: Application,
-    //    public npcs: EntityType, later, also need positions, assets, etc.
-    private readonly beeAssets: BeeAssets,
-    private readonly cloudAssets: GraphicsContext[],
-    private readonly flowerAssets: GraphicsContext[],
-    private readonly leafAssets: GraphicsContext[]
-  ) {
+  constructor(public app: Application, public assets: AllAssets, public settings: LevelSettings) {
     this.height = app.screen.height * 2
     this.width = app.screen.width * 2
     this.screen = app.screen
@@ -50,28 +52,24 @@ export class Level {
     hud = new Hud(app, 'The Cat')
     em.addComponent(hudId, 'Graphics', hud)
 
-    const flowers = this.createFLowers(em, 10)
+    const flowers = this.createFLowers(em, settings.flowers)
     const indexes = randomIndexArray(flowers.length)
 
-    const butterflies: LevelButterFly[] = [
-      { x: 500, y: 500, asset: 'sitruunaperhonen.json' },
-      { x: 500, y: 200, asset: 'ohdakeperhonen.json' },
-      { x: 200, y: 500, asset: 'amiraaliperhonen.json' },
-    ]
+    const butterflies: LevelButterFly[] = createRandomButterflies(settings.butterflies)
+    updateGameState({ inPrison: butterflies.length })
 
     const catId = em.create('Cat')
     em.addComponent(catId, 'Movement', new Movement(0, 0, 1))
     em.addComponent(catId, 'Graphics', new Cat(this.world, { name: 'The Cat', animations: 'cat1.json' }))
 
-    // 3 bees
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < settings.bees; i++) {
       const beeId = em.create('Bee')
       const flowerId = flowers[indexes.pop()!]
       const beeXY = getFlowerRandomXY(flowerId, em)
       // hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
 
       em.addComponent(beeId, 'Movement', new Movement(beeXY.x, beeXY.y, 1, 0, 2))
-      em.addComponent(beeId, 'Graphics', new Bee(this.world, beeAssets, beeXY.x, beeXY.y))
+      em.addComponent(beeId, 'Graphics', new Bee(this.world, assets.beeAssets, beeXY.x, beeXY.y))
       em.addComponent(beeId, 'Animation', new BeeAnimation())
     }
 
@@ -93,7 +91,7 @@ export class Level {
       em.addComponent(bid, 'Prison', new Prison(Ticker.shared.deltaMS))
     }
 
-    this.createClouds(em, 3, cloudAssets)
+    this.createClouds(em, 3, assets.cloudAssets)
   }
 
   createFLowers(em: EManager, count: number) {
@@ -103,7 +101,7 @@ export class Level {
       const x = Math.random() * (this.world.width - 200) + 100
       const y = Math.random() * (this.world.height - 200) + 100
       em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.flowerAssets, this.leafAssets))
+      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets))
       flowers.push(flowerId)
     }
     return flowers
@@ -140,5 +138,33 @@ export class Level {
 
   public update() {
     movementSystem(this.em, this.width, this.height, this.screen)
+
+    const { showDialog, dialogState, setDialogState } = gameState
+    if (!showDialog || !dialogState || !setDialogState) {
+      return
+    }
+
+    setDialogState(dialogState)
+    audioEngine?.silence()
+
+    // remove all children from the stage
+    this.app.stage.removeChildren()
+    this.world.container.removeChildren()
+    hud?.container.removeChildren()
+    hud = undefined
   }
+}
+
+const createRandomButterflies = (count: number): LevelButterFly[] => {
+  const selection: LevelButterFly[] = [
+    { x: 500, y: 500, asset: 'sitruunaperhonen.json' },
+    { x: 500, y: 200, asset: 'ohdakeperhonen.json' },
+    { x: 200, y: 500, asset: 'amiraaliperhonen.json' },
+  ]
+  const butterflies = []
+  for (let i = 0; i < count; i++) {
+    const index = Math.floor(Math.random() * selection.length)
+    butterflies.push(selection[index])
+  }
+  return butterflies
 }

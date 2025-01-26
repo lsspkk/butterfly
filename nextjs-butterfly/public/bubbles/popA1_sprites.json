@@ -1,0 +1,139 @@
+{
+    "frames": {
+        "01_break.png": {
+            "frame": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "02_break.png": {
+            "frame": {
+                "x": 0, "y": 150, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "03_break.png": {
+            "frame": {
+                "x": 0, "y": 300, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "04_break.png": {
+            "frame": {
+                "x": 0, "y": 450, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "05_break.png": {
+            "frame": {
+                "x": 0, "y": 600, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "06_break.png": {
+            "frame": {
+                "x": 0, "y": 750, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "07_break.png": {
+            "frame": {
+                "x": 0, "y": 900, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "08_break.png": {
+            "frame": {
+                "x": 0, "y": 1050, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "09_break.png": {
+            "frame": {
+                "x": 0, "y": 1200, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        },
+        "10_break.png": {
+            "frame": {
+                "x": 0, "y": 1350, "w": 150, "h": 150
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0, "y": 0, "w": 150, "h": 150
+            },
+            "sourceSize": { "w": 150, "h": 150}
+        }
+    },
+    "animations": {
+        "pop": [
+            "01_break.png",
+            "02_break.png",
+            "03_break.png",
+            "04_break.png",
+            "05_break.png",
+            "06_break.png",
+            "07_break.png",
+            "08_break.png",
+            "09_break.png",
+            "10_break.png"
+        ]
+    },
+    "meta": {
+        "app": "https://chatgpt.com/",
+        "version": "4",
+        "image": "popA1.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 150,
+            "h": 1500
+        },
+        "scale": "1"
+    }
+}
