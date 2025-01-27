@@ -6,7 +6,7 @@ import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
 import { Dispatch, SetStateAction } from 'react'
-import { DialogState } from '@/app/page'
+import { DialogState } from '@/app/dialogs'
 
 export type GameState = {
   score: number
