@@ -1,11 +1,11 @@
-'use client'
-import React, { useRef, useState } from 'react'
-import * as PIXI from 'pixi.js'
-import { Level } from './game/worlds/Level'
-import { initEngine } from './game/systems/AudioSystem'
-import { updateGameState } from './game/systems/movementSystem'
-import Image from 'next/image'
-import { AllAssets } from './page'
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import * as PIXI from "pixi.js";
+import { Level } from "./game/worlds/Level";
+import { initEngine } from "./game/systems/AudioSystem";
+import { updateGameState } from "./game/systems/movementSystem";
+import Image from "next/image";
+import { AllAssets } from "./page";
 
 export type DialogState =
   | "start"
@@ -37,6 +37,16 @@ export function GameDialog({
   const [level, setLevel] = useState<Level | undefined>(undefined);
   const [totalRescued, setTotalRescued] = useState<number>(0);
 
+  function countScore() {
+    setTotalRescued(totalRescued + levelSettingList[levelNro].butterflies);
+  }
+
+  useEffect(() => {
+    if (dialogState === "level") {
+      countScore();
+    }
+  }, [dialogState, countScore]);
+
   function startLevelWithNro(nro: number) {
     setLevelNro(nro);
     updateGameState({
@@ -60,8 +70,6 @@ export function GameDialog({
   };
 
   const nextLevel = () => {
-    setTotalRescued(totalRescued + levelSettingList[levelNro].butterflies);
-
     let newLevelNro = levelNro + 1;
     if (newLevelNro > levelSettingList.length - 1) {
       newLevelNro = 0;
@@ -242,11 +250,14 @@ function Nice({
 
 function AsciiArt() {
   return (
-    <Image
-      src="cat_and_butterflies.png"
-      alt="cat and butterfly"
-      className="w-32 h-32 mx-auto"
-    />
+    <div className="w-[320px] h-auto">
+      <Image
+        src="/cat_and_butterflies.png"
+        alt="cat and butterfly"
+        className="mx-auto"
+        fill
+      />
+    </div>
   );
 }
 
