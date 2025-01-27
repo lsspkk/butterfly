@@ -45,7 +45,7 @@ export default class Bush implements EGraphics {
   createBush(flowerAssets: GraphicsContext[], leafAssets: GraphicsContext[]): Graphics[] {
     const stuff = []
 
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 20; i++) {
       const blade = new Graphics()
       blade.rect(0, 0, 6, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
@@ -62,7 +62,7 @@ export default class Bush implements EGraphics {
       stuff.push(leaf)
     }
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 42; i++) {
       const flower = new Graphics(flowerAssets[Math.floor(Math.random() * flowerAssets.length)])
       this.randomXY(flower)
       flower.scale.set(0.4 + Math.random() * 0.4)

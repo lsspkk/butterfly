@@ -18,9 +18,10 @@ export type DialogState =
 const levelSettingList = [
   { level: 1, bees: 3, flowers: 10, butterflies: 3 },
   { level: 2, bees: 5, flowers: 10, butterflies: 4 },
-  { level: 3, bees: 7, flowers: 10, butterflies: 5 },
+  { level: 3, bees: 7, flowers: 15, butterflies: 5 },
   { level: 4, bees: 9, flowers: 18, butterflies: 8 },
   { level: 5, bees: 20, flowers: 25, butterflies: 5 },
+  { level: 6, bees: 30, flowers: 35, butterflies: 5 },
 ];
 
 export function GameDialog({
@@ -37,32 +38,29 @@ export function GameDialog({
   const [level, setLevel] = useState<Level | undefined>(undefined);
   const [totalRescued, setTotalRescued] = useState<number>(0);
 
-  function countScore() {
-    setTotalRescued(totalRescued + levelSettingList[levelNro].butterflies);
-  }
-
   useEffect(() => {
     if (dialogState === "level") {
-      countScore();
+      setTotalRescued(totalRescued + levelSettingList[levelNro].butterflies);
     }
-  }, [dialogState, countScore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dialogState]);
 
   function startLevelWithNro(nro: number) {
-    setLevelNro(nro);
+    if (level) {
+      app.ticker.remove(() => level.update());
+    }
     updateGameState({
       setDialogState: setDialogState,
       dialogState: "none",
       showDialog: false,
     });
 
-    if (level) {
-      app.ticker.remove(() => level.update());
-    }
-    const newLevel = new Level(app, assets, levelSettingList[levelNro]);
-    setLevel(newLevel);
+    const newLevel = new Level(app, assets, levelSettingList[nro]);
     app.ticker.add(() => newLevel.update());
     setTimeout(() => updateGameState({ paused: false }), 200);
     setDialogState("none");
+    setLevel(newLevel);
+    setLevelNro(nro);
   }
 
   const start = async () => {
@@ -250,7 +248,7 @@ function Nice({
 
 function AsciiArt() {
   return (
-    <div className="w-[320px] h-auto">
+    <div className="w-40 h-40 mx-auto relative text-center">
       <Image
         src="/cat_and_butterflies.png"
         alt="cat and butterfly"

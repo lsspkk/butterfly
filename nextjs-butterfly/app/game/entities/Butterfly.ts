@@ -28,8 +28,8 @@ export default class Butterfly implements EGraphics {
     this.view.x = x
     this.view.y = y
     this.baseScale = world.screen.width / 10 / this.sprite.width
-    const scale = 0.4 * Math.random() * this.baseScale
-    this.sprite.scale.set(scale < 0.042 ? 0.042 : scale)
+    const scale = 0.6 * Math.random() * this.baseScale
+    this.sprite.scale.set(scale < 0.072 ? 0.072 : scale)
     this.view.addChild(this.sprite)
     world.addChild(this.view)
   }

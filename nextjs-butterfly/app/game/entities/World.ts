@@ -87,7 +87,7 @@ export default class World implements EGraphics {
     const grass = []
     const { width: ew, height: eh } = this.screen
 
-    for (let i = 0; i < 3000; i++) {
+    for (let i = 0; i < 2042; i++) {
       const blade = new PIXI.Graphics()
       blade.rect(0, 0, 3, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
