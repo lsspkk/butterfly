@@ -1,12 +1,7 @@
-<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
-<!-- Slightly pointed petals forming a circular shape -->
-<path d="M50,35 
-                   Q40,40 35,50 
-                   Q30,60 40,70 
-                   Q45,80 50,75
-                   Q55,80 60,70
-                   Q70,60 65,50
-                   Q60,40 50,35 Z" fill="#E63946" stroke="black" stroke-width="3"></path>
-<!-- Center -->
-<circle cx="50" cy="50" fill="#FFA7A7" r="5" stroke="black" stroke-width="2"></circle>
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" height="100" viewbox="0 0 100 100" width="100">
+
+<path d="M50,35                     Q40,40 35,50                     Q30,60 40,70                     Q45,80 50,75                    Q55,80 60,70                    Q70,60 65,50                    Q60,40 50,35 Z" fill="#E63946" stroke="black" stroke-width="3" />
+
+<circle cx="50" cy="50" fill="#FFA7A7" r="5" stroke="black" stroke-width="2" />
 </svg>

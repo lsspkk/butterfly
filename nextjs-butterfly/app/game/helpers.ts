@@ -1,6 +1,7 @@
-import { Graphics } from 'pixi.js'
+import { Container, Graphics, Sprite } from 'pixi.js'
 import Bush from './entities/Bush'
 import { EManager } from './entities/EManager'
+import { Movement } from './components/CTypes'
 
 type Range = [number, number]
 export function randomColor(hueRange: Range, satRange: Range, ligRange: Range): number {
@@ -46,14 +47,17 @@ export function randomIndexArray(length: number): number[] {
 }
 
 export function getFlowerRandomXY(flowerId: string, em: EManager): { x: number; y: number } {
-  console.debug({ flowerId })
   const b = em.getComponent<Bush>(flowerId, 'Graphics')
   if (!b) return { x: 0, y: 0 }
 
-  console.debug({ b })
-  return b.getRandomXY()
+  return b.getRandomXY(0)
 }
 
 export function cross({ x, y }: { x: number; y: number }, c = 0xff0000): Graphics {
   return new Graphics({ x, y }).rect(-20, -5, 40, 10).fill(c).rect(-5, -20, 10, 40).fill(c)
+}
+export function wiggle(s: Container, m: Movement, factor: number) {
+  if (Math.random() < 0.1) return
+  s.x = m.x + Math.sin(Math.random() * 2 * Math.PI) * 10 * factor
+  s.y = m.y + Math.cos(Math.random() * 2 * Math.PI) * 10 * factor
 }

@@ -7,7 +7,18 @@ export const SOUNDS: { id: SoundId; url: string }[] = [
   { id: 'sting', url: '/sounds/sting.ogg' },
 ]
 
-type PriSource = { source: AudioBufferSourceNode; priority: number; id: number }
+type PriSource = { source: AudioBufferSourceNode; priority: number; id: number; soundId: SoundId }
+
+type SoundLimits = {
+  [key in SoundId]: number
+}
+const limits: SoundLimits = {
+  NO_SOUND: 0,
+  cat_hurts: 1,
+  pop: 1,
+  buzz: 2,
+  sting: 3,
+}
 
 let idCounter = 0
 export default class AudioEngine {
@@ -44,11 +55,17 @@ export default class AudioEngine {
     this.soundBuffers.push({ id, buffer })
   }
 
-  public playSound(soundId: string, priority: number = 0) {
+  isPlayingCount(id: SoundId) {
+    return this.sources.filter((s) => s.soundId === id).length
+  }
+
+  public playSound(soundId: SoundId, priority: number = 0) {
     if (this.soundBuffers.length === 0) return
     const soundIndex = this.soundBuffers.findIndex((s) => s.id === soundId)
 
-    console.debug('Playing sound', soundId, soundIndex)
+    if (limits[soundId] && this.isPlayingCount(soundId) >= limits[soundId]) {
+      return
+    }
 
     this.silenceLowPrioritySources(priority)
 
@@ -57,9 +74,10 @@ export default class AudioEngine {
     source.connect(this.audioContext.destination)
     source.start()
     const id = ++idCounter
-    this.sources.push({ source, priority, id })
+    this.sources.push({ source, priority, soundId, id })
     setTimeout(() => {
       source.stop()
+      source.disconnect()
       this.sources = this.sources.filter((s) => s.id !== id)
     }, source.buffer.duration * 1000)
   }
@@ -68,6 +86,7 @@ export default class AudioEngine {
     this.sources = this.sources.filter((s) => {
       if (s.priority < priority) {
         s.source.stop()
+        s.source.disconnect()
         return false
       }
       return true

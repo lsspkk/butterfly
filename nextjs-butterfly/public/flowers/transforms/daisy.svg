@@ -1,0 +1,13 @@
+<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<!-- Center -->
+<circle cx="50" cy="50" fill="#FFD700" r="10" stroke="black" stroke-width="3"></circle>
+<!-- Petals (8) -->
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(45,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(90,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(135,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(180,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(225,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(270,50,50)"></ellipse>
+<ellipse cx="50" cy="30" fill="#FFFFFF" rx="6" ry="12" stroke="black" stroke-width="3" transform="rotate(315,50,50)"></ellipse>
+</svg>

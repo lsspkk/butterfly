@@ -7,7 +7,7 @@ import World from '../entities/World'
 import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
 import Cat from '../entities/Cat'
-import Bush from '../entities/Bush'
+import Bush, { getGardener } from '../entities/Bush'
 import Hud from '../entities/Hud'
 import { getFlowerRandomXY, randomIndexArray } from '../helpers'
 import Bubble from '../entities/Bubble'
@@ -26,6 +26,7 @@ export type LevelSettings = {
   bees: number
   flowers: number
   butterflies: number
+  beeMaxSpeed: number
 }
 
 export class Level {
@@ -66,9 +67,11 @@ export class Level {
       const beeId = em.create('Bee')
       const flowerId = flowers[indexes.pop()!]
       const beeXY = getFlowerRandomXY(flowerId, em)
-      // hud.setMessage(`Bee is at ${beeXY.x.toFixed()}, ${beeXY.y.toFixed()}`)
 
-      em.addComponent(beeId, 'Movement', new Movement(beeXY.x, beeXY.y, 1, 0, 2))
+      const beeM = new Movement(beeXY.x, beeXY.y, 1, 0, 2)
+      beeM.maxSpeed = Math.abs(settings.beeMaxSpeed + Math.random() * 2 - Math.random() * 2)
+
+      em.addComponent(beeId, 'Movement', beeM)
       em.addComponent(beeId, 'Graphics', new Bee(this.world, assets.beeAssets, beeXY.x, beeXY.y))
       em.addComponent(beeId, 'Animation', new BeeAnimation())
     }
@@ -77,6 +80,7 @@ export class Level {
       const flowerId = flowers[indexes.pop()!]
       const xy = getFlowerRandomXY(flowerId, em)
       const fm = em.getComponent<Movement>(flowerId, 'Movement')!
+      const gardener = em.getComponent<Bush>(flowerId, 'Graphics')!.gardener
       b.x = xy.x
       b.y = xy.y
       const id = em.create('Butterfly')
@@ -87,21 +91,33 @@ export class Level {
 
       const bid = em.create('Bubble')
       em.addComponent(bid, 'Movement', fm)
-      em.addComponent(bid, 'Graphics', new Bubble(this.world, Math.random() < 0.5 ? 'A' : 'B', fm))
+      em.addComponent(bid, 'Graphics', new Bubble(this.world, Math.random() < 0.5 ? 'A' : 'B', fm, gardener))
       em.addComponent(bid, 'Prison', new Prison(Ticker.shared.deltaMS))
     }
 
     this.createClouds(em, 3, assets.cloudAssets)
   }
 
+  getFlowerXYWithSafeZone() {
+    const catX = this.screen.width / 2
+    const catY = this.screen.height / 2
+    let x = 0,
+      y = 0
+    do {
+      x = Math.random() * (this.world.width - 200) + 100
+      y = Math.random() * (this.world.height - 200) + 100
+    } while (Math.abs(catX - x) < 300 && Math.abs(catY - y) < 300)
+    return { x, y }
+  }
+
   createFLowers(em: EManager, count: number) {
     const flowers = []
+    const gardener = getGardener()
     for (let i = 0; i < count; i++) {
       const flowerId = em.create('Flower')
-      const x = Math.random() * (this.world.width - 200) + 100
-      const y = Math.random() * (this.world.height - 200) + 100
+      const { x, y } = this.getFlowerXYWithSafeZone()
       em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets))
+      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
       flowers.push(flowerId)
     }
     return flowers

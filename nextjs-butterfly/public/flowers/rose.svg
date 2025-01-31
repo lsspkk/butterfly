@@ -1,12 +1,7 @@
-<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
-<!-- Outer swirl petals -->
-<path d="M50,50 
-                   C30,30  20,40  25,60 
-                   C20,70  40,90  60,80 
-                   C75,70  70,50  60,40 
-                   C55,35  50,40  50,50 Z" fill="#D90429" stroke="black" stroke-linejoin="round" stroke-width="3"></path>
-<!-- Inner swirl -->
-<path d="M50,50 
-                   C45,45  40,50  45,55
-                   C50,60  55,55  50,50 Z" fill="#E71D36" stroke="black" stroke-width="3"></path>
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" height="100" viewbox="0 0 100 100" width="100">
+
+<path d="M50,50                     C30,30  20,40  25,60                     C20,70  40,90  60,80                     C75,70  70,50  60,40                     C55,35  50,40  50,50 Z" fill="#D90429" stroke="black" stroke-linejoin="round" stroke-width="3" />
+
+<path d="M50,50                     C45,45  40,50  45,55                    C50,60  55,55  50,50 Z" fill="#E71D36" stroke="black" stroke-width="3" />
 </svg>

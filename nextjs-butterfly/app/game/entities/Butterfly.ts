@@ -1,6 +1,7 @@
 import { Container, AnimatedSprite, Assets } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
+import { wiggle } from '../helpers'
 
 export type ButteflyAnimations = {
   data: {
@@ -54,6 +55,8 @@ export default class Butterfly implements EGraphics {
     }
 
     this.view.rotation = rotation
+
+    if (Math.random() < 0.2) wiggle(this.view, m, 0.3)
 
     // keyboardinput
     //if (rotation < 0) this.view.rotation -= this.currentSpeedFactor / 40

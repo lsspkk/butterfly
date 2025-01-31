@@ -1,19 +1,18 @@
-<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
-<!-- A swirled multi-curve petal shape repeated -->
-<path d="M50,30
-               C40,40  40,60  50,70
-               C60,60  60,40  50,30 Z" fill="#FFAEC9" stroke="black" stroke-width="3"></path>
-<use href="#swirlPetal" transform="rotate(45,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(90,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(135,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(180,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(225,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(270,50,50)"></use>
-<use href="#swirlPetal" transform="rotate(315,50,50)"></use>
-<!-- Center -->
-<circle cx="50" cy="50" fill="#F50057" r="6" stroke="black" stroke-width="2"></circle>
-<!-- Define the swirl petal -->
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" height="100" viewbox="0 0 100 100" width="100">
+
+<path d="M50,30                C40,40  40,60  50,70                C60,60  60,40  50,30 Z" fill="#FFAEC9" stroke="black" stroke-width="3" />
+<use href="#swirlPetal" transform="rotate(45,50,50)" />
+<use href="#swirlPetal" transform="rotate(90,50,50)" />
+<use href="#swirlPetal" transform="rotate(135,50,50)" />
+<use href="#swirlPetal" transform="rotate(180,50,50)" />
+<use href="#swirlPetal" transform="rotate(225,50,50)" />
+<use href="#swirlPetal" transform="rotate(270,50,50)" />
+<use href="#swirlPetal" transform="rotate(315,50,50)" />
+
+<circle cx="50" cy="50" fill="#F50057" r="6" stroke="black" stroke-width="2" />
+
 <defs>
-<path d="M50,30 C40,40 40,60 50,70 C60,60 60,40 50,30 Z" fill="#FFAEC9" id="swirlPetal" stroke="black" stroke-width="3"></path>
+<path d="M50,30 C40,40 40,60 50,70 C60,60 60,40 50,30 Z" fill="#FFAEC9" id="swirlPetal" stroke="black" stroke-width="3" />
 </defs>
 </svg>

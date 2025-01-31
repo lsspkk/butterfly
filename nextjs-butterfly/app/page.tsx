@@ -47,7 +47,12 @@ async function loadAnimations(animationNames: string[], path = '/sprites') {
 }
 
 async function loadFlowers() {
-  return await Promise.all(flowerNames.map((flower) => loadSvg(`flowers/${flower}.svg`)))
+  return Promise.all(
+    flowerNames.map(async (flower) => {
+      const asset: PIXI.GraphicsContext = await loadSvg(`flowers/${flower}.svg`)
+      return { flower, asset }
+    })
+  )
 }
 async function loadLeaves() {
   return await Promise.all(leafNames.map((leaf) => loadSvg(`leaves/${leaf}.svg`)))
@@ -67,7 +72,7 @@ async function loadSvg(src: string) {
 export type AllAssets = {
   beeAssets: BeeAssets
   cloudAssets: PIXI.GraphicsContext[]
-  flowerAssets: PIXI.GraphicsContext[]
+  flowerAssets: { flower: string; asset: PIXI.GraphicsContext }[]
   leafAssets: PIXI.GraphicsContext[]
 }
 

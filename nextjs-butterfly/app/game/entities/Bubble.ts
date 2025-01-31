@@ -1,9 +1,10 @@
 import { AnimatedSprite, Assets, Container, Sprite } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
-import { HEIGHT } from './Bush'
+import { Gardener, HEIGHT } from './Bush'
 import { audioEngine } from '../systems/AudioSystem'
 import { gameState, updateGameState } from '../systems/movementSystem'
+import { wiggle } from '../helpers'
 
 export type BubbleType = 'A' | 'B'
 
@@ -42,7 +43,7 @@ export default class Bubble implements EGraphics {
   world: World
   action?: string
 
-  constructor(world: World, bType: BubbleType, owner: Movement) {
+  constructor(world: World, bType: BubbleType, owner: Movement, gardener: Gardener) {
     this.world = world
     this.popped = false
 
@@ -54,8 +55,8 @@ export default class Bubble implements EGraphics {
     this.sprites.light.y = owner.y
     this.sprites.light.alpha = 0.8
 
-    scale(this.sprites.edge)
-    scale(this.sprites.light)
+    scale(this.sprites.edge, gardener)
+    scale(this.sprites.light, gardener)
 
     this.edgeTwist = { targetAngle: bigTwist(), currentAngle: Math.random() * 2 * Math.PI, turnSpeed: 0.01, idleMin: 500, idleMax: 3000, isIdle: true }
     this.lightTwist = { targetAngle: smallTwist(), currentAngle: 0, turnSpeed: 0.005, idleMin: 50, idleMax: 300, isIdle: true }
@@ -75,7 +76,6 @@ export default class Bubble implements EGraphics {
 
   loadPop(name: string, owner: Movement) {
     const { animations } = Assets.cache.get<PopAnimations>(`/bubbles/pop${name}_sprites.json`).data
-    console.debug(animations)
     const s = AnimatedSprite.fromFrames(animations['pop'])
     s.animationSpeed = 1 / (24 + Math.random() * 24)
     s.loop = false
@@ -123,8 +123,8 @@ export default class Bubble implements EGraphics {
     updateTwist(this.lightTwist, this.sprites.light, smallTwist)
   }
 }
-function scale(s: Sprite) {
-  s.scale.set(HEIGHT / s.width)
+function scale(s: Sprite, gardener: Gardener) {
+  s.scale.set((gardener.width + gardener.width / 10) / s.width)
 }
 
 function smallTwist(): number {
@@ -157,10 +157,4 @@ function load(bType: BubbleType, suffix: string) {
   s.pivot.set(s.width / 2, s.height / 2)
   s.scale.set(HEIGHT / (s.height - 40) / 2)
   return s
-}
-
-function wiggle(s: Sprite, m: Movement, factor: number) {
-  if (Math.random() < 0.1) return
-  s.x = m.x + Math.sin(Math.random() * 2 * Math.PI) * 10 * factor
-  s.y = m.y + Math.cos(Math.random() * 2 * Math.PI) * 10 * factor
 }

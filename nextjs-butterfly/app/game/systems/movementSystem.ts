@@ -136,24 +136,18 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
       catDetectedCounter = 100 + Math.round(Math.random() * 100)
     }
     if (catDetectedCounter > 0) {
-      m.speed = 2 + Math.random() * 0.5
+      m.speed = m.maxSpeed
       catDetectedCounter--
-      hud?.setMessage(`Bee attack: ${catDetectedCounter}`)
+      // hud?.setMessage(`Bee attack: ${catDetectedCounter}`)
     } else {
       m.speed = 0
     }
-    if (catDetectedCounter === 1) {
-      hud?.setMessage(``)
-    }
 
-    if (distance < 100 && catAttackedCounter === 0) {
+    if (distance < 70 && catAttackedCounter === 0) {
       catAttackedCounter = 2000
       audioEngine?.playSound('sting', 2)
+      hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
       setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
-    }
-    if (catAttackedCounter > 0) {
-      catAttackedCounter--
-      hud?.setMessage(`Cat attacked: ${catAttackedCounter}`)
     }
 
     m.x += Math.sin(m.rotation) * m.speed
@@ -250,6 +244,11 @@ function readWorldInput(m: Movement, width: number, height: number, screen: Rect
 let boostAvailableMs = 0
 let boostCount = 0
 function readCatInput(m: Movement, width: number, height: number, screen: Rectangle) {
+  if (catAttackedCounter > 0) {
+    catAttackedCounter--
+    hud?.setPosMessage(`Cat attacked: ${catAttackedCounter}`)
+  }
+
   const margin = 50
   const xMax = width - screen.width / 2 - margin
   const yMax = height - screen.height / 2 - margin

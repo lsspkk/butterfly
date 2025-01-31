@@ -1,0 +1,9 @@
+<svg height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<!-- Bell shape from above: 5 short petals -->
+<path d="M50,40 
+               C45,35  35,45  40,50
+               C45,55  55,55  60,50
+               C65,45  55,35  50,40 Z" fill="#4FC3F7" stroke="black" stroke-width="3"></path>
+<!-- Center -->
+<circle cx="50" cy="50" fill="#0288D1" r="4" stroke="black" stroke-width="2"></circle>
+</svg>
