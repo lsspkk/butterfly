@@ -77,7 +77,6 @@ function readButterflyInput(m: Movement) {
 }
 
 function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle) {
-  console.debug(m.x, m.y, width, height)
   const margin = 100
 
   const xLimit = width - screen.width

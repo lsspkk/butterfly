@@ -42,10 +42,10 @@ export default class AudioEngine {
     }
 
     await Promise.all(promises)
-    console.debug(
-      'Sounds loaded',
-      this.soundBuffers.map((s) => s.id)
-    )
+    // console.debug(
+    //   'Sounds loaded',
+    //   this.soundBuffers.map((s) => s.id)
+    // )
   }
 
   private async loadSound(id: string, url: string, audioContext: AudioContext) {
@@ -104,10 +104,10 @@ export default class AudioEngine {
 
 export let audioEngine: AudioEngine | undefined = undefined
 
-export async function initEngine(audioContext: AudioContext) {
+export async function initEngine() {
   if (audioEngine) {
     return
   }
-  audioEngine = new AudioEngine(audioContext)
+  audioEngine = new AudioEngine(new window.AudioContext())
   await audioEngine.loadSounds()
 }

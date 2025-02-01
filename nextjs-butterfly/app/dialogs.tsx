@@ -1,15 +1,13 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import * as PIXI from 'pixi.js'
-import { Level } from './game/worlds/Level'
+import { Level, LevelSettings } from './game/worlds/Level'
 import { initEngine } from './game/systems/AudioSystem'
 import { updateGameState } from './game/systems/movementSystem'
 import Image from 'next/image'
-import { AllAssets } from './page'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
-const levelSettingList = [
+export const levelSettingList: LevelSettings[] = [
   { level: 1, bees: 3, flowers: 10, butterflies: 3, beeMaxSpeed: 1 },
   { level: 2, bees: 5, flowers: 10, butterflies: 4, beeMaxSpeed: 2 },
   { level: 3, bees: 7, flowers: 15, butterflies: 5, beeMaxSpeed: 4 },
@@ -18,7 +16,7 @@ const levelSettingList = [
   { level: 6, bees: 30, flowers: 35, butterflies: 5, beeMaxSpeed: 3 },
 ]
 
-export function GameDialog({ app, assets }: { app: PIXI.Application; assets: AllAssets }) {
+export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promise<Level> }) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const [dialogState, setDialogState] = useState<DialogState>('start')
@@ -33,19 +31,17 @@ export function GameDialog({ app, assets }: { app: PIXI.Application; assets: All
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogState])
 
-  function startLevelWithNro(nro: number) {
+  async function startLevelWithNro(nro: number) {
     if (level) {
-      app.ticker.remove(() => level.update())
+      level.em.destroy()
     }
     updateGameState({
       setDialogState: setDialogState,
       dialogState: 'none',
       showDialog: false,
     })
+    const newLevel = await startLevel(nro)
 
-    const newLevel = new Level(app, assets, levelSettingList[nro])
-    app.ticker.add(() => newLevel.update())
-    setTimeout(() => updateGameState({ paused: false }), 200)
     setDialogState('none')
     setLevel(newLevel)
     setLevelNro(nro)
@@ -111,7 +107,7 @@ function StartDialog({ start }: { start: () => void }) {
   const [countDown, setCountDown] = useState(-1)
 
   function startCountDown() {
-    initEngine(new window.AudioContext())
+    initEngine()
     let count = 3
     setCountDown(count)
     const interval = setInterval(() => {

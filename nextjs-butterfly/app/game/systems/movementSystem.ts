@@ -20,6 +20,7 @@ export type GameState = {
   showDialog?: boolean
   dialogState?: DialogState
   setDialogState?: Dispatch<SetStateAction<DialogState>>
+  levelGameLoop?: () => void
 }
 
 export const gameState: GameState = {

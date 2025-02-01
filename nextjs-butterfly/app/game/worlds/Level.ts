@@ -29,6 +29,12 @@ export type LevelSettings = {
   beeMaxSpeed: number
 }
 
+export function runLevelGameLoop() {
+  if (gameState.levelGameLoop) {
+    gameState.levelGameLoop()
+  }
+}
+
 export class Level {
   em = new EManager()
   worldId?: string
@@ -96,6 +102,7 @@ export class Level {
     }
 
     this.createClouds(em, 3, assets.cloudAssets)
+    gameState.levelGameLoop = this.gameLoop.bind(this)
   }
 
   getFlowerXYWithSafeZone() {
@@ -152,7 +159,10 @@ export class Level {
     return clouds
   }
 
-  public update() {
+  public gameLoop() {
+    if (!this.em) {
+      return
+    }
     movementSystem(this.em, this.width, this.height, this.screen)
 
     const { showDialog, dialogState, setDialogState } = gameState
@@ -160,13 +170,14 @@ export class Level {
       return
     }
 
+    gameState.levelGameLoop = undefined
+
     setDialogState(dialogState)
     audioEngine?.silence()
-
     // remove all children from the stage
     this.app.stage.removeChildren()
-    this.world.container.removeChildren()
-    hud?.container.removeChildren()
+    this.world.container.destroy({ children: true, texture: false })
+    hud?.container.destroy({ children: true, texture: false })
     hud = undefined
   }
 }

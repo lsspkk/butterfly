@@ -33,4 +33,7 @@ export class EManager {
   getEntitiesByComponents(...components: CType[]) {
     return Array.from(this.entityMap.entries()).filter(([, entityComponents]) => components.every((c) => entityComponents.has(c)))
   }
+  destroy() {
+    this.entityMap.clear()
+  }
 }

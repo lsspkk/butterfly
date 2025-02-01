@@ -5,13 +5,15 @@ import KeyboardListener from './game/systems/KeyboardListener'
 import { TouchListener } from './game/systems/TouchListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
-import { GameDialog } from './dialogs'
+import { GameDialog, levelSettingList } from './dialogs'
+import { Level, runLevelGameLoop } from './game/worlds/Level'
+import { updateGameState } from './game/systems/movementSystem'
 
 // initialize the pixi application
 // and make a full screen view
 
 async function initPixiApp(canvas: HTMLCanvasElement) {
-  const app = new PIXI.Application<PIXI.Renderer<HTMLCanvasElement>>()
+  const app = new PIXI.Application<PIXI.WebGLRenderer<HTMLCanvasElement>>()
   await app.init({
     view: canvas,
     width: window.innerWidth,
@@ -78,41 +80,53 @@ export type AllAssets = {
 
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const isLoaded = useRef<boolean>(false)
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
 
   useEffect(() => {
+    if (isLoaded.current) {
+      return
+    }
+    if (!canvasRef.current) {
+      return
+    }
+    isLoaded.current = true
     let keyboard: undefined | KeyboardListener = undefined
     let touch: undefined | TouchListener = undefined
-    keyboard = new KeyboardListener()
+    let localPixiApp: PIXI.Application | undefined = undefined
+
+    initPixiApp(canvasRef.current).then(({ app, assets: loadedAssets }) => {
+      localPixiApp = app
+      setPixiApp(() => app)
+      setAssets(() => loadedAssets)
+      keyboard = new KeyboardListener()
+      app.ticker.add(() => runLevelGameLoop())
+    })
 
     if (Math.random() > 1) {
       // FIXME: This is a bug
       touch = new TouchListener()
     }
-    loadApp()
-
     return () => {
       keyboard?.destroy()
       touch?.destroy()
-      pixiApp?.destroy(true, { children: true, texture: true })
+      localPixiApp?.destroy(true, { children: true, texture: true })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function loadApp() {
-    if (canvasRef.current) {
-      //      canvasRef.current.innerHTML = ''
-      initPixiApp(canvasRef.current).then(({ app, assets: loadedAssets }) => {
-        setPixiApp(app)
-        setAssets(loadedAssets)
-      })
+  async function startLevel(nro: number): Promise<Level> {
+    if (!pixiApp || !assets) {
+      throw new Error('PixiApp not initialized')
     }
+    const newLevel = new Level(pixiApp, assets, levelSettingList[nro])
+    setTimeout(() => updateGameState({ paused: false }), 200)
+    return newLevel
   }
 
   return (
     <div className='grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]    '>
-      {pixiApp && assets && <GameDialog app={pixiApp} assets={assets} />}
+      {pixiApp && assets && <GameDialog startLevel={startLevel} />}
 
       <main className='flex flex-col gap-8 row-start-2 items-center sm:items-start'>
         <div className='w-screen h-screen absolute top-0 left-0 z-[-1]'>

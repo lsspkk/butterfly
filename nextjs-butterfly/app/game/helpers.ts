@@ -1,4 +1,4 @@
-import { Container, Graphics, Sprite } from 'pixi.js'
+import { Container, Graphics } from 'pixi.js'
 import Bush from './entities/Bush'
 import { EManager } from './entities/EManager'
 import { Movement } from './components/CTypes'
