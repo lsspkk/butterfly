@@ -55,8 +55,8 @@ export default class Bubble implements EGraphics {
     this.sprites.light.y = owner.y
     this.sprites.light.alpha = 0.8
 
-    scale(this.sprites.edge, gardener)
-    scale(this.sprites.light, gardener)
+    scale(this.sprites.edge, gardener,world)
+    scale(this.sprites.light, gardener,world)
 
     this.edgeTwist = { targetAngle: bigTwist(), currentAngle: Math.random() * 2 * Math.PI, turnSpeed: 0.01, idleMin: 500, idleMax: 3000, isIdle: true }
     this.lightTwist = { targetAngle: smallTwist(), currentAngle: 0, turnSpeed: 0.005, idleMin: 50, idleMax: 300, isIdle: true }
@@ -123,8 +123,8 @@ export default class Bubble implements EGraphics {
     updateTwist(this.lightTwist, this.sprites.light, smallTwist)
   }
 }
-function scale(s: Sprite, gardener: Gardener) {
-  s.scale.set((gardener.width + gardener.width / 10) / s.width)
+function scale(s: Sprite, gardener: Gardener, world:World) {
+  s.scale.set(world.getScale(gardener.width + gardener.width / 10))
 }
 
 function smallTwist(): number {

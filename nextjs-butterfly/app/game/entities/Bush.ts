@@ -104,7 +104,11 @@ export default class Bush implements EGraphics {
   constructor(world: World, x: number, y: number, flowerAssets: FlowerAsset[], leafAssets: GraphicsContext[], gardener: Gardener) {
     this.world = world
     this.gardener = gardener
+    const base =this.world.getScale(this.gardener.width)
 
+    this.gardener.width = this.gardener.width * base
+    this.gardener.height = this.gardener.height * base
+ 
     this.container = new Container()
     this.container.x = x
     this.container.y = y
@@ -112,7 +116,7 @@ export default class Bush implements EGraphics {
     this.y = y
     this.background = new Graphics().ellipse(0, 0, this.gardener.width, this.gardener.height).fill(this.gardener.groundColor)
     this.container.addChild(this.background)
-    this.container.scale = 1
+    this.container.scale = world.getScale(this.gardener.width)
 
     world.addChild(this.container)
 
@@ -136,6 +140,7 @@ export default class Bush implements EGraphics {
   createBush(flowerAssets: FlowerAsset[], leafAssets: GraphicsContext[]): Graphics[] {
     const stuff = []
 
+    const base =this.world.getScale(this.gardener.width)
     const bladeCount = this.gardener.maxFlowers / 2
     for (let i = 0; i < bladeCount; i++) {
       const blade = new Graphics()
@@ -144,13 +149,15 @@ export default class Bush implements EGraphics {
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
       this.randomXY(blade)
       blade.y = blade.y + delta / 2
+      blade.scale = this.world.getScale(this.gardener.width)
       stuff.push(blade)
     }
 
     for (let i = 0; i < bladeCount + 2; i++) {
       const leaf = new Graphics(leafAssets[Math.floor(Math.random() * leafAssets.length)])
       this.randomXY(leaf)
-      leaf.scale.set(0.3 + Math.random() * 0.2)
+      const variant = (0.1- Math.random() * 0.2)*base
+      leaf.scale.set(base + variant)
       leaf.rotation = (Math.random() * Math.PI) / 4 - Math.PI / 8
       stuff.push(leaf)
     }
@@ -164,7 +171,8 @@ export default class Bush implements EGraphics {
       }
       const flower = new Graphics(asset)
       this.randomXY(flower)
-      flower.scale.set(0.4 + Math.random() * 0.4)
+      const variant = (0.3- Math.random() * 0.2)*base
+      flower.scale.set(base + variant)
       flower.rotation = Math.random() * Math.PI * 2
       stuff.push(flower)
     }

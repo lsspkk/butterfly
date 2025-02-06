@@ -1,3 +1,4 @@
+import { hud } from '../worlds/Level'
 import { keyMap, KeyPressType } from './KeyboardListener'
 
 export class TouchListener {
@@ -65,7 +66,7 @@ export class TouchListener {
       ArrowLeft: false,
       ArrowRight: false,
     }
-    if (distance < 15) {
+    if (distance < 12|| distance > 42) {
     } else if (this.isWithinRange(0, angle)) {
       keys.ArrowRight = true
     } else if (this.isWithinRange(45, angle)) {
@@ -104,7 +105,7 @@ export class TouchListener {
     if (angle < 0) {
       angle += 360
     }
-
+    hud?.setMessage(`angle: ${angle.toFixed(2)}, distance: ${distance.toFixed(2)}`)
     return { angle, distance }
   }
 
