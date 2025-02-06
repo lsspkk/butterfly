@@ -63,8 +63,8 @@ export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promis
     return null
   }
   return (
-    <div className='fixed top-0 left-0 w-screen h-screen     bg-gradient-to-br from-green-400 to-green-800'>
-      <div ref={dialogRef} className='flex flex-col justify-center items-center'>
+    <div className='fixed top-0 left-0 w-screen h-screen   scroll-auto  bg-gradient-to-br from-green-400 to-green-800'>
+      <div ref={dialogRef} className='flex flex-col justify-center items-center scroll-auto'>
         {dialogState === 'start' && <StartDialog start={start} />}
         {dialogState === 'paused' && <PausedDialog />}
         {dialogState === 'gameover' && <GameOverDialog setDialogState={setDialogState} />}
@@ -75,7 +75,7 @@ export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promis
   )
 }
 function DFrame({ children }: { children: React.ReactNode }) {
-  return <div className='bg-gray-700 p-8 m-8 md:w-4/6 rounded-lg shadow-xl'>{children}</div>
+  return <div className='bg-green-900 text-gray-50 p-8 sm:m-8 md:w-4/6 rounded-lg shadow-xl'>{children}</div>
 }
 function DButton({
   onClick,
@@ -190,7 +190,7 @@ function Nice({ children, classname }: { children: React.ReactNode; classname?: 
 
 function AsciiArt() {
   return (
-    <div className='w-40 h-40 mx-auto relative text-center'>
+    <div className='md:w-40 md:h-40 mx-auto relative text-center'>
       <Image src='/cat_and_butterflies.png' alt='cat and butterfly' className='mx-auto' fill />
     </div>
   )
