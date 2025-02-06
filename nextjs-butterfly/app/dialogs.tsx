@@ -4,7 +4,6 @@ import { Level, LevelSettings } from './game/worlds/Level'
 import { initEngine } from './game/systems/AudioSystem'
 import { updateGameState } from './game/systems/movementSystem'
 import Image from 'next/image'
-import { TouchControls } from './TouchControls'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
@@ -61,8 +60,7 @@ export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promis
   }
 
   if (dialogState === 'none') {
-    return       <TouchControls />
-
+    return null
   }
   return (
     <div className='fixed top-0 left-0 w-screen h-screen     bg-gradient-to-br from-green-400 to-green-800'>

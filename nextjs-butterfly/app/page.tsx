@@ -8,6 +8,7 @@ import { GameDialog, levelSettingList } from './dialogs'
 import { Level, runLevelGameLoop } from './game/worlds/Level'
 import { updateGameState } from './game/systems/movementSystem'
 import { TouchListener } from './game/systems/TouchListener'
+import { TouchControls } from './TouchControls'
 
 // initialize the pixi application
 // and make a full screen view
@@ -130,6 +131,8 @@ export default function Home() {
           <canvas ref={canvasRef} className='w-screen h-screen' />
         </div>
       </main>
+
+      <TouchControls />
 
       <footer className='row-start-3 flex gap-6 flex-wrap items-center justify-center'></footer>
     </div>
