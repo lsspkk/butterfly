@@ -101,22 +101,24 @@ export default class Bush implements EGraphics {
   x: number
   y: number
   gardener: Gardener
+  w: number
+  h: number
   constructor(world: World, x: number, y: number, flowerAssets: FlowerAsset[], leafAssets: GraphicsContext[], gardener: Gardener) {
     this.world = world
     this.gardener = gardener
-    const base =this.world.getScale(this.gardener.width)
+    const base = this.world.getScale()
 
-    this.gardener.width = this.gardener.width * base
-    this.gardener.height = this.gardener.height * base
- 
+    this.w = this.gardener.width * base
+    this.h = this.gardener.height * base
+
     this.container = new Container()
     this.container.x = x
     this.container.y = y
     this.x = x
     this.y = y
-    this.background = new Graphics().ellipse(0, 0, this.gardener.width, this.gardener.height).fill(this.gardener.groundColor)
+    this.background = new Graphics().ellipse(0, 0, this.w, this.h).fill(this.gardener.groundColor)
     this.container.addChild(this.background)
-    this.container.scale = world.getScale(this.gardener.width)
+    this.container.scale = 1
 
     world.addChild(this.container)
 
@@ -125,39 +127,39 @@ export default class Bush implements EGraphics {
   }
 
   randomXY(graphics: Graphics) {
-    const delta = (3 * this.gardener.width) / 10
-    graphics.x = Math.random() * (this.gardener.width + delta) - this.gardener.width / 2 - delta / 2
-    graphics.y = Math.random() * (this.gardener.height + delta) - this.gardener.height / 2 - delta / 2
+    const delta = (3 * this.w) / 10
+    graphics.x = Math.random() * (this.w + delta) - this.w / 2 - delta / 2
+    graphics.y = Math.random() * (this.h + delta) - this.h / 2 - delta / 2
   }
   getRandomXY(factor: number = 3) {
     const { x, y } = this
-    const delta = (factor * this.gardener.width) / 10
-    const dx = Math.random() * (this.gardener.width + delta) - this.gardener.width / 2 - delta / 2
-    const dy = Math.random() * (this.gardener.height + delta) - this.gardener.height / 2 - delta / 2
+    const delta = (factor * this.w) / 10
+    const dx = Math.random() * (this.w + delta) - this.w / 2 - delta / 2
+    const dy = Math.random() * (this.h + delta) - this.h / 2 - delta / 2
     return { x: x + dx, y: y + dy }
   }
 
   createBush(flowerAssets: FlowerAsset[], leafAssets: GraphicsContext[]): Graphics[] {
     const stuff = []
 
-    const base =this.world.getScale(this.gardener.width)
+    const base = this.world.getScale()
     const bladeCount = this.gardener.maxFlowers / 2
     for (let i = 0; i < bladeCount; i++) {
       const blade = new Graphics()
-      const delta = this.gardener.height / 8 + (Math.random() * this.gardener.height) / 25
+      const delta = this.h / 8 + (Math.random() * this.h) / 25
       blade.rect(0, 0, delta / 5, delta).fill(this.gardener.grassColor)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
       this.randomXY(blade)
       blade.y = blade.y + delta / 2
-      blade.scale = this.world.getScale(this.gardener.width)
+      blade.scale = this.world.getScale()
       stuff.push(blade)
     }
 
     for (let i = 0; i < bladeCount + 2; i++) {
       const leaf = new Graphics(leafAssets[Math.floor(Math.random() * leafAssets.length)])
       this.randomXY(leaf)
-      const variant = (0.1- Math.random() * 0.2)*base
-      leaf.scale.set(base + variant)
+      const variant = (0.3 + Math.random() * 0.2) * base
+      leaf.scale.set(variant)
       leaf.rotation = (Math.random() * Math.PI) / 4 - Math.PI / 8
       stuff.push(leaf)
     }
@@ -171,8 +173,8 @@ export default class Bush implements EGraphics {
       }
       const flower = new Graphics(asset)
       this.randomXY(flower)
-      const variant = (0.3- Math.random() * 0.2)*base
-      flower.scale.set(base + variant)
+      const variant = (0.6 + Math.random() * 0.2) * base
+      flower.scale.set(variant)
       flower.rotation = Math.random() * Math.PI * 2
       stuff.push(flower)
     }

@@ -41,7 +41,7 @@ export function updateGameState(newState: Partial<GameState>) {
 export function calculateSpeedFactor(screen: Rectangle) {
   const { width, height } = screen
   const smaller = width < height ? width : height
-  const NORMAL = 1800
+  const NORMAL = 1600
   const speedFactor = smaller / NORMAL
   updateGameState({ speedFactor })
 }
@@ -118,7 +118,7 @@ const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle
   const dx = catx - m.x
   const dy = caty - m.y
   const distance = Math.sqrt(dx * dx + dy * dy)
-  if (distance < 150) {
+  if (distance < 150 * gameState.speedFactor && !bubble.popped) {
     bubble.pop()
   }
 }
@@ -139,7 +139,7 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
     const dx = catx - m.x
     const dy = caty - m.y
     const distance = Math.sqrt(dx * dx + dy * dy)
-    if (distance < m.detectDistance) {
+    if (distance < m.detectDistance * gameState.speedFactor) {
       if (catDetectedCounter < 10) {
         audioEngine?.playSound('buzz', 0)
       }
@@ -147,14 +147,14 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
       catDetectedCounter = 100 + Math.round(Math.random() * 100)
     }
     if (catDetectedCounter > 0) {
-      m.speed = m.maxSpeed
+      m.speed = m.maxSpeed * gameState.speedFactor
       catDetectedCounter--
       // hud?.setMessage(`Bee attack: ${catDetectedCounter}`)
     } else {
       m.speed = 0
     }
 
-    if (distance < 70 && catAttackedCounter === 0) {
+    if (distance < 70 * gameState.speedFactor && catAttackedCounter === 0) {
       catAttackedCounter = 2000
       audioEngine?.playSound('sting', 2)
       hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
@@ -244,7 +244,7 @@ function readWorldInput(m: Movement, width: number, height: number, screen: Rect
 
   const xLimit = width - screen.width
   const yLimit = height - screen.height
-  const speed = boostCount > 0 ? 50 : 10
+  const speed = (boostCount > 0 ? 50 : 10) * gameState.speedFactor
 
   if (keyMap.ArrowDown && m.y - speed > -yLimit - margin) m.y -= speed
   if (keyMap.ArrowUp && m.y + speed < margin) m.y += speed
@@ -269,12 +269,12 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   if (keyMap.space && boostAvailableMs < Ticker.shared.lastTime) {
     boostAvailableMs = Ticker.shared.lastTime + 5000
     boostCount = 10
-    m.speed = 50
+    m.speed = 50 * gameState.speedFactor
   } else if (boostCount > 0) {
-    m.speed = 50
+    m.speed = 50 * gameState.speedFactor
     boostCount--
   } else {
-    m.speed = 10
+    m.speed = 10 * gameState.speedFactor
   }
 
   // move to opposite direction than the world

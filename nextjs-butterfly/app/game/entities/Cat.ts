@@ -39,7 +39,7 @@ export default class Cat implements EGraphics {
     this.view.height = world.height
     this.view.x = world.screen.width / 2
     this.view.y = world.screen.height / 2
-    this.baseScale = world.getScale(this.activeSprite.width)
+    this.baseScale = world.getScale()
     if (this.baseScale > 1) this.baseScale = 1
     this.sprites.idle.scale.set(this.baseScale)
     //this.view.pivot.set(this.activeSprite.width / 2, this.activeSprite.height / 2)

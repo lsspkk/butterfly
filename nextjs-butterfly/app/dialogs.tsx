@@ -79,7 +79,7 @@ export function GameDialog({ startLevel, pixiApp }: { startLevel: (nro: number) 
   )
 }
 function DFrame({ children }: { children: React.ReactNode }) {
-  return <div className='bg-gray-700 text-gray-50 p-8 md:w-4/6 rounded-lg shadow-xl'>{children}</div>
+  return <div className='bg-gray-700 text-gray-50 p-8 rounded-lg shadow-xl'>{children}</div>
 }
 function DButton({
   onClick,

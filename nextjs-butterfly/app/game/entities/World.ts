@@ -38,10 +38,12 @@ export default class World implements EGraphics {
     this.grass.forEach((blade) => this.container.addChild(blade))
   }
 
-  getScale(spriteSize:number =100) {
-    const { height, width} = this.app.screen
+  getScale() {
+    const { height, width } = this.app.screen
     const delta = height > width ? height : width
-    return  delta / 10 / spriteSize
+
+    const NORMAL = 1400
+    return delta / NORMAL
   }
 
   addChild(child: PIXI.Container) {
