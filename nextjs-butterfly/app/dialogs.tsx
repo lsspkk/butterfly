@@ -5,6 +5,7 @@ import { initEngine } from './game/systems/AudioSystem'
 import { updateGameState } from './game/systems/movementSystem'
 import Image from 'next/image'
 import { TouchControls } from './TouchControls'
+import { Application } from 'pixi.js'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
@@ -17,7 +18,7 @@ export const levelSettingList: LevelSettings[] = [
   { level: 6, bees: 30, flowers: 35, butterflies: 5, beeMaxSpeed: 3 },
 ]
 
-export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promise<Level> }) {
+export function GameDialog({ startLevel, pixiApp }: { startLevel: (nro: number) => Promise<Level>; pixiApp: Application | undefined }) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const [dialogState, setDialogState] = useState<DialogState>('start')
@@ -63,7 +64,7 @@ export function GameDialog({ startLevel }: { startLevel: (nro: number) => Promis
   return (
     <>
       <TouchControls visible={dialogState === 'none'} />
-      {dialogState !== 'none' && (
+      {dialogState !== 'none' && pixiApp && (
         <div className='fixed top-0 left-0 w-screen h-screen overflow-scroll  bg-gradient-to-br from-green-400 to-green-800 flex flex-col justify-center items-center'>
           <div ref={dialogRef} className=''>
             {dialogState === 'start' && <StartDialog start={start} />}

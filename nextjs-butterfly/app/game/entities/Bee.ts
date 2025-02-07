@@ -34,7 +34,7 @@ export default class Bee implements EGraphics {
 
     this.x = x
     this.y = y
-    this.scale = 0.1 + Math.random() * 0.1
+    this.scale = (0.1 + Math.random() * 0.1) * world.getScale(100)
 
     this.setPositions()
     this.world = world

@@ -2,7 +2,7 @@ import { EManager } from '../entities/EManager'
 import { Rectangle, Application, GraphicsContext, Ticker } from 'pixi.js'
 import { BeeAnimation, Movement, Prison } from '../components/CTypes'
 import Bee from '../entities/Bee'
-import { gameState, movementSystem, updateGameState } from '../systems/movementSystem'
+import { calculateSpeedFactor, gameState, movementSystem, updateGameState } from '../systems/movementSystem'
 import World from '../entities/World'
 import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
@@ -47,6 +47,7 @@ export class Level {
     this.height = app.screen.height * 2
     this.width = app.screen.width * 2
     this.screen = app.screen
+    calculateSpeedFactor(app.screen)
     const { em, height, width } = this
     this.world = new World(app, height, width)
 
