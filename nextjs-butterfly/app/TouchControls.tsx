@@ -1,8 +1,9 @@
 import React from 'react'
 
-export function TouchControls() {
+export function TouchControls({ visible = true }: { visible?: boolean }) {
+  const zIndex = visible ? 'z-10' : '-z-10'
   return (
-    <div id='touch-control-one' className='fixed z-10 bottom-2 right-2 w-20 h-20'>
+    <div id='touch-control-one' className={`fixed ${zIndex} bottom-2 right-2 w-20 h-20 opacity-70`}>
       {/* outer circle */}
       <div className='absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2 w-20 h-20 border-4 border-gray-300 rounded-full'></div>
       {/* inner circle */}
