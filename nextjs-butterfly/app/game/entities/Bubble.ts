@@ -3,7 +3,7 @@ import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 import { Gardener, HEIGHT } from './Bush'
 import { audioEngine } from '../systems/AudioSystem'
-import { gameState, updateGameState } from '../systems/movementSystem'
+import { gameState, updateGameState } from '../systems/gameState'
 import { wiggle } from '../helpers'
 
 export type BubbleType = 'A' | 'B'
@@ -58,8 +58,22 @@ export default class Bubble implements EGraphics {
     scale(this.sprites.edge, gardener, world)
     scale(this.sprites.light, gardener, world)
 
-    this.edgeTwist = { targetAngle: bigTwist(), currentAngle: Math.random() * 2 * Math.PI, turnSpeed: 0.01, idleMin: 500, idleMax: 3000, isIdle: true }
-    this.lightTwist = { targetAngle: smallTwist(), currentAngle: 0, turnSpeed: 0.005, idleMin: 50, idleMax: 300, isIdle: true }
+    this.edgeTwist = {
+      targetAngle: bigTwist(),
+      currentAngle: Math.random() * 2 * Math.PI,
+      turnSpeed: 0.01,
+      idleMin: 500,
+      idleMax: 3000,
+      isIdle: true,
+    }
+    this.lightTwist = {
+      targetAngle: smallTwist(),
+      currentAngle: 0,
+      turnSpeed: 0.005,
+      idleMin: 50,
+      idleMax: 300,
+      isIdle: true,
+    }
 
     this.moving = false
     setTwistTimer(this.edgeTwist)
@@ -94,7 +108,7 @@ export default class Bubble implements EGraphics {
     this.world.addChild(light)
     edge.play()
     light.play()
-    audioEngine?.playSound('pop')
+    if (gameState.soundOn) audioEngine?.playSound('pop')
     updateGameState({ score: gameState.score + 1, inPrison: gameState.inPrison - 1 })
 
     this.world.removeChild(this.sprites.edge)
@@ -134,7 +148,10 @@ function bigTwist(): number {
   return Math.random() * Math.PI * 2 - Math.PI
 }
 function setTwistTimer(twist: AngleTwister) {
-  twist.timerId = setInterval(() => (twist.isIdle = !twist.isIdle), Math.random() * (twist.idleMax - twist.idleMin) + twist.idleMin)
+  twist.timerId = setInterval(
+    () => (twist.isIdle = !twist.isIdle),
+    Math.random() * (twist.idleMax - twist.idleMin) + twist.idleMin
+  )
 }
 
 function updateTwist(twist: AngleTwister, s: Sprite, newTwist: () => number) {

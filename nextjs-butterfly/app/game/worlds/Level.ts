@@ -2,7 +2,8 @@ import { EManager } from '../entities/EManager'
 import { Rectangle, Application, GraphicsContext, Ticker } from 'pixi.js'
 import { BeeAnimation, Movement, Prison } from '../components/CTypes'
 import Bee from '../entities/Bee'
-import { calculateSpeedFactor, gameState, movementSystem, updateGameState } from '../systems/movementSystem'
+import { movementSystem } from '../systems/movementSystem'
+import { calculateSpeedFactor, gameState, updateGameState } from '../systems/gameState'
 import World from '../entities/World'
 import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
@@ -125,7 +126,11 @@ export class Level {
       const flowerId = em.create('Flower')
       const { x, y } = this.getFlowerXYWithSafeZone()
       em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
+      em.addComponent(
+        flowerId,
+        'Graphics',
+        new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
+      )
       flowers.push(flowerId)
     }
     return flowers

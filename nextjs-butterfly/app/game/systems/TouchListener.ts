@@ -66,7 +66,7 @@ export class TouchListener {
       ArrowLeft: false,
       ArrowRight: false,
     }
-    if (distance < 12|| distance > 42) {
+    if (distance < 12 || distance > 142) {
     } else if (this.isWithinRange(0, angle)) {
       keys.ArrowRight = true
     } else if (this.isWithinRange(45, angle)) {

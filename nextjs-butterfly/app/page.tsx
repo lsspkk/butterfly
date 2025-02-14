@@ -6,7 +6,7 @@ import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
 import { GameDialog, levelSettingList } from './dialogs'
 import { Level, runLevelGameLoop } from './game/worlds/Level'
-import { updateGameState } from './game/systems/movementSystem'
+import { updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
 
 // initialize the pixi application
@@ -45,7 +45,11 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
 }
 
 async function loadAnimations(animationNames: string[], path = '/sprites') {
-  return await Promise.all(animationNames.map((animation) => PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])))
+  return await Promise.all(
+    animationNames.map((animation) =>
+      PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])
+    )
+  )
 }
 
 async function loadFlowers() {

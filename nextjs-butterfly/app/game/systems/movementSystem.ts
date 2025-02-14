@@ -5,46 +5,7 @@ import { keyMap } from './KeyboardListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
-import { Dispatch, SetStateAction } from 'react'
-import { DialogState } from '@/app/dialogs'
-
-export type GameState = {
-  score: number
-  level: number
-  lives: number
-  paused: boolean
-  musicOn?: boolean
-  soundOn?: boolean
-  inPrison: number
-  speedFactor: number
-  useMobileControls?: boolean
-  showDialog?: boolean
-  dialogState?: DialogState
-  setDialogState?: Dispatch<SetStateAction<DialogState>>
-  levelGameLoop?: () => void
-}
-
-export const gameState: GameState = {
-  score: 0,
-  level: 1,
-  lives: 3,
-  speedFactor: 1,
-  paused: false,
-  inPrison: 100,
-  dialogState: 'start',
-}
-
-export function updateGameState(newState: Partial<GameState>) {
-  Object.assign(gameState, newState)
-}
-
-export function calculateSpeedFactor(screen: Rectangle) {
-  const { width, height } = screen
-  const smaller = width < height ? width : height
-  const NORMAL = 1600
-  const speedFactor = smaller / NORMAL
-  updateGameState({ speedFactor })
-}
+import { gameState } from './gameState'
 
 export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
@@ -139,9 +100,9 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
     const dx = catx - m.x
     const dy = caty - m.y
     const distance = Math.sqrt(dx * dx + dy * dy)
-    if (distance < m.detectDistance * gameState.speedFactor) {
+    if (distance < m.detectDistance * (gameState.speedFactor * 2)) {
       if (catDetectedCounter < 10) {
-        audioEngine?.playSound('buzz', 0)
+        if (gameState.soundOn) audioEngine?.playSound('buzz', 0)
       }
 
       catDetectedCounter = 100 + Math.round(Math.random() * 100)
@@ -156,9 +117,9 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
 
     if (distance < 70 * gameState.speedFactor && catAttackedCounter === 0) {
       catAttackedCounter = 2000
-      audioEngine?.playSound('sting', 2)
+      if (gameState.soundOn) audioEngine?.playSound('sting', 2)
       hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
-      setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
+      if (gameState.soundOn) setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
     }
 
     m.x += Math.sin(m.rotation) * m.speed
@@ -173,19 +134,6 @@ function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
   }
   const target = beeTargets.get('bee')!
   updateFly2(m, target, 'bee', flyBee(m, cat))
-
-  // if (keyMap.ArrowUp && m.speed < 10) {
-  //   m.speed += 0.24
-  // }
-  // if (keyMap.ArrowDown && m.speed > -5) {
-  //   m.speed -= 0.24
-  // }
-  // if (keyMap.ArrowLeft) {
-  //   m.rotation -= 0.07
-  // }
-  // if (keyMap.ArrowRight) {
-  //   m.rotation += 0.07
-  // }
 }
 
 const butterflyTargets = new Map<string, Movement>()
@@ -198,7 +146,13 @@ function readButterflyInput(id: string, m: Movement) {
   updateFly(m, target, id, flyButterfly(m))
 }
 
-function updateFly(m: Movement, target: Movement, id: string, nextTarget: Movement, map: Map<string, Movement> = butterflyTargets) {
+function updateFly(
+  m: Movement,
+  target: Movement,
+  id: string,
+  nextTarget: Movement,
+  map: Map<string, Movement> = butterflyTargets
+) {
   if (m.rotation < target.direction) {
     m.rotation += 0.01
   }
@@ -210,7 +164,13 @@ function updateFly(m: Movement, target: Movement, id: string, nextTarget: Moveme
   }
 }
 
-function updateFly2(m: Movement, target: Movement, id: string, nextTarget: Movement, map: Map<string, Movement> = butterflyTargets) {
+function updateFly2(
+  m: Movement,
+  target: Movement,
+  id: string,
+  nextTarget: Movement,
+  map: Map<string, Movement> = butterflyTargets
+) {
   if (m.rotation < target.direction) {
     m.rotation += 0.4
   }
