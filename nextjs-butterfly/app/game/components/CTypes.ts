@@ -25,13 +25,14 @@ export class Movement {
     public x: number,
     public y: number,
     public scale: number = 1,
-    public direction: number = 0,
+    public direction: number = 0, // the wanted rotation, that the entity should turn to
     public speed: number = 0,
     public rotation: number = 0,
     public acceleration: number = 0,
     public maxSpeed: number = 10,
     public action: MAction = 'Idle',
-    public detectDistance: number = 500
+    public detectDistance: number = 500,
+    public detectUntilTime: number = 0 //ms since epoch until which the entity is in detect mode
   ) {}
 }
 

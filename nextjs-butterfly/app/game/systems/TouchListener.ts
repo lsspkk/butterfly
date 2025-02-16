@@ -59,7 +59,7 @@ export class TouchListener {
   }
 
   readKeys(angle: number, distance: number) {
-    console.debug({ angle, distance })
+    // console.debug({ angle, distance })
     const keys: KeyPressType = {
       ArrowUp: false,
       ArrowDown: false,

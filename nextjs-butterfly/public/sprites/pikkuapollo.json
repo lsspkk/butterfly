@@ -1,0 +1,169 @@
+{
+  "frames": {
+    "pikkuapollo_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 740,
+        "h": 626
+      }
+    },
+    "pikkuapollo_02.png": {
+      "frame": {
+        "x": 0,
+        "y": 626,
+        "w": 650,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 650,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 650,
+        "h": 626
+      }
+    },
+    "pikkuapollo_03.png": {
+      "frame": {
+        "x": 0,
+        "y": 1252,
+        "w": 560,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 560,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 560,
+        "h": 626
+      }
+    },
+    "pikkuapollo_04.png": {
+      "frame": {
+        "x": 0,
+        "y": 1878,
+        "w": 470,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 470,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 470,
+        "h": 626
+      }
+    },
+    "pikkuapollo_05.png": {
+      "frame": {
+        "x": 0,
+        "y": 2504,
+        "w": 380,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 380,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 380,
+        "h": 626
+      }
+    },
+    "pikkuapollo_06.png": {
+      "frame": {
+        "x": 0,
+        "y": 3130,
+        "w": 290,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 290,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 290,
+        "h": 626
+      }
+    },
+    "pikkuapollo_07.png": {
+      "frame": {
+        "x": 0,
+        "y": 3756,
+        "w": 200,
+        "h": 626
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 200,
+        "h": 626
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 626
+      }
+    }
+  },
+  "animations": {
+    "fly": [
+      "pikkuapollo_01.png",
+      "pikkuapollo_02.png",
+      "pikkuapollo_03.png",
+      "pikkuapollo_04.png",
+      "pikkuapollo_05.png",
+      "pikkuapollo_06.png",
+      "pikkuapollo_07.png",
+      "pikkuapollo_06.png",
+      "pikkuapollo_04.png",
+      "pikkuapollo_02.png"
+    ]
+  },
+  "meta": {
+    "app": "https://chatgpt.com/",
+    "version": "4",
+    "image": "pikkuapollo.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 740,
+      "h": 4382
+    },
+    "scale": "1"
+  }
+}

@@ -10,7 +10,8 @@ def slice_and_resize_butterfly(
     body_width: int,
     min_wing_width: int,
     max_wing_width: int,
-    output_dir: str = "outputs"
+    output_dir: str = "outputs",
+    create_last_slices: bool = False,
 ):
     """
     Slices a top-down butterfly image into left wing, body, and right wing.
@@ -85,12 +86,15 @@ def slice_and_resize_butterfly(
         output_filename = os.path.join(output_dir, filename)
         new_img.save(output_filename, "PNG")
 
-        if filename == '05.png':
-            new_img.save(os.path.join(output_dir, "08.png"), "PNG")
-        if filename == '03.png':
-            new_img.save(os.path.join(output_dir, "09.png"), "PNG")
-        if filename == '01.png':
-            new_img.save(os.path.join(output_dir, "10.png"), "PNG")
+        # 8 9 10 can be created from 5 3 1 when making the animation frames
+        if create_last_slices:
+
+            if filename == '05.png':
+                new_img.save(os.path.join(output_dir, "08.png"), "PNG")
+            if filename == '03.png':
+                new_img.save(os.path.join(output_dir, "09.png"), "PNG")
+            if filename == '01.png':
+                new_img.save(os.path.join(output_dir, "10.png"), "PNG")
 
         print(f"Saved {i}")
 

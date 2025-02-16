@@ -2,7 +2,8 @@ import os
 import json
 from PIL import Image
 
-def create_spritesheet(input_image_path='.'):
+
+def create_spritesheet(input_image_path='.', animation_frames='01,02,03,04,05,06,07,06,04,02'):
     # Get all PNG files in the current folder
     images = [f for f in os.listdir(input_image_path) if f.endswith('.png')]
     images.sort()  # Sort files alphabetically
@@ -24,7 +25,8 @@ def create_spritesheet(input_image_path='.'):
     frame_data = {}
     for img, filename in zip(opened_images, images):
         spritesheet.paste(img, (0, y_offset))
-        frame_data[filename] = {
+        unique_filename = input_image_path+'_'+filename
+        frame_data[unique_filename] = {
             "frame": {"x": 0, "y": y_offset, "w": img.width, "h": img.height},
             "rotated": False,
             "trimmed": False,
@@ -37,10 +39,14 @@ def create_spritesheet(input_image_path='.'):
     spritesheet_filename = input_image_path+".png"
     spritesheet.save(spritesheet_filename)
 
+    # make a list from frame string, split by comma, and add .png to each frame
+    frame_names = [input_image_path + "_"+f +
+                   ".png" for f in animation_frames.split(',')]
+
     # Create the spritesheet metadata
     spritesheet_data = {
         "frames": frame_data,
-        "animations": {"all": list(frame_data.keys())},
+        "animations": {"fly": frame_names},
         "meta": {
             "app": "https://chatgpt.com/",
             "version": "4",
@@ -52,18 +58,21 @@ def create_spritesheet(input_image_path='.'):
     }
 
     # Save the JSON metadata
-    json_filename = input_image_path+"_sprites.json"
+    json_filename = input_image_path+".json"
     with open(json_filename, 'w') as json_file:
         json.dump(spritesheet_data, json_file, indent=4)
 
     print(f"Spritesheet saved as {spritesheet_filename}")
     print(f"Metadata saved as {json_filename}")
 
+
 if __name__ == "__main__":
-    import sys, os
+    import sys
+    import os
 
     if len(sys.argv) != 2:
-        print(f"Usage: python {os.path.basename(__file__)} <input_image_path> ")
+        print(
+            f"Usage: python {os.path.basename(__file__)} <input_image_path> ")
         sys.exit(1)
 
     input_image_path = sys.argv[1]

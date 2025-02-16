@@ -1,0 +1,169 @@
+{
+  "frames": {
+    "suruvaippa_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 740,
+        "h": 606
+      }
+    },
+    "suruvaippa_02.png": {
+      "frame": {
+        "x": 0,
+        "y": 606,
+        "w": 650,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 650,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 650,
+        "h": 606
+      }
+    },
+    "suruvaippa_03.png": {
+      "frame": {
+        "x": 0,
+        "y": 1212,
+        "w": 560,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 560,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 560,
+        "h": 606
+      }
+    },
+    "suruvaippa_04.png": {
+      "frame": {
+        "x": 0,
+        "y": 1818,
+        "w": 470,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 470,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 470,
+        "h": 606
+      }
+    },
+    "suruvaippa_05.png": {
+      "frame": {
+        "x": 0,
+        "y": 2424,
+        "w": 380,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 380,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 380,
+        "h": 606
+      }
+    },
+    "suruvaippa_06.png": {
+      "frame": {
+        "x": 0,
+        "y": 3030,
+        "w": 290,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 290,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 290,
+        "h": 606
+      }
+    },
+    "suruvaippa_07.png": {
+      "frame": {
+        "x": 0,
+        "y": 3636,
+        "w": 200,
+        "h": 606
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 200,
+        "h": 606
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 606
+      }
+    }
+  },
+  "animations": {
+    "fly": [
+      "suruvaippa_01.png",
+      "suruvaippa_02.png",
+      "suruvaippa_03.png",
+      "suruvaippa_04.png",
+      "suruvaippa_05.png",
+      "suruvaippa_06.png",
+      "suruvaippa_07.png",
+      "suruvaippa_06.png",
+      "suruvaippa_04.png",
+      "suruvaippa_02.png"
+    ]
+  },
+  "meta": {
+    "app": "https://chatgpt.com/",
+    "version": "4",
+    "image": "suruvaippa.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 740,
+      "h": 4242
+    },
+    "scale": "1"
+  }
+}

@@ -33,15 +33,11 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
     const eType = getEType(id)
     if (eType === 'Bee') {
-      readBeeInput(m, screen, cat)
+      moveBee(m, screen, cat)
     }
 
     if (eType === 'Butterfly') {
-      readButterflyInput(id, m)
-      m.speed *= 0.9
-      if (m.speed < 0.01) m.speed = 0
-      m.x += Math.sin(m.rotation) * m.speed
-      m.y -= Math.cos(m.rotation) * m.speed
+      moveButterfly(m) // should make freed butterflies follow the cat and fly around it a bit
     }
 
     if (eType === 'World') {
@@ -84,119 +80,69 @@ const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle
   }
 }
 
-const beeTargets = new Map<string, Movement>()
+let lastCatAttackTime = 0
 
-let catDetectedCounter = 0
-let catAttackedCounter = 0
-
-function readBeeInput(m: Movement, screen: Rectangle, cat?: Movement) {
-  if (cat) {
-    const catx = cat?.x + screen.width / 2
-    const caty = cat?.y + screen.height / 2
-    const a = Math.atan2(caty - m.y, catx - m.x) + Math.PI / 2
-    m.rotation = a
-
-    // if cat is close to the bee and set movement speed to 2
-    const dx = catx - m.x
-    const dy = caty - m.y
-    const distance = Math.sqrt(dx * dx + dy * dy)
-    if (distance < m.detectDistance * (gameState.speedFactor * 2)) {
-      if (catDetectedCounter < 10) {
-        if (gameState.soundOn) audioEngine?.playSound('buzz', 0)
-      }
-
-      catDetectedCounter = 100 + Math.round(Math.random() * 100)
-    }
-    if (catDetectedCounter > 0) {
-      m.speed = m.maxSpeed * gameState.speedFactor
-      catDetectedCounter--
-      // hud?.setMessage(`Bee attack: ${catDetectedCounter}`)
-    } else {
-      m.speed = 0
-    }
-
-    if (distance < 70 * gameState.speedFactor && catAttackedCounter === 0) {
-      catAttackedCounter = 2000
-      if (gameState.soundOn) audioEngine?.playSound('sting', 2)
-      hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
-      if (gameState.soundOn) setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
-    }
-
-    m.x += Math.sin(m.rotation) * m.speed
-    m.y -= Math.cos(m.rotation) * m.speed
-    //    hud?.setMessage(`targetAngle: ${((a * 180) / Math.PI).toFixed(2)}, cat: ${cat.x}, ${cat.y}, bee: ${m.x.toFixed()}, ${m.y.toFixed()}`)
-
+function moveBee(m: Movement, screen: Rectangle, cat?: Movement) {
+  if (!cat) {
     return
   }
+  const now = new Date().getTime()
 
-  if (!beeTargets.has('bee')) {
-    beeTargets.set('bee', flyBee(m, cat))
+  const catx = cat?.x + screen.width / 2
+  const caty = cat?.y + screen.height / 2
+  const a = Math.atan2(caty - m.y, catx - m.x) + Math.PI / 2
+  m.rotation = a
+
+  const dx = catx - m.x
+  const dy = caty - m.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+
+  // detect the cat
+  if (distance < m.detectDistance * (gameState.speedFactor * 2)) {
+    if (m.detectUntilTime < now) {
+      if (gameState.soundOn) audioEngine?.playSound('buzz', 0)
+      m.detectUntilTime = now + 100 + Math.round(Math.random() * 100)
+    }
   }
-  const target = beeTargets.get('bee')!
-  updateFly2(m, target, 'bee', flyBee(m, cat))
+
+  // if the cat is detected, move towards it
+  if (m.detectUntilTime > now) {
+    m.speed = m.maxSpeed * gameState.speedFactor
+    m.x += Math.sin(m.rotation) * m.speed
+    m.y -= Math.cos(m.rotation) * m.speed
+  } else {
+    m.speed = 0
+  }
+
+  // if the cat is close, attack
+  if (distance < 70 * gameState.speedFactor) {
+    if (now - lastCatAttackTime > 2000) {
+      lastCatAttackTime = now
+      if (gameState.soundOn) audioEngine?.playSound('sting', 2)
+      // hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
+      if (gameState.soundOn) setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
+    }
+  }
 }
 
-const butterflyTargets = new Map<string, Movement>()
-
-function readButterflyInput(id: string, m: Movement) {
-  if (!butterflyTargets.has(id)) {
-    butterflyTargets.set(id, flyButterfly(m))
+function moveButterfly(m: Movement) {
+  if (!m.direction) {
+    m.direction = randomAngle()
   }
-  const target = butterflyTargets.get(id)!
-  updateFly(m, target, id, flyButterfly(m))
-}
 
-function updateFly(
-  m: Movement,
-  target: Movement,
-  id: string,
-  nextTarget: Movement,
-  map: Map<string, Movement> = butterflyTargets
-) {
-  if (m.rotation < target.direction) {
+  if (m.rotation < m.direction) {
     m.rotation += 0.01
   }
-  if (m.rotation > target.direction) {
+  if (m.rotation > m.direction) {
     m.rotation -= 0.01
   }
-  if (Math.abs(m.rotation - target.direction) < 0.01) {
-    map.set(id, nextTarget)
+  if (Math.abs(m.rotation - m.direction) < 0.01) {
+    m.direction = randomAngle()
   }
 }
 
-function updateFly2(
-  m: Movement,
-  target: Movement,
-  id: string,
-  nextTarget: Movement,
-  map: Map<string, Movement> = butterflyTargets
-) {
-  if (m.rotation < target.direction) {
-    m.rotation += 0.4
-  }
-  if (m.rotation > target.direction) {
-    m.rotation -= 0.4
-  }
-  if (Math.abs(m.rotation - target.direction) < 0.4) {
-    map.set(id, nextTarget)
-  }
-}
-
-function flyBee(m: Movement, cat?: Movement): Movement {
-  let targetAngle = Math.random() * Math.PI * 2
-  if (cat) {
-    targetAngle = Math.atan2(cat.y - m.y, cat.x - m.x)
-  }
-  //? hud?.setMessage(`targetAngle: ${((targetAngle * 180) / Math.PI).toFixed(2)}`)
-  const target = new Movement(m.x, m.y, 0, targetAngle)
-  target.rotation = m.rotation
-  return target
-}
-
-function flyButterfly(m: Movement): Movement {
-  const target = new Movement(m.x, m.y, 0, Math.random() * Math.PI * 2)
-  target.rotation = m.rotation
-  return target
+function randomAngle() {
+  return Math.random() * Math.PI * 2
 }
 
 function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle) {
@@ -215,9 +161,9 @@ function readWorldInput(m: Movement, width: number, height: number, screen: Rect
 let boostAvailableMs = 0
 let boostCount = 0
 function readCatInput(m: Movement, width: number, height: number, screen: Rectangle) {
-  if (catAttackedCounter > 0) {
-    catAttackedCounter--
-    hud?.setPosMessage(`Cat attacked: ${catAttackedCounter}`)
+  if (lastCatAttackTime > 0) {
+    lastCatAttackTime--
+    hud?.setPosMessage(`Cat attacked: ${lastCatAttackTime}`)
   }
 
   const margin = 50

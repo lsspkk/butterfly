@@ -1,0 +1,169 @@
+{
+  "frames": {
+    "ritariperhonen_01.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 740,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 740,
+        "h": 623
+      }
+    },
+    "ritariperhonen_02.png": {
+      "frame": {
+        "x": 0,
+        "y": 623,
+        "w": 650,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 650,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 650,
+        "h": 623
+      }
+    },
+    "ritariperhonen_03.png": {
+      "frame": {
+        "x": 0,
+        "y": 1246,
+        "w": 560,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 560,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 560,
+        "h": 623
+      }
+    },
+    "ritariperhonen_04.png": {
+      "frame": {
+        "x": 0,
+        "y": 1869,
+        "w": 470,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 470,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 470,
+        "h": 623
+      }
+    },
+    "ritariperhonen_05.png": {
+      "frame": {
+        "x": 0,
+        "y": 2492,
+        "w": 380,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 380,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 380,
+        "h": 623
+      }
+    },
+    "ritariperhonen_06.png": {
+      "frame": {
+        "x": 0,
+        "y": 3115,
+        "w": 290,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 290,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 290,
+        "h": 623
+      }
+    },
+    "ritariperhonen_07.png": {
+      "frame": {
+        "x": 0,
+        "y": 3738,
+        "w": 200,
+        "h": 623
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 200,
+        "h": 623
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 623
+      }
+    }
+  },
+  "animations": {
+    "fly": [
+      "ritariperhonen_01.png",
+      "ritariperhonen_02.png",
+      "ritariperhonen_03.png",
+      "ritariperhonen_04.png",
+      "ritariperhonen_05.png",
+      "ritariperhonen_06.png",
+      "ritariperhonen_07.png",
+      "ritariperhonen_06.png",
+      "ritariperhonen_04.png",
+      "ritariperhonen_02.png"
+    ]
+  },
+  "meta": {
+    "app": "https://chatgpt.com/",
+    "version": "4",
+    "image": "ritariperhonen.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 740,
+      "h": 4361
+    },
+    "scale": "1"
+  }
+}
