@@ -2,6 +2,7 @@ import { Container, AnimatedSprite, Assets } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 import { wiggle } from '../helpers'
+import { ButterflyData } from '../worlds/LevelSettings'
 
 export type ButteflyAnimations = {
   data: {
@@ -17,11 +18,11 @@ export default class Butterfly implements EGraphics {
   timerId: number | NodeJS.Timeout
   currentSpeedFactor: number
 
-  constructor(world: World, x: number, y: number, animationFile: string) {
+  constructor(world: World, x: number, y: number, public data: ButterflyData) {
     this.timerId = 0
     this.currentSpeedFactor = 3
 
-    const { animations } = Assets.cache.get<ButteflyAnimations>('/sprites/' + animationFile).data
+    const { animations } = Assets.cache.get<ButteflyAnimations>(`/sprites/${data.sprites}.json`).data
     this.sprite = AnimatedSprite.fromFrames(animations['fly'])
     this.sprite.animationSpeed = 1 / 2 // 12 fps
     this.sprite.play()

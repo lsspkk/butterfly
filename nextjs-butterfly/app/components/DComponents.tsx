@@ -41,8 +41,10 @@ export function DButton({
     </button>
   )
 }
-export function DTitle({ children }: { children: React.ReactNode }) {
-  return <h1 className={`text-4xl text-center mb-8  text-pink-300 ${lilitaOne.className}`}>{children}</h1>
+export function DTitle({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <h1 className={`text-4xl text-center mb-8  text-pink-300 ${lilitaOne.className} ${className ?? ''}`}>{children}</h1>
+  )
 }
 export function DContent({ children }: { children: React.ReactNode }) {
   return <div className=' flex-grow'>{children}</div>

@@ -29,6 +29,7 @@ export function StepLayout({
   prevLabel,
   nextLabel,
   fullScreen,
+  showNextButton = true,
 }: {
   children: React.ReactNode
   title?: string
@@ -39,6 +40,7 @@ export function StepLayout({
   onNext?: () => void
   prevLabel: string
   nextLabel: string
+  showNextButton?: boolean
   fullScreen?: boolean
 }) {
   const containerClass = fullScreen ? 'flex flex-col h-screen overflow-hidden' : 'p-4'
@@ -50,16 +52,16 @@ export function StepLayout({
       {showIndicator && <StepIndicator steps={steps} currentStep={currentStep} />}
       {title && <h2 className='text-xl font-semibold mb-4'>{title}</h2>}
       <div className={contentClass}>{children}</div>
-      <div className='flex justify-between'>
+      <div className='flex justify-between -mt-20 '>
         {canGoPrev ? (
-          <button onClick={onPrev} className='bg-gray-300 px-4 py-2 rounded hover:bg-gray-400'>
+          <button onClick={onPrev} className='bg-indigo-600 text-white px-4 py-2 rounded hover:bg-gray-400 z-20'>
             {prevLabel}
           </button>
         ) : (
           <div />
         )}
-        {canGoNext && (
-          <button onClick={onNext} className='bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700'>
+        {canGoNext && showNextButton && (
+          <button onClick={onNext} className='bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 z-20'>
             {nextLabel}
           </button>
         )}
@@ -85,6 +87,7 @@ export interface StepNavigatorProps {
   defaultNextLabel?: string
   defaultPrevLabel?: string
   defaultNextLabelLastStep?: string
+  showLastNextButton?: boolean
 }
 
 export function StepNavigator({
@@ -93,9 +96,10 @@ export function StepNavigator({
   onStepChange,
   showStepIndicator = true,
   fullScreen = false,
-  defaultNextLabel = 'Seuraava',
-  defaultPrevLabel = 'Edellinen',
+  defaultNextLabel = '>',
+  defaultPrevLabel = '<',
   defaultNextLabelLastStep = 'OK',
+  showLastNextButton = true,
 }: StepNavigatorProps) {
   const handleNext = async () => {
     if (currentStep < 0 || currentStep >= steps.length) return
@@ -124,6 +128,7 @@ export function StepNavigator({
       onNext={handleNext}
       prevLabel={prevLabel}
       nextLabel={nextLabel}
+      showNextButton={showLastNextButton || !isLastStep}
       fullScreen={fullScreen}
     >
       {StepContent}

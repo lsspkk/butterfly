@@ -5,6 +5,7 @@ import { Gardener, HEIGHT } from './Bush'
 import { audioEngine } from '../systems/AudioSystem'
 import { gameState, updateGameState } from '../systems/gameState'
 import { wiggle } from '../helpers'
+import { ButterflyData } from '../worlds/LevelSettings'
 
 export type BubbleType = 'A' | 'B'
 
@@ -43,7 +44,7 @@ export default class Bubble implements EGraphics {
   world: World
   action?: string
 
-  constructor(world: World, bType: BubbleType, owner: Movement, gardener: Gardener) {
+  constructor(world: World, bType: BubbleType, owner: Movement, gardener: Gardener, public data: ButterflyData) {
     this.world = world
     this.popped = false
 
@@ -101,9 +102,9 @@ export default class Bubble implements EGraphics {
     return s
   }
 
-  pop() {
+  pop(): ButterflyData {
     const { edge, light } = this.pops
-    if (this.popped) return
+    if (this.popped) return this.data
     this.world.addChild(edge)
     this.world.addChild(light)
     edge.play()
@@ -119,6 +120,7 @@ export default class Bubble implements EGraphics {
       this.world.removeChild(edge)
       this.world.removeChild(light)
     }, 1000)
+    return this.data
   }
 
   setLocked(locked: boolean) {

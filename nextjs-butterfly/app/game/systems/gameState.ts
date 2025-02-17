@@ -1,6 +1,7 @@
 import { DialogState } from '@/app/dialogs'
 import { Rectangle } from 'pixi.js'
 import { Dispatch, SetStateAction } from 'react'
+import { ButterflyData } from '../worlds/LevelSettings'
 
 export type GameState = {
   score: number
@@ -16,6 +17,7 @@ export type GameState = {
   dialogState?: DialogState
   setDialogState?: Dispatch<SetStateAction<DialogState>>
   levelGameLoop?: () => void
+  levelRescue?: ButterflyData[]
 }
 
 export const gameState: GameState = {

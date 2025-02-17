@@ -4,8 +4,9 @@ import * as PIXI from 'pixi.js'
 import KeyboardListener from './game/systems/KeyboardListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
-import { GameDialog, levelSettingList } from './dialogs'
-import { Level, runLevelGameLoop } from './game/worlds/Level'
+import { GameDialog } from './dialogs'
+import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
+import { Level, runGameLoop } from './game/worlds/Level'
 import { updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
 
@@ -28,11 +29,9 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   }
   const cloudAssets = [await loadSvg('cloud1.svg')]
 
-  await PIXI.Assets.load(['/sprites/ohdakeperhonen.json', '/sprites/ohdakeperhonen.png'])
-  await PIXI.Assets.load(['/sprites/sitruunaperhonen.json', '/sprites/sitruunaperhonen_female.png'])
-  await PIXI.Assets.load(['/sprites/amiraaliperhonen.json', '/sprites/amiraaliperhonen.png'])
   await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
+  await loadButterflies()
   await loadBubbles()
   await loadAnimations(['popA1', 'popA2', 'popB1', 'popB2'], '/bubbles')
 
@@ -44,6 +43,13 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   return { app, assets }
 }
 
+async function loadButterflies() {
+  return Promise.all(
+    allButterflyData.map(async ({ sprites }) => {
+      return await PIXI.Assets.load([`/sprites/${sprites}.json`, `/sprites/${sprites}.png`])
+    })
+  )
+}
 async function loadAnimations(animationNames: string[], path = '/sprites') {
   return await Promise.all(
     animationNames.map((animation) =>
@@ -106,7 +112,7 @@ export default function Home() {
       setAssets(() => loadedAssets)
       keyboard = new KeyboardListener()
       touch = new TouchListener()
-      app.ticker.add(() => runLevelGameLoop())
+      app.ticker.add(() => runGameLoop())
     })
 
     return () => {
@@ -120,7 +126,7 @@ export default function Home() {
     if (!pixiApp || !assets) {
       throw new Error('PixiApp not initialized')
     }
-    const newLevel = new Level(pixiApp, assets, levelSettingList[nro])
+    const newLevel = new Level(pixiApp, assets, levelConfigList[nro])
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel
   }

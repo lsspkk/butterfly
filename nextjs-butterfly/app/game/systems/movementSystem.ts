@@ -76,7 +76,12 @@ const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle
   const dy = caty - m.y
   const distance = Math.sqrt(dx * dx + dy * dy)
   if (distance < 150 * gameState.speedFactor && !bubble.popped) {
-    bubble.pop()
+    const butterflyData = bubble.pop()
+
+    if (!gameState.levelRescue) {
+      gameState.levelRescue = []
+    }
+    gameState.levelRescue.push(butterflyData)
   }
 }
 

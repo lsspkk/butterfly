@@ -1,24 +1,17 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Level, LevelSettings } from './game/worlds/Level'
+import { Level } from './game/worlds/Level'
+import { ButterflyData, levelConfigList } from './game/worlds/LevelSettings'
 import { initEngine } from './game/systems/AudioSystem'
 import { gameState, storageRead, storageSave, updateGameState } from './game/systems/gameState'
 import Image from 'next/image'
 import { TouchControls } from './TouchControls'
 import { Application } from 'pixi.js'
 import { DFrame, DTitle, DContent, DText, DFooter, DButton } from './components/DComponents'
+import { StepNavigator } from './components/StepNavigation'
 //import localFont from 'next/font/local'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
-
-export const levelSettingList: LevelSettings[] = [
-  { level: 1, bees: 3, flowers: 10, butterflies: 3, beeMaxSpeed: 1 },
-  { level: 2, bees: 5, flowers: 10, butterflies: 4, beeMaxSpeed: 2 },
-  { level: 3, bees: 7, flowers: 15, butterflies: 5, beeMaxSpeed: 4 },
-  { level: 4, bees: 9, flowers: 18, butterflies: 8, beeMaxSpeed: 6 },
-  { level: 5, bees: 20, flowers: 25, butterflies: 5, beeMaxSpeed: 2 },
-  { level: 6, bees: 30, flowers: 35, butterflies: 5, beeMaxSpeed: 3 },
-]
 
 export function GameDialog({
   startLevel,
@@ -36,7 +29,7 @@ export function GameDialog({
 
   useEffect(() => {
     if (dialogState === 'level') {
-      setTotalRescued(totalRescued + levelSettingList[levelNro].butterflies)
+      setTotalRescued(totalRescued + levelConfigList[levelNro].butterflies)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogState])
@@ -49,6 +42,7 @@ export function GameDialog({
       setDialogState: setDialogState,
       dialogState: 'none',
       showDialog: false,
+      levelRescue: [],
     })
     const newLevel = await startLevel(nro)
 
@@ -63,7 +57,7 @@ export function GameDialog({
 
   const nextLevel = () => {
     let newLevelNro = levelNro + 1
-    if (newLevelNro > levelSettingList.length - 1) {
+    if (newLevelNro > levelConfigList.length - 1) {
       newLevelNro = 0
     }
     startLevelWithNro(newLevelNro)
@@ -209,21 +203,53 @@ function LevelDialog({
   nextLevel: () => void
   totalRescued: number
 }) {
-  const { butterflies } = levelSettingList[completedLevelNro]
+  const [currentStep, setCurrentStep] = useState(0)
+
+  const rescued = new Map<string, ButterflyData>()
+
+  const rescueCounts = new Map<string, number>()
+
+  for (const data of gameState.levelRescue ?? []) {
+    const count = rescueCounts.get(data.name) ?? 0
+    rescueCounts.set(data.name, count + 1)
+    rescued.set(data.name, data)
+  }
+
+  const rescuedButterfly = (data: ButterflyData) => (
+    <div key={data.name} className='flex items-center justify-between flex-col gap-2 -mt-4'>
+      <div className='flex items-center'>
+        <Nice classname=''>{data.name}</Nice>
+
+        <div className='ml-10 mr-2'>Rescued</div>
+        <Nice>{rescueCounts.get(data.name)}</Nice>
+      </div>
+
+      <div className='flex items-center w-full h-40 max-h-[30vh] relative'>
+        <Image src={`/sprites/${data.sprites}.png`} alt={data.name} fill />
+      </div>
+    </div>
+  )
+
   return (
     <DFrame>
-      <DTitle>Level {completedLevelNro + 1} Complete</DTitle>
+      <DTitle className='text-sm mb-1'>Level {completedLevelNro + 1} Complete</DTitle>
       <DContent>
-        <DText>You rescued {butterflies} butterflies</DText>
-
-        <AsciiArt />
-        {totalRescued > 0 && (
-          <DText className='text-center'>
-            Total rescued <Nice classname='mt-1 ml-1'>{totalRescued}</Nice>
-          </DText>
-        )}
+        <StepNavigator
+          showStepIndicator={false}
+          showLastNextButton={false}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+          steps={[...rescued.values()].map((d) => ({
+            component: rescuedButterfly(d),
+          }))}
+        />
       </DContent>
       <DFooter>
+        {totalRescued > 0 && (
+          <DText className='text-center flex items-center'>
+            Total rescued <Nice classname='ml-2'>{totalRescued}</Nice>
+          </DText>
+        )}
         <DButton autoFocus onClick={nextLevel}>
           Next
         </DButton>
