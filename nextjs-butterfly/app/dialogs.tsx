@@ -8,8 +8,7 @@ import Image from 'next/image'
 import { TouchControls } from './TouchControls'
 import { Application } from 'pixi.js'
 import { DFrame, DTitle, DContent, DText, DFooter, DButton } from './components/DComponents'
-import { StepNavigator } from './components/StepNavigation'
-//import localFont from 'next/font/local'
+import { ShowCanvas } from './components/ShowCanvas'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
@@ -194,6 +193,55 @@ function AsciiArt() {
   )
 }
 
+function ButterflyIcon() {
+  return (
+    <svg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+      {/* TOP-LEFT WING */}
+      <path
+        fill='white'
+        d='
+          M10 10
+          C 3 0,  0 5,  1 10
+          C 2 15, 6 18, 10 10
+          Z
+        '
+      />
+      {/* TOP-RIGHT WING */}
+      <path
+        fill='white'
+        d='
+          M10 10
+          C 17 0, 20 5, 19 10
+          C 18 15, 14 18, 10 10
+          Z
+        '
+      />
+      {/* BOTTOM-LEFT (REAR) WING */}
+      <path
+        fill='white'
+        d='
+          M10 10
+          C 5 12,  1 16,  2 19
+          C 3 20,   7 19,  10 13
+          Z
+        '
+      />
+      {/* BOTTOM-RIGHT (REAR) WING */}
+      <path
+        fill='white'
+        d='
+          M10 10
+          C 15 12,  20 16, 19 19
+          C 18 20,  13 19, 10 13
+          Z
+        '
+      />
+      {/* TALLER BODY */}
+      <rect x='9' y='3' width='2' height='18' fill='white' />
+    </svg>
+  )
+}
+
 function LevelDialog({
   completedLevelNro,
   nextLevel,
@@ -203,55 +251,71 @@ function LevelDialog({
   nextLevel: () => void
   totalRescued: number
 }) {
-  const [currentStep, setCurrentStep] = useState(0)
+  const [keys, setKeys] = useState<string[]>([])
+  const [rescued, setRescued] = useState<Map<string, ButterflyData>>(new Map())
+  const [rescueCounts, setRescueCounts] = useState<Map<string, number>>(new Map())
 
-  const rescued = new Map<string, ButterflyData>()
+  useEffect(() => {
+    console.debug(completedLevelNro)
+    const rDataMap = new Map<string, ButterflyData>()
+    const rCountMap = new Map<string, number>()
+    const rKeys: string[] = []
+    for (const data of gameState.levelRescue ?? []) {
+      const count = rCountMap.get(data.name) ?? 0
+      rCountMap.set(data.name, count + 1)
+      rDataMap.set(data.name, data)
+      if (!rKeys.includes(data.name)) {
+        rKeys.push(data.name)
+      }
+    }
+    setRescued(rDataMap)
+    setRescueCounts(rCountMap)
+    setKeys(rKeys)
+  }, [completedLevelNro])
 
-  const rescueCounts = new Map<string, number>()
+  const [key, setKey] = useState(keys[0])
 
-  for (const data of gameState.levelRescue ?? []) {
-    const count = rescueCounts.get(data.name) ?? 0
-    rescueCounts.set(data.name, count + 1)
-    rescued.set(data.name, data)
+  function onNext() {
+    console.debug({ keys, key })
+    const index = keys.indexOf(key)
+    const i = (index + 1) % keys.length
+    const k = keys[i]
+    const b = rescued.get(k)
+    const count = rescueCounts.get(k) ?? 0
+    if (b) {
+      const utterance = new SpeechSynthesisUtterance(`${b.name}, ${count} pelastettu`)
+      utterance.lang = 'fi-FI' // Prefer Finnish language
+
+      // Pick the first Finnish voice available
+      const voices = speechSynthesis.getVoices()
+      const finnishVoices = voices.filter((voice) => voice.lang.includes('fi'))
+      const randomVoice = finnishVoices[Math.floor(Math.random() * finnishVoices.length)]
+      utterance.voice = randomVoice
+      utterance.pitch = 1.5
+      speechSynthesis.speak(utterance)
+    }
+
+    setKey(k)
   }
 
-  const rescuedButterfly = (data: ButterflyData) => (
-    <div key={data.name} className='flex items-center justify-between flex-col gap-2 -mt-4'>
-      <div className='flex items-center'>
-        <Nice classname=''>{data.name}</Nice>
-
-        <div className='ml-10 mr-2'>Rescued</div>
-        <Nice>{rescueCounts.get(data.name)}</Nice>
-      </div>
-
-      <div className='flex items-center w-full h-40 max-h-[30vh] relative'>
-        <Image src={`/sprites/${data.sprites}.png`} alt={data.name} fill />
-      </div>
-    </div>
-  )
+  const data = rescued.get(key)
 
   return (
     <DFrame>
       <DTitle className='text-sm mb-1'>Level {completedLevelNro + 1} Complete</DTitle>
-      <DContent>
-        <StepNavigator
-          showStepIndicator={false}
-          showLastNextButton={false}
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-          steps={[...rescued.values()].map((d) => ({
-            component: rescuedButterfly(d),
-          }))}
-        />
-      </DContent>
+      <DContent>{data && <ShowCanvas data={data} />}</DContent>
       <DFooter>
         {totalRescued > 0 && (
           <DText className='text-center flex items-center'>
             Total rescued <Nice classname='ml-2'>{totalRescued}</Nice>
           </DText>
         )}
-        <DButton autoFocus onClick={nextLevel}>
-          Next
+
+        <DButton className='z-20' onClick={onNext}>
+          <ButterflyIcon />
+        </DButton>
+        <DButton className='z-20' autoFocus onClick={nextLevel}>
+          Play
         </DButton>
       </DFooter>
     </DFrame>

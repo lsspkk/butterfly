@@ -20,6 +20,8 @@ export const levelConfigList: LevelConfig[] = [
   { level: 4, bees: 9, flowers: 18, butterflies: 8, beeMaxSpeed: 6 },
   { level: 5, bees: 20, flowers: 25, butterflies: 5, beeMaxSpeed: 2 },
   { level: 6, bees: 30, flowers: 35, butterflies: 5, beeMaxSpeed: 3 },
+  { level: 7, bees: 3, flowers: 35, butterflies: 35, beeMaxSpeed: 4 },
+  { level: 8, bees: 3, flowers: 35, butterflies: 35, beeMaxSpeed: 5 },
 ]
 
 export const createRandomButterflies = ({ level, butterflies }: LevelConfig): ButterflyData[] => {
