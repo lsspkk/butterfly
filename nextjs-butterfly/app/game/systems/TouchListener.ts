@@ -5,14 +5,25 @@ export class TouchListener {
   x = 0
   y = 0
   el: HTMLElement
+  orientationChangeHandler: () => void
+  resizeHandler: () => void
+
   constructor() {
     const el = document.getElementById('touch-control-one')!
     this.el = el
     el.addEventListener('touchstart', this.touchstart.bind(this))
     el.addEventListener('touchend', this.touchend.bind(this))
     el.addEventListener('touchcancel', this.touchend.bind(this))
+    this.recalcCenter = this.recalcCenter.bind(this)
+    this.orientationChangeHandler = this.recalcCenter
+    this.resizeHandler = this.recalcCenter
+    window.addEventListener('orientationchange', this.orientationChangeHandler)
+    window.addEventListener('resize', this.resizeHandler)
+    this.recalcCenter()
+  }
 
-    const rect = el.getBoundingClientRect()
+  recalcCenter() {
+    const rect = this.el.getBoundingClientRect()
     this.x = rect.left + rect.width / 2
     this.y = rect.top + rect.height / 2
   }
@@ -21,7 +32,6 @@ export class TouchListener {
     e.preventDefault()
     const el = document.getElementById('touch-control-one')!
     el.addEventListener('touchmove', this.touchmove.bind(this))
-
     const { angle, distance } = this.computeAngleAndDistance(e.touches[0])
     this.readKeys(angle, distance)
   }
@@ -29,7 +39,6 @@ export class TouchListener {
   public touchend(e: TouchEvent) {
     e.preventDefault()
     this.el.removeEventListener('touchmove', this.touchmove)
-
     const keys: KeyPressType = {
       ArrowUp: false,
       ArrowDown: false,
@@ -40,6 +49,7 @@ export class TouchListener {
       keyMap[key] = keys[key]
     }
   }
+
   public touchmove(e: TouchEvent) {
     e.preventDefault()
     const { angle, distance } = this.computeAngleAndDistance(e.touches[0])
@@ -50,7 +60,6 @@ export class TouchListener {
     const angleDelta = 15
     const lower = targetAngle - angleDelta
     const upper = targetAngle + angleDelta
-
     if (targetAngle === 0) {
       return angle >= 360 - angleDelta || angle <= angleDelta
     } else {
@@ -59,7 +68,6 @@ export class TouchListener {
   }
 
   readKeys(angle: number, distance: number) {
-    // console.debug({ angle, distance })
     const keys: KeyPressType = {
       ArrowUp: false,
       ArrowDown: false,
@@ -88,9 +96,6 @@ export class TouchListener {
       keys.ArrowUp = true
       keys.ArrowRight = true
     }
-
-    //console.debug({ up: keys.ArrowUp, down: keys.ArrowDown, left: keys.ArrowLeft, right: keys.ArrowRight })
-
     for (const key in keys) {
       keyMap[key] = keys[key]
     }
@@ -100,7 +105,6 @@ export class TouchListener {
     const dx = touch.clientX - this.x
     const dy = touch.clientY - this.y
     const distance = Math.sqrt(dx * dx + dy * dy)
-
     let angle = Math.atan2(dy, dx) * (180 / Math.PI)
     if (angle < 0) {
       angle += 360
@@ -114,5 +118,7 @@ export class TouchListener {
     window.removeEventListener('touchend', this.touchend)
     window.removeEventListener('touchcancel', this.touchend)
     window.removeEventListener('touchmove', this.touchmove)
+    window.removeEventListener('orientationchange', this.orientationChangeHandler)
+    window.removeEventListener('resize', this.resizeHandler)
   }
 }
