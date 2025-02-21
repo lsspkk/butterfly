@@ -1,4 +1,5 @@
 import { Application, Container, Graphics, Text } from 'pixi.js'
+import { gameState } from '../systems/gameState'
 
 export default class Hud {
   app: Application
@@ -25,7 +26,7 @@ export default class Hud {
 
     const x = app.screen.width - 100
     this.addText('Score:', x, 4, 12)
-    this.scoreText = this.addText('0', x + 60, 4, 12, '#ffaaaa')
+    this.scoreText = this.addText(`${gameState.score}`, x + 60, 4, 12, '#ffaaaa')
 
     this.pos = this.addText('0, 0', x - 300, 4, 12, '#aaffaa')
 

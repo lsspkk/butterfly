@@ -109,7 +109,6 @@ export class TouchListener {
     if (angle < 0) {
       angle += 360
     }
-    hud?.setMessage(`angle: ${angle.toFixed(2)}, distance: ${distance.toFixed(2)}`)
     return { angle, distance }
   }
 

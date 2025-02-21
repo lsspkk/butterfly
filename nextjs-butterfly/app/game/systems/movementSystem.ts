@@ -6,6 +6,7 @@ import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
 import { gameState } from './gameState'
+import { ButterflyData } from '../worlds/LevelSettings'
 
 export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
@@ -16,9 +17,6 @@ export function movementSystem(em: EManager, width: number, height: number, scre
     return
   }
   if (gameState.inPrison === 0) {
-    gameState.showDialog = true
-    gameState.dialogState = 'level'
-    gameState.paused = true
     return
   }
 
@@ -78,14 +76,33 @@ const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle
   if (distance < 150 * gameState.speedFactor && !bubble.popped) {
     const butterflyData = bubble.pop()
 
-    if (!gameState.levelRescue) {
-      gameState.levelRescue = []
-    }
-    gameState.levelRescue.push(butterflyData)
+    updateScoreAndRescue(butterflyData)
   }
 }
 
 let lastCatAttackTime = 0
+
+function updateScoreAndRescue(butterflyData: ButterflyData) {
+  gameState.score += gameState.level
+  hud?.setScore(gameState.score)
+
+  if (gameState.soundOn) audioEngine?.playSound('pop')
+
+  gameState.inPrison = gameState.inPrison - 1
+
+  if (!gameState.levelRescue) {
+    gameState.levelRescue = []
+  }
+  gameState.levelRescue.push(butterflyData)
+
+  if (gameState.inPrison === 0) {
+    gameState.paused = true
+    setTimeout(() => {
+      gameState.showDialog = true
+      gameState.dialogState = 'level'
+    }, 100)
+  }
+}
 
 function moveBee(m: Movement, screen: Rectangle, cat?: Movement) {
   if (!cat) {
@@ -123,8 +140,12 @@ function moveBee(m: Movement, screen: Rectangle, cat?: Movement) {
   if (distance < 70 * gameState.speedFactor) {
     if (now - lastCatAttackTime > 2000) {
       lastCatAttackTime = now
+      gameState.score -= gameState.level
+      hud?.setScore(gameState.score)
+      hud?.setMessage('Ouch!')
+      setTimeout(() => hud?.setMessage(''), 1000)
+
       if (gameState.soundOn) audioEngine?.playSound('sting', 2)
-      // hud?.setMessage(`Bee attack, catAttackedCounter: ${catAttackedCounter} distance: ${distance}`)
       if (gameState.soundOn) setTimeout(() => audioEngine?.playSound('cat_hurts', 1), 500)
     }
   }
@@ -168,7 +189,6 @@ let boostCount = 0
 function readCatInput(m: Movement, width: number, height: number, screen: Rectangle) {
   if (lastCatAttackTime > 0) {
     lastCatAttackTime--
-    hud?.setPosMessage(`Cat attacked: ${lastCatAttackTime}`)
   }
 
   const margin = 50
@@ -208,6 +228,4 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   else if (w) m.rotation = (Math.PI / 4) * 0
   else if (d) m.rotation = (Math.PI / 4) * 2
   else if (s) m.rotation = (Math.PI / 4) * 4
-
-  hud?.setPos(m.x, m.y)
 }

@@ -302,15 +302,21 @@ function LevelDialog({
 
   return (
     <DFrame>
-      <DTitle className='text-sm mb-1'>Level {completedLevelNro + 1} Complete</DTitle>
-      <DContent>{data && <ShowCanvas data={data} />}</DContent>
-      <DFooter>
-        {totalRescued > 0 && (
-          <DText className='text-center flex items-center'>
-            Total rescued <Nice classname='ml-2'>{totalRescued}</Nice>
-          </DText>
-        )}
+      <DTitle className='text-4xl mb-1'>Level {completedLevelNro + 1} Complete</DTitle>
+      <DContent>
+        {data && <ShowCanvas data={data} />}
 
+        <div className='flex w-full flex-col items-center justify-center flex-grow'>
+          <DText className='text-center flex items-center'>
+            Total rescued butterflies <Nice classname='ml-2'>{totalRescued}</Nice>
+          </DText>
+
+          <DText className='text-center flex items-center'>
+            Score <Nice classname='ml-2'>{gameState.score}</Nice>
+          </DText>
+        </div>
+      </DContent>
+      <DFooter>
         <DButton className='z-20' onClick={onNext}>
           <ButterflyIcon />
         </DButton>

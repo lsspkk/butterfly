@@ -109,8 +109,6 @@ export default class Bubble implements EGraphics {
     this.world.addChild(light)
     edge.play()
     light.play()
-    if (gameState.soundOn) audioEngine?.playSound('pop')
-    updateGameState({ score: gameState.score + 1, inPrison: gameState.inPrison - 1 })
 
     this.world.removeChild(this.sprites.edge)
     this.world.removeChild(this.sprites.light)
