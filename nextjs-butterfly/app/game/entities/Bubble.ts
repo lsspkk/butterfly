@@ -2,8 +2,6 @@ import { AnimatedSprite, Assets, Container, Sprite } from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import World from './World'
 import { Gardener, HEIGHT } from './Bush'
-import { audioEngine } from '../systems/AudioSystem'
-import { gameState, updateGameState } from '../systems/gameState'
 import { wiggle } from '../helpers'
 import { ButterflyData } from '../worlds/LevelSettings'
 
