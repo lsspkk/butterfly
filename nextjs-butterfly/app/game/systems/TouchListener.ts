@@ -1,4 +1,3 @@
-import { hud } from '../worlds/Level'
 import { keyMap, KeyPressType } from './KeyboardListener'
 
 export class TouchListener {
