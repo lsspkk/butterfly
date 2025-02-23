@@ -51,11 +51,7 @@ async function loadButterflies() {
   )
 }
 async function loadAnimations(animationNames: string[], path = '/sprites') {
-  return await Promise.all(
-    animationNames.map((animation) =>
-      PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])
-    )
-  )
+  return await Promise.all(animationNames.map((animation) => PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])))
 }
 
 async function loadFlowers() {
@@ -95,6 +91,15 @@ export default function Home() {
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
 
   useEffect(() => {
+    try {
+      // @ts-expect-error we try to use a non-standard API
+      if ('orientation' in screen && typeof screen.orientation.lock === 'function') {
+        // @ts-expect-error we try to use a non-standard API
+        screen?.orientation.lock('landscape')
+      }
+    } catch (error) {
+      console.error(error)
+    }
     if (isLoaded.current) {
       return
     }
@@ -126,6 +131,7 @@ export default function Home() {
     if (!pixiApp || !assets) {
       throw new Error('PixiApp not initialized')
     }
+    pixiApp.resize()
     const newLevel = new Level(pixiApp, assets, levelConfigList[nro])
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel

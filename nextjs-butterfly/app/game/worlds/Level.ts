@@ -33,7 +33,13 @@ export class Level {
   screen: Rectangle
 
   constructor(public app: Application, public assets: AllAssets, public config: LevelConfig) {
-    this.height = app.screen.height * 2
+    const screenRatio = app.screen.width / app.screen.height
+
+    // if wery wide screen make 3 times height
+    // if medium, make 2.5 times height
+    // if 16:9 or taller, make 2 times height
+
+    this.height = app.screen.height * (screenRatio > 2 ? 3 : screenRatio > 1.7 ? 2.5 : 2)
     this.width = app.screen.width * 2
     this.screen = app.screen
     calculateSpeedFactor(app.screen)
@@ -111,11 +117,7 @@ export class Level {
       const flowerId = em.create('Flower')
       const { x, y } = this.getFlowerXYWithSafeZone()
       em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(
-        flowerId,
-        'Graphics',
-        new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
-      )
+      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
       flowers.push(flowerId)
     }
     return flowers
