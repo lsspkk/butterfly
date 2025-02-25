@@ -34,7 +34,7 @@ export class TouchListener {
     this.readKeys(angle, distance)
   }
 
-  public touchend(e: TouchEvent) {
+  public touchend() {
     this.el.removeEventListener('touchmove', this.touchmove)
     const keys: KeyPressType = {
       ArrowUp: false,
