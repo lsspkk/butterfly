@@ -10,31 +10,9 @@ import { Application } from 'pixi.js'
 import { DFrame, DTitle, DContent, DText, DFooter, DButton } from './components/DComponents'
 import { ShowCanvas } from './components/ShowCanvas'
 import { ActionButton } from './components/ActionButton'
+import { useIsPortrait } from './useIsPortrait'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
-
-function useIsPortrait() {
-  const [isPortrait, setIsPortrait] = useState(true)
-
-  useEffect(() => {
-    const checkOrientation = () => {
-      if (window.screen && window.screen.orientation && window.screen.orientation.type) {
-        setIsPortrait(window.screen.orientation.type.includes('portrait'))
-      } else {
-        setIsPortrait(window.innerHeight > window.innerWidth)
-      }
-    }
-    checkOrientation()
-    window.addEventListener('orientationchange', checkOrientation)
-    window.addEventListener('resize', checkOrientation)
-
-    return () => {
-      window.removeEventListener('orientationchange', checkOrientation)
-      window.removeEventListener('resize', checkOrientation)
-    }
-  }, [])
-  return isPortrait
-}
 
 export function GameDialog({
   startLevel,

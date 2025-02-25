@@ -9,6 +9,7 @@ import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
 import { updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
+import { useIsPortrait } from './useIsPortrait'
 
 // initialize the pixi application
 // and make a full screen view
@@ -93,6 +94,8 @@ export default function Home() {
   const isLoaded = useRef<boolean>(false)
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
+  const isPortrait = useIsPortrait()
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
 
   useEffect(() => {
     if (isLoaded.current) {
@@ -101,6 +104,10 @@ export default function Home() {
     if (!canvasRef.current) {
       return
     }
+    if (isPortrait && isMobile) {
+      return
+    }
+
     isLoaded.current = true
     let keyboard: undefined | KeyboardListener = undefined
     let touch: undefined | TouchListener = undefined
@@ -120,7 +127,7 @@ export default function Home() {
       touch?.destroy()
       localPixiApp?.destroy(true, { children: true, texture: true })
     }
-  }, [])
+  }, [isPortrait, isMobile])
 
   async function startLevel(nro: number): Promise<Level> {
     if (!pixiApp || !assets) {
