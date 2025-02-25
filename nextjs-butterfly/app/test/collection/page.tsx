@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { DButton, DContent, DFooter, DFrame } from '@/app/components/DComponents'
 import { allButterflyData } from '@/app/game/worlds/LevelSettings'
 import { ShowCanvas } from '../../components/ShowCanvas'
-import { ActionButton } from '../../game/components/ActionButton'
+import { ActionButton } from '../../components/ActionButton'
 
 export default function Home() {
   const [index, setIndex] = useState(0)

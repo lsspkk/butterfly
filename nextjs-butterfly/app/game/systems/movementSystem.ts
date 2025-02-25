@@ -197,12 +197,14 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   const xMin = -screen.width / 2 + margin
   const yMin = -screen.height / 2 + margin
 
-  if (boostAvailableMs < Ticker.shared.lastTime) {
+  const now = new Date().getTime()
+  if (boostAvailableMs !== 0 && boostAvailableMs < now) {
     gameState.setAllowAction?.(true)
+    boostAvailableMs = 0
   }
 
-  if (keyMap.space && boostAvailableMs < Ticker.shared.lastTime) {
-    boostAvailableMs = Ticker.shared.lastTime + 5000
+  if (keyMap.space && boostAvailableMs < now) {
+    boostAvailableMs = now + 5000
 
     boostCount = 10
     m.speed = 50 * gameState.speedFactor

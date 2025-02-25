@@ -5,11 +5,11 @@ import { ButterflyData, levelConfigList } from './game/worlds/LevelSettings'
 import { initEngine } from './game/systems/AudioSystem'
 import { gameState, storageRead, storageSave, updateGameState } from './game/systems/gameState'
 import Image from 'next/image'
-import { TouchControls } from './game/components/TouchControls'
+import { TouchControls } from './components/TouchControls'
 import { Application } from 'pixi.js'
 import { DFrame, DTitle, DContent, DText, DFooter, DButton } from './components/DComponents'
 import { ShowCanvas } from './components/ShowCanvas'
-import { ActionButton } from './game/components/ActionButton'
+import { ActionButton } from './components/ActionButton'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
@@ -36,7 +36,13 @@ function useIsPortrait() {
   return isPortrait
 }
 
-export function GameDialog({ startLevel, pixiApp }: { startLevel: (nro: number) => Promise<Level>; pixiApp: Application | undefined }) {
+export function GameDialog({
+  startLevel,
+  pixiApp,
+}: {
+  startLevel: (nro: number) => Promise<Level>
+  pixiApp: Application | undefined
+}) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const [dialogState, setDialogState] = useState<DialogState>('start')
@@ -92,7 +98,9 @@ export function GameDialog({ startLevel, pixiApp }: { startLevel: (nro: number) 
           {dialogState === 'start' && <StartDialog start={start} setDialogState={setDialogState} />}
           {dialogState === 'paused' && <PausedDialog />}
           {dialogState === 'gameover' && <GameOverDialog setDialogState={setDialogState} />}
-          {dialogState === 'level' && <LevelDialog completedLevelNro={levelNro} nextLevel={nextLevel} totalRescued={totalRescued} />}
+          {dialogState === 'level' && (
+            <LevelDialog completedLevelNro={levelNro} nextLevel={nextLevel} totalRescued={totalRescued} />
+          )}
           {dialogState === 'settings' && <SettingsDialog setDialogState={setDialogState} />}
         </div>
       )}
@@ -100,7 +108,12 @@ export function GameDialog({ startLevel, pixiApp }: { startLevel: (nro: number) 
   )
 }
 
-function StartDialog({ start }: { start: () => void; setDialogState: React.Dispatch<React.SetStateAction<DialogState>> }) {
+function StartDialog({
+  start,
+}: {
+  start: () => void
+  setDialogState: React.Dispatch<React.SetStateAction<DialogState>>
+}) {
   const [soundOn, setSoundOn] = useState<boolean>(storageRead('soundOn', true))
   const [fullScreen, setFullScreen] = useState(false)
   const isPortrait = useIsPortrait()
@@ -139,40 +152,50 @@ function StartDialog({ start }: { start: () => void; setDialogState: React.Dispa
   return (
     <DFrame>
       <DTitle>Butterflies in Bubbles</DTitle>
-      <DContent>
-        <div className='flex w-full items-start justify-between'>
-          <div className='flex-grow'>
-            <AsciiArt />
+      {isPortrait && isMobile && (
+        <DText className='text-center mt-20 text-xl'>Turn your device to landscape mode to play this game</DText>
+      )}
 
-            <DText>
-              Find flowers that contain prisoned butterflies.
-              <br />
-              Pop the bubbles!
-            </DText>
-            <DText>Do not let the bees catch you!</DText>
-          </div>
-          <div className='flex flex-col items-end gap-4'>
-            {isPortrait && isMobile && <DText className='text-right'>Turn your device to landscape mode for better experience</DText>}
-            <DText className='flex flex-col gap-4 w-40'>
-              <DCheckBox label='Sound' checked={soundOn} onChange={switchSoundOn} />
-              <DCheckBox label='Full Screen' checked={fullScreen} onChange={switchFullScreen} />
-            </DText>
-          </div>
-        </div>
-      </DContent>
-      <DFooter>
-        {countDown < 0 && (
-          <DButton autoFocus onClick={startCountDown} disabled={countDown !== -1}>
-            Start
-          </DButton>
-        )}
+      {!isPortrait && isMobile && (
+        <>
+          <DContent>
+            <div className='flex w-full items-start justify-between'>
+              <div className='flex-grow'>
+                <AsciiArt />
 
-        {countDown > 0 && (
-          <DText className='text-2xl items-center'>
-            Game starts in <Nice>{countDown} seconds</Nice>
-          </DText>
-        )}
-      </DFooter>
+                <DText>
+                  Find flowers that contain prisoned butterflies.
+                  <br />
+                  Pop the bubbles!
+                </DText>
+                <DText>Do not let the bees catch you!</DText>
+              </div>
+              <div className='flex flex-col items-end gap-4'>
+                {isPortrait && isMobile && (
+                  <DText className='text-right'>Turn your device to landscape mode for better experience</DText>
+                )}
+                <DText className='flex flex-col gap-4 w-40'>
+                  <DCheckBox label='Sound' checked={soundOn} onChange={switchSoundOn} />
+                  <DCheckBox label='Full Screen' checked={fullScreen} onChange={switchFullScreen} />
+                </DText>
+              </div>
+            </div>
+          </DContent>
+          <DFooter>
+            {countDown < 0 && (
+              <DButton autoFocus onClick={startCountDown} disabled={countDown !== -1}>
+                Start
+              </DButton>
+            )}
+
+            {countDown > 0 && (
+              <DText className='text-2xl items-center'>
+                Game starts in <Nice>{countDown} seconds</Nice>
+              </DText>
+            )}
+          </DFooter>
+        </>
+      )}
     </DFrame>
   )
 }
@@ -276,13 +299,20 @@ function ButterflyIcon() {
   )
 }
 
-function LevelDialog({ completedLevelNro, nextLevel, totalRescued }: { completedLevelNro: number; nextLevel: () => void; totalRescued: number }) {
+function LevelDialog({
+  completedLevelNro,
+  nextLevel,
+  totalRescued,
+}: {
+  completedLevelNro: number
+  nextLevel: () => void
+  totalRescued: number
+}) {
   const [keys, setKeys] = useState<string[]>([])
   const [rescued, setRescued] = useState<Map<string, ButterflyData>>(new Map())
   const [rescueCounts, setRescueCounts] = useState<Map<string, number>>(new Map())
 
   useEffect(() => {
-    console.debug(completedLevelNro)
     const rDataMap = new Map<string, ButterflyData>()
     const rCountMap = new Map<string, number>()
     const rKeys: string[] = []
@@ -367,7 +397,13 @@ function DCheckBox({
   return (
     <label className='flex items-center justify-between'>
       <span className='ml-2 text-white'>{label}</span>
-      <input {...props} type='checkbox' checked={checked} onChange={(e) => onChange(e.target.checked)} className='form-checkbox h-5 w-5 text-blue-600' />
+      <input
+        {...props}
+        type='checkbox'
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className='form-checkbox h-5 w-5 text-blue-600'
+      />
     </label>
   )
 }

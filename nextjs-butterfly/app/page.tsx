@@ -51,7 +51,11 @@ async function loadButterflies() {
   )
 }
 async function loadAnimations(animationNames: string[], path = '/sprites') {
-  return await Promise.all(animationNames.map((animation) => PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])))
+  return await Promise.all(
+    animationNames.map((animation) =>
+      PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])
+    )
+  )
 }
 
 async function loadFlowers() {
@@ -91,15 +95,6 @@ export default function Home() {
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
 
   useEffect(() => {
-    try {
-      // @ts-expect-error we try to use a non-standard API
-      if ('orientation' in screen && typeof screen.orientation.lock === 'function') {
-        // @ts-expect-error we try to use a non-standard API
-        screen?.orientation.lock('landscape')
-      }
-    } catch (error) {
-      console.error(error)
-    }
     if (isLoaded.current) {
       return
     }
@@ -141,9 +136,9 @@ export default function Home() {
     <div className='grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]    '>
       <GameDialog startLevel={startLevel} pixiApp={pixiApp} />
 
-      {!pixiApp && <div className='text-4xl text-center'>Loading...</div>}
-
       <main className='flex flex-col gap-8 row-start-2 items-center sm:items-start'>
+        {!pixiApp && <div className='text-4xl text-center'>Loading...</div>}
+
         <div className='w-screen h-screen absolute top-0 left-0 z-[-1]'>
           <canvas ref={canvasRef} className='w-screen h-screen' />
         </div>
