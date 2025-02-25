@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { DButton, DContent, DFooter, DFrame } from '@/app/components/DComponents'
 import { allButterflyData } from '@/app/game/worlds/LevelSettings'
 import { ShowCanvas } from '../../components/ShowCanvas'
+import { ActionButton } from '../../game/components/ActionButton'
 
 export default function Home() {
   const [index, setIndex] = useState(0)
@@ -19,6 +20,7 @@ export default function Home() {
           <ShowCanvas data={allButterflyData[index]} />
         </DContent>
         <DFooter>
+          <ActionButton onClick={onNext} location='' allowIntervalMs={200} />
           <DButton className='z-20' onClick={onNext}>
             Next
           </DButton>

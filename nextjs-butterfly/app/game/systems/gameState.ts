@@ -16,6 +16,7 @@ export type GameState = {
   showDialog?: boolean
   dialogState?: DialogState
   setDialogState?: Dispatch<SetStateAction<DialogState>>
+  setAllowAction?: Dispatch<SetStateAction<boolean>>
   levelGameLoop?: () => void
   levelRescue?: ButterflyData[]
 }

@@ -22,7 +22,7 @@ export default class Hud {
     this.background.x = 3
     this.background.y = 3
     this.name = this.addText(name, 4, 2, 15)
-    this.message = this.addText('Hunt em flying things!', 100, 4)
+    this.message = this.addText("Save 'em flying things!", 100, 4)
 
     const x = app.screen.width - 100
     this.addText('Score:', x, 4, 12)
