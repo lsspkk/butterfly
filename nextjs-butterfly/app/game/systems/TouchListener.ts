@@ -28,7 +28,6 @@ export class TouchListener {
   }
 
   public touchstart(e: TouchEvent) {
-    e.preventDefault()
     const el = document.getElementById('touch-control-one')!
     el.addEventListener('touchmove', this.touchmove.bind(this))
     const { angle, distance } = this.computeAngleAndDistance(e.touches[0])
@@ -36,7 +35,6 @@ export class TouchListener {
   }
 
   public touchend(e: TouchEvent) {
-    e.preventDefault()
     this.el.removeEventListener('touchmove', this.touchmove)
     const keys: KeyPressType = {
       ArrowUp: false,
