@@ -49,11 +49,6 @@ export class TouchListener {
 
   public touchmove(e: TouchEvent) {
     const { angle, distance } = this.computeAngleAndDistance(e.touches[0])
-
-    if (distance < 242) {
-      e.preventDefault()
-    }
-
     this.readKeys(angle, distance)
   }
 

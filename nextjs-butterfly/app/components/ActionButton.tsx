@@ -17,7 +17,7 @@ export function ActionButton({
   allowIntervalMs?: number
 }) {
   const [allowAction, setAllowAction] = useState(true)
-  const zIndex = visible ? 'z-10' : '-z-10'
+  const zIndex = visible ? 'z-20' : '-z-10'
 
   useEffect(() => {
     updateGameState({ setAllowAction })
@@ -42,7 +42,11 @@ export function ActionButton({
   }
 
   return (
-    <button onClick={onClickWithInterval} className={`opacity-70 ${zIndex} ${location}`}>
+    <button
+      onClick={onClickWithInterval}
+      onTouchStart={onClickWithInterval}
+      className={`opacity-70 ${zIndex} ${location}`}
+    >
       <svg
         className='w-[20vh] h-[20vh]'
         xmlns='http://www.w3.org/2000/svg'
