@@ -4,12 +4,13 @@ import * as PIXI from 'pixi.js'
 import KeyboardListener from './game/systems/KeyboardListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
-import { GameDialog } from './dialogs'
+import { DialogContainer } from './dialogs/DialogContainer'
 import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
-import { updateGameState } from './game/systems/gameState'
+import { calculateSpeedFactor, updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
-import { useIsPortrait } from './useIsPortrait'
+import { useIsPortrait } from './hooks/useIsPortrait'
+import { useIsMobile } from './hooks/useIsMobile'
 
 // initialize the pixi application
 // and make a full screen view
@@ -95,7 +96,7 @@ export default function Home() {
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
   const isPortrait = useIsPortrait()
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     if (isLoaded.current) {
@@ -134,6 +135,8 @@ export default function Home() {
       throw new Error('PixiApp not initialized')
     }
     pixiApp.resize()
+    calculateSpeedFactor(pixiApp.screen, isMobile)
+
     const newLevel = new Level(pixiApp, assets, levelConfigList[nro])
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel
@@ -141,7 +144,7 @@ export default function Home() {
 
   return (
     <div className='grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]    '>
-      <GameDialog startLevel={startLevel} pixiApp={pixiApp} />
+      <DialogContainer startLevel={startLevel} pixiApp={pixiApp} />
 
       <main className='flex flex-col gap-8 row-start-2 items-center sm:items-start'>
         {!pixiApp && <div className='text-4xl text-center'>Loading...</div>}

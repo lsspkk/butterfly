@@ -3,7 +3,7 @@ import { Rectangle, Application, GraphicsContext, Ticker } from 'pixi.js'
 import { BeeAnimation, Movement, Prison } from '../components/CTypes'
 import Bee from '../entities/Bee'
 import { movementSystem } from '../systems/movementSystem'
-import { calculateSpeedFactor, gameState, updateGameState } from '../systems/gameState'
+import { gameState, updateGameState } from '../systems/gameState'
 import World from '../entities/World'
 import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
@@ -42,7 +42,6 @@ export class Level {
     this.height = app.screen.height * (screenRatio > 2 ? 3 : screenRatio > 1.7 ? 2.5 : 2)
     this.width = app.screen.width * 2
     this.screen = app.screen
-    calculateSpeedFactor(app.screen)
     const { em, height, width } = this
     this.world = new World(app, height, width)
 
@@ -117,7 +116,11 @@ export class Level {
       const flowerId = em.create('Flower')
       const { x, y } = this.getFlowerXYWithSafeZone()
       em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
+      em.addComponent(
+        flowerId,
+        'Graphics',
+        new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
+      )
       flowers.push(flowerId)
     }
     return flowers

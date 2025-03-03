@@ -55,3 +55,26 @@ export function DText({ children, className }: { children: React.ReactNode; clas
 export function DFooter({ children }: { children: React.ReactNode }) {
   return <div className='flex justify-end self-end gap-16 w-full'>{children}</div>
 }
+export function DCheckBox({
+  label,
+  checked,
+  onChange,
+  ...props
+}: {
+  label: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
+  return (
+    <label className='flex items-center justify-between'>
+      <span className='ml-2 text-white'>{label}</span>
+      <input
+        {...props}
+        type='checkbox'
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className='form-checkbox h-5 w-5 text-blue-600'
+      />
+    </label>
+  )
+}

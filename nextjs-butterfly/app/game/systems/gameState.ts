@@ -1,4 +1,4 @@
-import { DialogState } from '@/app/dialogs'
+import { DialogState } from '@/app/dialogs/DialogContainer'
 import { Rectangle } from 'pixi.js'
 import { Dispatch, SetStateAction } from 'react'
 import { ButterflyData } from '../worlds/LevelSettings'
@@ -35,11 +35,12 @@ export function updateGameState(newState: Partial<GameState>) {
   Object.assign(gameState, newState)
 }
 
-export function calculateSpeedFactor(screen: Rectangle) {
+export function calculateSpeedFactor(screen: Rectangle, isMobile: boolean) {
   const { width, height } = screen
-  const smaller = width < height ? width : height
+  const bigger = width > height ? width : height
   const NORMAL = 1600
-  const speedFactor = smaller / NORMAL
+  const value = isMobile ? bigger : width
+  const speedFactor = value / NORMAL
   updateGameState({ speedFactor })
 }
 
