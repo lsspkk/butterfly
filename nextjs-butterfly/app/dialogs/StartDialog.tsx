@@ -58,7 +58,7 @@ export function StartDialog({
         <DText className='text-center mt-20 text-xl'>Turn your device to landscape mode to play this game</DText>
       )}
 
-      {!isPortrait && isMobile && (
+      {(!isPortrait || !isMobile) && (
         <>
           <DContent>
             <div className='flex w-full items-start justify-between'>
