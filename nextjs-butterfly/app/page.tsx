@@ -53,11 +53,7 @@ async function loadButterflies() {
   )
 }
 async function loadAnimations(animationNames: string[], path = '/sprites') {
-  return await Promise.all(
-    animationNames.map((animation) =>
-      PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])
-    )
-  )
+  return await Promise.all(animationNames.map((animation) => PIXI.Assets.load([`${path}/${animation}_sprites.json`, `${path}/${animation}.png`])))
 }
 
 async function loadFlowers() {
