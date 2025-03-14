@@ -1,4 +1,7 @@
 'use client'
 export function useIsMobile() {
-  return /Mobi|Android/i?.test(navigator?.userAgent)
+  if (typeof navigator === 'undefined') {
+    return false
+  }
+  return /Mobi|Android/i.test(navigator.userAgent)
 }

@@ -3,23 +3,13 @@ import React, { useState } from 'react'
 import { DFrame, DTitle, DText, DContent, DFooter, DButton } from '../components/DComponents'
 import { initEngine } from '../game/systems/AudioSystem'
 import { storageRead, storageSave, updateGameState } from '../game/systems/gameState'
-import { useIsPortrait } from '../hooks/useIsPortrait'
-import { DialogState } from './DialogContainer'
 import { Art } from '../components/Art'
 import { DCheckBox } from '../components/DComponents'
 import { Nice } from '../components/Nice'
-import { useIsMobile } from '../hooks/useIsMobile'
 
-export function StartDialog({
-  start,
-}: {
-  start: () => void
-  setDialogState: React.Dispatch<React.SetStateAction<DialogState>>
-}) {
+export function StartDialog({ start, isMobile, isPortrait }: { start: () => void; isMobile: boolean; isPortrait: boolean }) {
   const [soundOn, setSoundOn] = useState<boolean>(storageRead('soundOn', true))
   const [fullScreen, setFullScreen] = useState(false)
-  const isPortrait = useIsPortrait()
-  const isMobile = useIsMobile()
 
   const [countDown, setCountDown] = useState(-1)
 
@@ -54,9 +44,7 @@ export function StartDialog({
   return (
     <DFrame>
       <DTitle>Butterflies in Bubbles</DTitle>
-      {isPortrait && isMobile && (
-        <DText className='text-center mt-20 text-xl'>Turn your device to landscape mode to play this game</DText>
-      )}
+      {isPortrait && isMobile && <DText className='text-center mt-20 text-xl'>Turn your device to landscape mode to play this game</DText>}
 
       {(!isPortrait || !isMobile) && (
         <>
@@ -73,9 +61,7 @@ export function StartDialog({
                 <DText>Do not let the bees catch you!</DText>
               </div>
               <div className='flex flex-col items-end gap-4'>
-                {isPortrait && isMobile && (
-                  <DText className='text-right'>Turn your device to landscape mode for better experience</DText>
-                )}
+                {isPortrait && isMobile && <DText className='text-right'>Turn your device to landscape mode for better experience</DText>}
                 <DText className='flex flex-col gap-4 w-40'>
                   <DCheckBox label='Sound' checked={soundOn} onChange={switchSoundOn} />
                   <DCheckBox label='Full Screen' checked={fullScreen} onChange={switchFullScreen} />

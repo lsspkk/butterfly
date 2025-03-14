@@ -1,6 +1,20 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"],
+  "extends": ["next/core-web-vitals", "next/typescript", "plugin:storybook/recommended"],
+  "plugins": ["storybook", "unused-imports"],
   "rules": {
-    "@typescript-eslint/no-explicit-any": "off"
-  }
+    "@typescript-eslint/no-explicit-any": "off",
+      "unused-imports/no-unused-imports": "warn",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+      ]
+    }, 
+    "overrides": [
+      {
+        "files": ["*.stories.tsx"],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
 }

@@ -12,16 +12,11 @@ import { GameOverDialog } from './GameOverDialog'
 import { LevelDialog } from './LevelDialog'
 import { SettingsDialog } from './SettingsDialog'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useIsPortrait } from '../hooks/useIsPortrait'
 
 export type DialogState = 'start' | 'paused' | 'gameover' | 'level' | 'settings' | 'none'
 
-export function DialogContainer({
-  startLevel,
-  pixiApp,
-}: {
-  startLevel: (nro: number) => Promise<Level>
-  pixiApp: Application | undefined
-}) {
+export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: number) => Promise<Level>; pixiApp: Application | undefined }) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   const [dialogState, setDialogState] = useState<DialogState>('start')
@@ -29,6 +24,7 @@ export function DialogContainer({
   const [level, setLevel] = useState<Level | undefined>(undefined)
   const [totalRescued, setTotalRescued] = useState<number>(0)
   const isMobile = useIsMobile()
+  const isPortrait = useIsPortrait()
 
   useEffect(() => {
     if (dialogState === 'level') {
@@ -75,12 +71,10 @@ export function DialogContainer({
           ref={dialogRef}
           className='fixed top-0 left-0 w-screen h-screen overflow-scroll  bg-gradient-to-br from-green-400 to-green-800 flex flex-col justify-stretch items-stretch'
         >
-          {dialogState === 'start' && <StartDialog start={start} setDialogState={setDialogState} />}
+          {dialogState === 'start' && <StartDialog start={start} isMobile={isMobile} isPortrait={isPortrait} />}
           {dialogState === 'paused' && <PausedDialog />}
           {dialogState === 'gameover' && <GameOverDialog setDialogState={setDialogState} />}
-          {dialogState === 'level' && (
-            <LevelDialog completedLevelNro={levelNro} nextLevel={nextLevel} totalRescued={totalRescued} />
-          )}
+          {dialogState === 'level' && <LevelDialog completedLevelNro={levelNro} nextLevel={nextLevel} totalRescued={totalRescued} />}
           {dialogState === 'settings' && <SettingsDialog setDialogState={setDialogState} />}
         </div>
       )}
