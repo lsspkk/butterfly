@@ -231,3 +231,81 @@ Summary of changes:
 - All 17 tests passing
 - Task 4 (Create MapLoader Service) is now complete
 
+15:31 - Task 4 complete (all subtasks done)
+
+15:32 - Started Subtask 5.1
+15:33 - Updated app/game/worlds/Level.ts
+15:33 - Created app/game/worlds/Level.test.ts
+15:35 - Tests pass app/game/worlds/Level.test.ts
+15:35 - Subtask 5.1 complete
+
+Summary of changes:
+- Added MapData import to Level.ts
+- Added optional mapData parameter to Level constructor (4th parameter)
+- Added mapData property to Level class to store the reference
+- Updated dimension calculation logic:
+  * If mapData provided: use widthMultiplier and heightMultiplier from MapData
+  * If no mapData: fall back to legacy screen ratio-based calculation
+- Maintains full backward compatibility - existing code works without changes
+- Created comprehensive test suite with 12 unit tests:
+  * Tests legacy behavior without MapData (3 tests)
+  * Tests MapData-based dimension calculation (4 tests)
+  * Tests backward compatibility (2 tests)
+  * Tests edge cases: zero, fractional, and large multipliers (3 tests)
+- All tests passing (12/12)
+- Level constructor now ready to accept MapData for custom level layouts
+
+15:35 - Started Subtask 5.2
+15:35 - Tests pass app/game/worlds/Level.test.ts
+15:35 - Subtask 5.2 complete
+
+Summary of changes:
+- Verified that subtask 5.2 requirements were already implemented in subtask 5.1
+- Level constructor (lines 46-59) already calculates world dimensions from MapData
+- Uses mapData.widthMultiplier and mapData.heightMultiplier when MapData is provided
+- Falls back to legacy screen ratio-based calculation when MapData is not provided
+- All 12 unit tests passing, including tests for dimension calculation with MapData
+- No additional code changes needed
+
+15:36 - Started Subtask 5.3
+15:37 - Updated app/game/worlds/Level.ts
+15:37 - Updated app/game/worlds/Level.test.ts
+15:37 - Tests pass app/game/worlds/Level.test.ts
+15:37 - Subtask 5.3 complete
+
+Summary of changes:
+- Updated Level constructor to calculate cat spawn position from MapData
+- When MapData is provided: uses mapData.catSpawn coordinates (converted to Movement coordinates)
+- When no MapData: defaults to (0, 0) which centers cat on screen (legacy behavior)
+- Movement coordinates are relative to screen center, so subtract screen center from world coordinates
+- Updated getFlowerXYWithSafeZone() to use actual cat spawn position for safe zone calculation
+- Added 8 comprehensive unit tests for cat spawn position calculation:
+  * Tests with MapData: various spawn positions (center, bottom, corner, large world)
+  * Tests without MapData: legacy center spawn behavior
+  * Tests for safe zone calculation using correct cat position
+- All 20 tests passing (12 dimension tests + 8 cat spawn tests)
+
+15:37 - Started Subtask 5.4
+15:38 - Updated app/game/entities/World.ts
+15:38 - Updated app/game/worlds/Level.ts
+15:38 - Updated app/game/worlds/Level.test.ts
+15:38 - Tests pass app/game/worlds/Level.test.ts
+15:38 - Subtask 5.4 complete
+
+Summary of changes:
+- Updated World constructor to accept optional MapData parameter (4th parameter)
+- Added MapData import to World.ts
+- Added mapData property to World class to store the reference
+- Updated Level.ts to pass mapData when creating World instance
+- World now has access to boundary information for future rendering updates (Task 8)
+- Maintains full backward compatibility - existing code works without MapData
+- Added 5 comprehensive unit tests for MapData integration:
+  * Tests MapData storage with single zone
+  * Tests MapData with multiple zones (4 zones)
+  * Tests MapData with polygon boundary
+  * Tests boundary information for rect shape
+  * Tests boundary information for ellipse shape
+- All 25 tests passing (12 dimension + 8 cat spawn + 5 MapData integration)
+- Task 5 (Refactor Level.ts to Use MapData) is now complete - all subtasks done
+
+15:38 - Task 5 complete (all subtasks done)

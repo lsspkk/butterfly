@@ -15,6 +15,7 @@ import Bubble from '../entities/Bubble'
 import { AllAssets } from '@/app/page'
 import { audioEngine } from '../systems/AudioSystem'
 import { LevelConfig, ButterflyData, createRandomButterflies } from './LevelSettings'
+import { MapData } from '../maps/MapTypes'
 
 export let hud: Hud | undefined = undefined
 
@@ -31,19 +32,35 @@ export class Level {
   height: number
   width: number
   screen: Rectangle
+  mapData?: MapData
 
-  constructor(public app: Application, public assets: AllAssets, public config: LevelConfig) {
+  constructor(
+    public app: Application,
+    public assets: AllAssets,
+    public config: LevelConfig,
+    mapData?: MapData
+  ) {
+    this.mapData = mapData
     const screenRatio = app.screen.width / app.screen.height
 
-    // if wery wide screen make 3 times height
-    // if medium, make 2.5 times height
-    // if 16:9 or taller, make 2 times height
+    // Calculate world dimensions
+    // If mapData is provided, use its multipliers
+    // Otherwise, fall back to screen ratio-based calculation for backward compatibility
+    if (mapData) {
+      this.height = app.screen.height * mapData.heightMultiplier
+      this.width = app.screen.width * mapData.widthMultiplier
+    } else {
+      // Legacy calculation for backward compatibility
+      // if very wide screen make 3 times height
+      // if medium, make 2.5 times height
+      // if 16:9 or taller, make 2 times height
+      this.height = app.screen.height * (screenRatio > 2 ? 3 : screenRatio > 1.7 ? 2.5 : 2)
+      this.width = app.screen.width * 2
+    }
 
-    this.height = app.screen.height * (screenRatio > 2 ? 3 : screenRatio > 1.7 ? 2.5 : 2)
-    this.width = app.screen.width * 2
     this.screen = app.screen
     const { em, height, width } = this
-    this.world = new World(app, height, width)
+    this.world = new World(app, height, width, mapData)
 
     const worldId = em.create('World')
     em.addComponent(worldId, 'Movement', new Movement(0, 0, 1))
@@ -60,8 +77,14 @@ export class Level {
     const butterflies: ButterflyData[] = createRandomButterflies(config)
     updateGameState({ inPrison: butterflies.length })
 
+    // Calculate cat spawn position
+    // If MapData is provided, use catSpawn position (already in world coordinates)
+    // Otherwise, default to (0, 0) which centers the cat on screen
+    const catSpawnX = mapData ? mapData.catSpawn.x - this.screen.width / 2 : 0
+    const catSpawnY = mapData ? mapData.catSpawn.y - this.screen.height / 2 : 0
+
     const catId = em.create('Cat')
-    em.addComponent(catId, 'Movement', new Movement(0, 0, 1))
+    em.addComponent(catId, 'Movement', new Movement(catSpawnX, catSpawnY, 1))
     em.addComponent(catId, 'Graphics', new Cat(this.world, { name: 'The Cat', animations: 'cat1.json' }))
 
     for (let i = 0; i < config.bees; i++) {
@@ -98,8 +121,11 @@ export class Level {
   }
 
   getFlowerXYWithSafeZone() {
-    const catX = this.screen.width / 2
-    const catY = this.screen.height / 2
+    // Calculate cat position in world coordinates
+    // If MapData is provided, use catSpawn position
+    // Otherwise, use screen center (legacy behavior)
+    const catX = this.mapData ? this.mapData.catSpawn.x : this.screen.width / 2
+    const catY = this.mapData ? this.mapData.catSpawn.y : this.screen.height / 2
     let x = 0,
       y = 0
     do {

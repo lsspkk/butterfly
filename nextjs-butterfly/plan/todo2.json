@@ -194,14 +194,14 @@
       "todoTxtRef": "TASK 2.2: Refactor Level.ts to Use MapData (todo2.txt)",
       "epic": "Level System Integration",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 4,
       "dependencies": [4],
       "subtasks": [
         {
           "id": "5.1",
           "title": "Update Level constructor to accept MapData",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Add optional MapData parameter, maintain backward compat"
@@ -209,7 +209,7 @@
         {
           "id": "5.2",
           "title": "Calculate world dimensions from MapData",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Use widthMultiplier/heightMultiplier from MapData"
@@ -217,7 +217,7 @@
         {
           "id": "5.3",
           "title": "Position cat at MapData.catSpawn",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Use spawn position from map instead of hardcoded center"
@@ -225,7 +225,7 @@
         {
           "id": "5.4",
           "title": "Pass MapData to World constructor",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "World needs boundary info for rendering"

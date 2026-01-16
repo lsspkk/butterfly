@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import { randomColor } from '../helpers'
+import { MapData } from '../maps/MapTypes'
 
 export default class World implements EGraphics {
   app: PIXI.Application
@@ -12,8 +13,10 @@ export default class World implements EGraphics {
   screen: PIXI.Rectangle
   width: number
   height: number
+  mapData?: MapData
 
-  constructor(app: PIXI.Application, height: number, width: number) {
+  constructor(app: PIXI.Application, height: number, width: number, mapData?: MapData) {
+    this.mapData = mapData
     this.count = 0
     this.app = app
     this.screen = app.screen
