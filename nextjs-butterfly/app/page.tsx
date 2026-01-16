@@ -9,8 +9,10 @@ import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
 import { calculateSpeedFactor, updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
+import { PointAndMoveListener } from './game/systems/PointAndMoveListener'
 import { useIsPortrait } from './hooks/useIsPortrait'
 import { useIsMobile } from './hooks/useIsMobile'
+import { mapLoader } from './game/maps/MapLoader'
 
 // initialize the pixi application
 // and make a full screen view
@@ -39,6 +41,13 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
 
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
+
+  // Load map data for all levels
+  try {
+    await mapLoader.loadMaps(window.innerWidth, window.innerHeight)
+  } catch (error) {
+    console.error('Failed to load maps, will use default fallback:', error)
+  }
 
   const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets }
 
@@ -108,6 +117,7 @@ export default function Home() {
     isLoaded.current = true
     let keyboard: undefined | KeyboardListener = undefined
     let touch: undefined | TouchListener = undefined
+    let pointAndMove: undefined | PointAndMoveListener = undefined
     let localPixiApp: PIXI.Application | undefined = undefined
 
     initPixiApp(canvasRef.current).then(({ app, assets: loadedAssets }) => {
@@ -116,12 +126,14 @@ export default function Home() {
       setAssets(() => loadedAssets)
       keyboard = new KeyboardListener()
       touch = new TouchListener()
+      pointAndMove = new PointAndMoveListener()
       app.ticker.add(() => runGameLoop())
     })
 
     return () => {
       keyboard?.destroy()
       touch?.destroy()
+      pointAndMove?.destroy()
       localPixiApp?.destroy(true, { children: true, texture: true })
     }
   }, [isPortrait, isMobile])
@@ -133,7 +145,11 @@ export default function Home() {
     pixiApp.resize()
     calculateSpeedFactor(pixiApp.screen, isMobile)
 
-    const newLevel = new Level(pixiApp, assets, levelConfigList[nro])
+    // Retrieve map data for this level
+    // mapLoader.getMapForLevel will return undefined if not loaded, or a fallback if level not found
+    const mapData = mapLoader.isLoaded() ? mapLoader.getMapForLevel(nro) : undefined
+
+    const newLevel = new Level(pixiApp, assets, levelConfigList[nro], mapData)
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel
   }

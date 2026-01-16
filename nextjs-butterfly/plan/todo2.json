@@ -390,14 +390,14 @@
       "todoTxtRef": "TASK 4.1: Integrate Map Loading in page.tsx (todo2.txt)",
       "epic": "Asset Loading and Initialization",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [4],
       "subtasks": [
         {
           "id": "10.1",
           "title": "Load maps during asset loading phase",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/page.tsx",
           "testRequired": false,
           "description": "Add MapLoader.loadMaps() to initialization"
@@ -405,7 +405,7 @@
         {
           "id": "10.2",
           "title": "Store parsed maps in accessible location",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/page.tsx",
           "testRequired": false,
           "description": "Make maps available for Level creation"
@@ -413,7 +413,7 @@
         {
           "id": "10.3",
           "title": "Pass MapData when creating Level",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/page.tsx",
           "testRequired": false,
           "description": "Retrieve MapData for level and pass to Level constructor"
@@ -421,7 +421,7 @@
         {
           "id": "10.4",
           "title": "Handle map loading errors gracefully",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/page.tsx",
           "testRequired": false,
           "description": "Fall back to default behavior if maps fail to load"
