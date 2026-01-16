@@ -1,0 +1,6 @@
+[x] EPIC-1: Implement Point-and-Move Control Scheme
+  [x] EPIC-1.1: Add the new `movementControl` setting to the `GameState` and the `SettingsDialog`.
+  [x] EPIC-1.2: Create a new touch listener for the "point-and-move" logic.
+  [x] EPIC-1.3: Modify the `movementSystem` to use the new touch listener's input when the "point-and-move" mode is active.
+  [x] EPIC-1.4: Conditionally render the joystick and activate the `TouchListener` based on the `movementControl` setting.
+  [x] EPIC-1.5: Implement the "point-and-move" logic in the `movementSystem`.

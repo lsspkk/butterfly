@@ -1,0 +1,93 @@
+15:13 - Started Subtask 2.2
+15:14 - Created plan/MAP_FORMAT.md
+15:14 - Created app/game/maps/MapParser.ts
+15:14 - Created app/game/maps/MapParser.test.ts
+15:14 - Updated vitest.config.ts (added unit test workspace)
+15:14 - Updated package.json (added test scripts)
+15:14 - Tests pass app/game/maps/MapParser.test.ts
+15:14 - Subtask 2.2 complete
+
+Summary of changes:
+- Created MAP_FORMAT.md with complete specification for map file format
+- Implemented tokenizeLine() function to parse lines and strip comments
+- Implemented parseCoordinate() to handle percentage vs absolute values
+- Implemented toAbsolute() to convert coordinates to pixels
+- Implemented parseCoordinates() to parse multiple coordinate values
+- Implemented validateRange() and validateCoordinate() for validation
+- Created MapParseError class for error reporting with line numbers
+- Added 33 unit tests covering all tokenization and helper functions
+- Updated vitest config to support both unit and Storybook tests
+- All tests passing (33/33)
+
+15:15 - Started Subtask 2.3
+15:15 - Updated app/game/maps/MapParser.ts
+15:15 - Updated app/game/maps/MapParser.test.ts
+15:15 - Tests pass app/game/maps/MapParser.test.ts
+15:15 - Subtask 2.3 complete
+
+Summary of changes:
+- Implemented parseLevel() function to parse LEVEL directive
+- Implemented parseSize() function to parse SIZE directive
+- Added LevelBuilder interface for intermediate parsing state
+- Added 20 unit tests for LEVEL and SIZE parsing
+- Tests validate correct parsing of valid inputs
+- Tests validate error handling for invalid inputs (missing args, non-numeric, negative, zero)
+- All tests passing (53/53)
+
+15:17 - Started Subtask 2.4
+15:18 - Updated app/game/maps/MapParser.ts
+15:18 - Updated app/game/maps/MapParser.test.ts
+15:18 - Tests pass app/game/maps/MapParser.test.ts
+15:18 - Subtask 2.4 complete
+
+Summary of changes:
+- Implemented parseShape() helper function to parse shape definitions (rect, ellipse, polygon)
+- Implemented parseBoundary() function to parse BOUNDARY directive
+- Added comprehensive validation for all three shape types
+- rect: validates 4 parameters (x, y, width, height)
+- ellipse: validates 4 parameters (cx, cy, rx, ry)
+- polygon: validates minimum 3 vertices (6 coordinates) and even coordinate count
+- Added 24 unit tests covering all boundary parsing scenarios
+- Tests validate correct parsing of valid rect, ellipse, and polygon shapes
+- Tests validate error handling for invalid inputs (wrong param counts, invalid types, out-of-range values)
+- All tests passing (77/77)
+15:18 - Started Subtask 2.5
+15:19 - Updated app/game/maps/MapParser.ts
+15:19 - Updated app/game/maps/MapParser.test.ts
+15:19 - Tests pass app/game/maps/MapParser.test.ts
+15:19 - Subtask 2.5 complete
+
+Summary of changes:
+- Implemented parseZone() function to parse ZONE directive
+- ZONE syntax: ZONE <id> <shape_type> <parameters>
+- Zone ID validation: alphanumeric characters with underscore or hyphen allowed
+- Reuses parseShape() helper for shape parsing (rect, ellipse, polygon)
+- Added 28 unit tests covering all zone parsing scenarios:
+  * Valid zones with rect, ellipse, and polygon shapes
+  * Zone IDs with alphanumeric, underscore, and hyphen characters
+  * Absolute, percentage, and mixed coordinate systems
+  * Error handling for missing/invalid IDs, invalid shapes, wrong parameter counts
+- All tests passing (99/99)
+
+15:20
+ - Started Subtask 2.6
+15:22
+ - Updated app/game/maps/MapParser.ts
+15:22 - Tests pass app/game/maps/MapParser.test.ts
+15:22 - Subtask 2.6 complete
+
+Summary of changes:
+- Implemented parseCatSpawn() function to parse CAT_SPAWN directive
+- Implemented convertRawShapeToShape() to convert RawZoneShape to ZoneShape with absolute coordinates
+- Implemented parseMapFile() to parse complete map files into MapData objects
+- Implemented finalizeLevelBuilder() helper to validate and convert level data
+- Updated LevelBuilder interface to use RawZone and CoordinateValue types
+- Added 41 comprehensive unit tests covering:
+  * parseCatSpawn with percentage, absolute, and mixed coordinates
+  * convertRawShapeToShape for rect, ellipse, and polygon shapes
+  * parseMapFile for single and multiple level maps
+  * Error handling for missing/duplicate directives
+  * Percentage to absolute coordinate conversion
+- All tests passing (140/140)
+- Task 2 (Create Map Parser) is now complete
+
