@@ -177,3 +177,57 @@ Summary of changes:
 - Both levels provide complex, challenging endgame content
 - Task 3 (Create Maps Data File) is now complete - all 8 levels defined
 
+15:28 - Started Subtask 4.1
+15:28 - Created app/game/maps/MapLoader.ts
+15:28 - Created app/game/maps/MapLoader.test.ts
+15:28 - Tests pass app/game/maps/MapLoader.test.ts
+15:28 - Subtask 4.1 complete
+
+Summary of changes:
+- Implemented MapLoader class as singleton service for fetching and caching map data
+- loadMaps() method fetches /maps/levels.txt via fetch API
+- Idempotent loading - multiple calls only fetch once
+- Concurrent load calls handled correctly with promise caching
+- getMapForLevel() retrieves cached MapData by level number
+- Helper methods: isLoaded(), getAllMaps(), getMapCount(), reset()
+- Comprehensive error handling for fetch failures and network errors
+- Created 17 unit tests covering:
+  * Successful fetch and parse of maps
+  * Caching behavior (no duplicate fetches)
+  * Concurrent load call handling
+  * Fetch error handling (404, network errors)
+  * Map retrieval by level number
+  * Warning when accessing before load
+  * getAllMaps(), getMapCount(), isLoaded() functionality
+  * reset() for clearing state
+- All tests passing (17/17)
+- MapLoader ready for integration with Level system
+
+15:29 - Started Subtask 4.2
+15:29 - Tests pass app/game/maps/MapLoader.test.ts
+15:29 - Subtask 4.2 complete
+
+Summary of changes:
+- Verified that subtask 4.2 requirements were already implemented in subtask 4.1
+- Map caching functionality confirmed working via Map<number, MapData> structure
+- getMapForLevel() method fully implemented with proper error handling
+- All 17 unit tests passing, including tests for caching and map retrieval
+- No additional code changes needed
+
+15:30 - Started Subtask 4.3
+15:30 - Updated app/game/maps/MapLoader.ts
+15:30 - Updated app/game/maps/MapLoader.test.ts
+15:30 - Tests pass app/game/maps/MapLoader.test.ts
+15:30 - Subtask 4.3 complete
+
+Summary of changes:
+- Implemented createDefaultMap() private method to generate fallback maps
+- Default map uses 1.0x1.0 world size with full rectangular boundary
+- Single center zone (60% of world) for flower spawning
+- Cat spawns at bottom center (50%, 80%)
+- Updated getMapForLevel() to return fallback map when level not found
+- Added console warning when using fallback map
+- Updated test to verify fallback map creation and warning message
+- All 17 tests passing
+- Task 4 (Create MapLoader Service) is now complete
+

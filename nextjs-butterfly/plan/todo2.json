@@ -158,14 +158,14 @@
       "todoTxtRef": "TASK 2.1: Create MapLoader Service (todo2.txt)",
       "epic": "Level System Integration",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [2],
       "subtasks": [
         {
           "id": "4.1",
           "title": "Implement async fetch for levels.txt",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapLoader.ts",
           "testRequired": true,
           "description": "Fetch map file from public/maps/levels.txt"
@@ -173,7 +173,7 @@
         {
           "id": "4.2",
           "title": "Implement map caching and getMapForLevel",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapLoader.ts",
           "testRequired": true,
           "description": "Cache parsed maps, provide lookup by level number"
@@ -181,7 +181,7 @@
         {
           "id": "4.3",
           "title": "Implement fallback for missing levels",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapLoader.ts",
           "testRequired": false,
           "description": "Return default rectangular map if level not found"
