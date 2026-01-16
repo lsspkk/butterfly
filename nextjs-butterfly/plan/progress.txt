@@ -91,3 +91,89 @@ Summary of changes:
 - All tests passing (140/140)
 - Task 2 (Create Map Parser) is now complete
 
+15:24 - Started Subtask 3.1
+15:24 - Created public/maps/ directory
+15:24 - Created public/maps/levels.txt
+15:24 - Subtask 3.1 complete
+
+Summary of changes:
+- Created public/maps/ directory for level map files
+- Created levels.txt with Level 1 and Level 2 map definitions
+- Level 1: Simple introduction level with single center zone (rect 30%-70% x 30%-70%)
+  * 1.0x1.0 world size, full rectangular boundary
+  * Single "center" zone for 10 flowers
+  * Cat spawns at bottom center (50%, 80%)
+- Level 2: Two Gardens layout with left and right elliptical zones
+  * 1.2x1.0 world size with 5% margin boundary
+  * "left" ellipse zone at 25% x-position, 15% radius horizontal, 30% vertical
+  * "right" ellipse zone at 75% x-position, 15% radius horizontal, 30% vertical
+  * Cat spawns at center (50%, 50%) between the two zones
+  * Matches LevelSettings: 10 flowers, 5 bees, 4 butterflies
+- Both maps follow MAP_FORMAT.md specification with comments
+
+15:25 - Started Subtask 3.2
+15:25 - Updated public/maps/levels.txt
+15:25 - Subtask 3.2 complete
+
+Summary of changes:
+- Added Level 3: Triangle Pattern to levels.txt
+  * 1.5x1.2 world size with circular boundary (ellipse 45% radius)
+  * Three rectangular zones arranged in triangle: top, bottomleft, bottomright
+  * Each zone is 20% x 20% size
+  * Cat spawns at center (50%, 50%)
+  * Matches LevelSettings: 15 flowers, 7 bees, 5 butterflies
+- Added Level 4: Four Corners to levels.txt
+  * 1.6x1.0 world size with rectangular boundary (3% margin)
+  * Four elliptical zones at each corner: topleft, topright, bottomleft, bottomright
+  * Each zone has 12% horizontal radius and 15% vertical radius
+  * Cat spawns at center (50%, 50%)
+  * Matches LevelSettings: 18 flowers, 9 bees, 8 butterflies
+- Both levels increase difficulty with more zones and larger world sizes
+- Circular boundary in Level 3 adds navigation challenge
+- Level 4 requires movement across wider world to reach all corners
+
+15:26 - Started Subtask 3.3
+15:26 - Updated public/maps/levels.txt
+15:26 - Subtask 3.3 complete
+
+Summary of changes:
+- Added Level 5: Scattered Gardens to levels.txt
+  * 2.0x1.5 world size with rectangular boundary (2% margin)
+  * Five zones scattered across the play area: center, topleft, topright, bottomleft, bottomright
+  * Mix of ellipse and rect zones for variety
+  * Cat spawns at bottom (50%, 85%) requiring travel upward
+  * Matches LevelSettings: 25 flowers, 20 bees, 5 butterflies
+  * High bee density (20 bees) creates significant challenge
+- Added Level 6: Perimeter Defense to levels.txt
+  * 2.0x1.5 world size with circular boundary (ellipse 48% radius)
+  * Six zones arranged around perimeter: top, topright, bottomright, bottom, bottomleft, topleft
+  * Mix of ellipse and rect zones positioned at edges
+  * Cat spawns at center (50%, 50%) requiring travel to all edges
+  * Matches LevelSettings: 35 flowers, 22 bees, 5 butterflies
+  * Maximum bee challenge (22 bees) with large world and circular boundary
+- Both levels significantly increase difficulty with larger worlds and more zones
+- Level 5 tests navigation with scattered zones and high bee count
+- Level 6 tests perimeter navigation with circular boundary constraint
+
+15:27 - Started Subtask 3.4
+15:27 - Updated public/maps/levels.txt
+15:27 - Subtask 3.4 complete
+
+Summary of changes:
+- Added Level 7: Spiral Garden to levels.txt
+  * 2.2x1.8 world size with polygon boundary (rectangular with 10% margin)
+  * Seven zones arranged in spiral pattern: center, north, northeast, east, southeast, south, west
+  * Mix of ellipse and rect zones creates varied navigation challenge
+  * Cat spawns at center (50%, 50%) requiring spiral outward movement
+  * Matches LevelSettings: 35 flowers, 8 bees, 10 butterflies, beeMaxSpeed: 4
+  * Introduces new butterfly species (Mustatäplähiipijä) unlocked at level 7
+- Added Level 8: Labyrinth Challenge to levels.txt
+  * 2.5x2.0 world size - largest world in the game
+  * Complex irregular polygon boundary creates labyrinth-like play area
+  * Eight zones in puzzle arrangement: entrance, corridor1, corridor2, chamber1, chamber2, passage, upper1, upper2
+  * Cat spawns at bottom entrance (50%, 92%) requiring navigation upward through labyrinth
+  * Matches LevelSettings: 35 flowers, 16 bees, 15 butterflies, beeMaxSpeed: 5
+  * Ultimate challenge with maximum butterfly count and high bee density
+- Both levels provide complex, challenging endgame content
+- Task 3 (Create Maps Data File) is now complete - all 8 levels defined
+

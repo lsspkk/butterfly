@@ -114,14 +114,14 @@
       "todoTxtRef": "TASK 1.3: Create Maps Data File (todo2.txt)",
       "epic": "Map Data Format and Parser",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [1],
       "subtasks": [
         {
           "id": "3.1",
           "title": "Create Level 1-2 maps (simple layouts)",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "public/maps/levels.txt",
           "testRequired": false,
           "description": "Level 1: single center zone, Level 2: two zones left/right"
@@ -129,7 +129,7 @@
         {
           "id": "3.2",
           "title": "Create Level 3-4 maps (medium complexity)",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "public/maps/levels.txt",
           "testRequired": false,
           "description": "Level 3: triangle pattern, Level 4: four corners"
@@ -137,7 +137,7 @@
         {
           "id": "3.3",
           "title": "Create Level 5-6 maps (increasing difficulty)",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "public/maps/levels.txt",
           "testRequired": false,
           "description": "Level 5: scattered zones, Level 6: perimeter zones"
@@ -145,7 +145,7 @@
         {
           "id": "3.4",
           "title": "Create Level 7-8 maps (complex layouts)",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "public/maps/levels.txt",
           "testRequired": false,
           "description": "Level 7-8: complex multi-zone challenge layouts"
