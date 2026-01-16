@@ -434,14 +434,14 @@
       "todoTxtRef": "TASK 4.2: Add Map Loading Progress (todo2.txt)",
       "epic": "Asset Loading and Initialization",
       "priority": 3,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 1,
       "dependencies": [10],
       "subtasks": [
         {
           "id": "11.1",
           "title": "Include map loading in progress display",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/page.tsx",
           "testRequired": false,
           "description": "Show map loading status if loading UI exists"

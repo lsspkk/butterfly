@@ -692,3 +692,25 @@ Summary of changes for Subtask 10.4:
 
 16:13 - Task 10 complete (all subtasks done)
 
+16:14 - Started Subtask 11.1
+16:14 - Updated app/page.tsx
+16:14 - Subtask 11.1 complete
+
+Summary of changes:
+- Added loadingStatus state to Home component to track loading progress
+- Updated initPixiApp() to accept optional onProgress callback parameter
+- Added progress reporting for each loading stage:
+  * Initializing PixiJS
+  * Loading bees and clouds
+  * Loading cat sprites
+  * Loading butterflies
+  * Loading bubbles
+  * Loading flowers and leaves
+  * Loading level maps (with success/failure status)
+- Updated loading UI to display detailed status message below "Loading..." text
+- Map loading progress now visible: "Loading level maps..." followed by success/failure message
+- Enhanced user experience with transparent loading feedback for all assets
+- All loading stages now report their status to the user
+
+16:14 - Task 11 complete (all subtasks done)
+

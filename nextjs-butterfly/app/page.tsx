@@ -17,7 +17,8 @@ import { mapLoader } from './game/maps/MapLoader'
 // initialize the pixi application
 // and make a full screen view
 
-async function initPixiApp(canvas: HTMLCanvasElement) {
+async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: string) => void) {
+  onProgress?.('Initializing PixiJS...')
   const app = new PIXI.Application<PIXI.WebGLRenderer<HTMLCanvasElement>>()
   await app.init({
     view: canvas,
@@ -26,6 +27,7 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
     backgroundColor: 0xffffff,
   })
 
+  onProgress?.('Loading bees and clouds...')
   const beeAssets = {
     body: await loadSvg('bee_body.svg'),
     leftWing: await loadSvg('bee_wing_left.svg'),
@@ -33,22 +35,31 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   }
   const cloudAssets = [await loadSvg('cloud1.svg')]
 
+  onProgress?.('Loading cat sprites...')
   await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
+  onProgress?.('Loading butterflies...')
   await loadButterflies()
+  
+  onProgress?.('Loading bubbles...')
   await loadBubbles()
   await loadAnimations(['popA1', 'popA2', 'popB1', 'popB2'], '/bubbles')
 
+  onProgress?.('Loading flowers and leaves...')
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
 
   // Load map data for all levels
+  onProgress?.('Loading level maps...')
   try {
     await mapLoader.loadMaps(window.innerWidth, window.innerHeight)
+    onProgress?.('Maps loaded successfully!')
   } catch (error) {
     console.error('Failed to load maps, will use default fallback:', error)
+    onProgress?.('Maps failed to load, using defaults')
   }
 
+  onProgress?.('Ready!')
   const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets }
 
   return { app, assets }
@@ -100,6 +111,7 @@ export default function Home() {
   const isLoaded = useRef<boolean>(false)
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
+  const [loadingStatus, setLoadingStatus] = useState<string>('Initializing...')
   const isPortrait = useIsPortrait()
   const isMobile = useIsMobile()
 
@@ -120,7 +132,7 @@ export default function Home() {
     let pointAndMove: undefined | PointAndMoveListener = undefined
     let localPixiApp: PIXI.Application | undefined = undefined
 
-    initPixiApp(canvasRef.current).then(({ app, assets: loadedAssets }) => {
+    initPixiApp(canvasRef.current, (status) => setLoadingStatus(status)).then(({ app, assets: loadedAssets }) => {
       localPixiApp = app
       setPixiApp(() => app)
       setAssets(() => loadedAssets)
@@ -159,7 +171,12 @@ export default function Home() {
       <DialogContainer startLevel={startLevel} pixiApp={pixiApp} />
 
       <main className='flex flex-col gap-8 row-start-2 items-center sm:items-start'>
-        {!pixiApp && <div className='text-4xl text-center'>Loading...</div>}
+        {!pixiApp && (
+          <div className='text-center'>
+            <div className='text-4xl mb-4'>Loading...</div>
+            <div className='text-xl text-gray-600'>{loadingStatus}</div>
+          </div>
+        )}
 
         <div className='w-screen h-screen absolute top-0 left-0 z-[-1]'>
           <canvas ref={canvasRef} className='w-screen h-screen' />
