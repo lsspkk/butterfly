@@ -354,14 +354,14 @@
       "todoTxtRef": "TASK 3.2: Update Movement System Boundaries (todo2.txt)",
       "epic": "World Rendering Updates",
       "priority": 2,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [5],
       "subtasks": [
         {
           "id": "9.1",
           "title": "Accept boundary in movement calculations",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/systems/movementSystem.ts",
           "testRequired": true,
           "description": "Pass boundary to movement functions"
@@ -369,7 +369,7 @@
         {
           "id": "9.2",
           "title": "Update readCatInput boundary limits",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/systems/movementSystem.ts",
           "testRequired": true,
           "description": "Calculate cat movement limits from boundary"
@@ -377,7 +377,7 @@
         {
           "id": "9.3",
           "title": "Update readWorldInput for scrolling limits",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/systems/movementSystem.ts",
           "testRequired": true,
           "description": "World scrolling respects boundary edges"

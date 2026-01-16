@@ -544,3 +544,100 @@ Summary of changes:
 - Task 8 (Update World Boundary Rendering) is now complete - all subtasks done
 
 15:59 - Task 8 complete (all subtasks done)
+16:01 - Started Subtask 9.1
+16:01 - Updated app/game/systems/movementSystem.ts
+16:01 - Updated app/game/worlds/Level.ts
+16:01 - Created app/game/systems/movementSystem.test.ts
+16:01 - Tests pass app/game/systems/movementSystem.test.ts
+16:01 - Subtask 9.1 complete
+
+Summary of changes:
+- Added ZoneShape import to movementSystem.ts
+- Updated movementSystem() signature to accept optional boundary parameter
+- Updated readCatInput() to accept and pass through boundary parameter
+- Updated readWorldInput() to accept boundary parameter
+- Updated readPointAndMoveInput() to accept boundary parameter
+- Updated Level.gameLoop() to extract boundary from mapData and pass to movementSystem
+- Created comprehensive test suite with 9 tests covering:
+  * Acceptance of undefined boundary (backward compatibility)
+  * Acceptance of rect boundary
+  * Acceptance of ellipse boundary
+  * Acceptance of polygon boundary
+  * Cat entity with boundary
+  * World entity with boundary
+  * Multiple entities with boundary
+  * Boundary passing through movement pipeline
+- All tests passing (9/9)
+- Boundary parameter now flows through entire movement system
+- Ready for subtasks 9.2 and 9.3 to implement boundary-aware movement logic
+
+16:02 - Started Subtask 9.2
+16:06 - Updated app/game/systems/movementSystem.ts
+16:06 - Updated app/game/systems/movementSystem.test.ts
+16:06 - Tests pass app/game/systems/movementSystem.test.ts
+16:06 - Subtask 9.2 complete
+
+Summary of changes:
+- Added imports for boundary type guards (isRectShape, isEllipseShape, isPolygonShape)
+- Added imports for point-in-boundary helper functions (isPointInRect, isPointInEllipse, isPointInPolygon)
+- Updated readCatInput() to calculate movement limits based on boundary shape:
+  * For rect boundaries: calculate exact xMin, xMax, yMin, yMax from boundary coordinates
+  * For ellipse/polygon boundaries: use world size limits with per-move boundary checks
+  * Legacy behavior: use world size limits when no boundary provided
+- Implemented isPositionInBoundary() helper function to check if cat position is within boundary
+- Converts cat position (relative to screen center) to world coordinates for boundary checks
+- Updated movement logic to check boundary before applying movement:
+  * ArrowDown/Up/Left/Right: calculate nextX/nextY, check limits and boundary before moving
+  * Prevents cat from moving outside boundary shapes (rect, ellipse, polygon)
+- Updated readPointAndMoveInput() with same boundary-aware logic for touch controls
+- Added 14 comprehensive unit tests covering:
+  * Cat movement within rect boundary (allowed movement)
+  * Cat movement blocked outside rect boundary
+  * Cat movement within ellipse boundary
+  * Cat movement blocked outside ellipse boundary
+  * Cat movement within polygon boundary
+  * Cat movement blocked outside polygon boundary
+  * Legacy behavior without boundary
+  * Movement in all four directions with boundary
+  * Diagonal movement with boundary
+  * Cat rotation based on movement direction
+  * Cat action states (Walk/Idle)
+  * Small boundary handling
+  * Circular boundary (ellipse with equal radii)
+- All 23 tests passing (9 previous + 14 new boundary limit tests)
+- Cat movement now correctly respects boundary shapes from MapData
+
+16:08 - Started Subtask 9.3
+16:08 - Updated app/game/systems/movementSystem.ts
+16:08 - Updated app/game/systems/movementSystem.test.ts
+16:08 - Tests pass app/game/systems/movementSystem.test.ts
+16:08 - Subtask 9.3 complete
+
+Summary of changes:
+- Implemented boundary-aware scrolling limits in readWorldInput() function
+- Added support for all three boundary shape types: rect, ellipse, and polygon
+- For rect boundaries: calculate exact scrolling limits from boundary dimensions
+- For ellipse boundaries: use bounding box of ellipse (cx±rx, cy±ry) for scroll limits
+- For polygon boundaries: calculate bounding box from all vertices for scroll limits
+- World scrolling now respects boundary edges and prevents scrolling beyond playable area
+- Maintains backward compatibility with legacy behavior when no boundary provided
+- World scrolling coordinates work inversely to cat movement (world moves opposite to arrow keys)
+- Added 14 comprehensive unit tests covering:
+  * World scrolling within rect boundary (allowed scrolling)
+  * World scrolling blocked at rect boundary edges
+  * World scrolling within ellipse boundary (using bounding box)
+  * World scrolling blocked at ellipse bounding box edges
+  * World scrolling within polygon boundary (using bounding box)
+  * World scrolling blocked at polygon bounding box edges
+  * Legacy behavior without boundary
+  * Scrolling in all four directions with boundary
+  * Small boundary that fits within screen (no scrolling)
+  * Large boundary allowing significant scrolling
+  * Boost speed compatibility with boundary
+  * Ellipse with offset center
+  * Complex 7-point polygon boundary
+  * Verification of calculated scroll limits (xMin, xMax, yMin, yMax)
+- All 37 tests passing (23 previous + 14 new world scrolling tests)
+- Task 9 (Update Movement System Boundaries) is now complete - all subtasks done
+
+16:08 - Task 9 complete (all subtasks done)

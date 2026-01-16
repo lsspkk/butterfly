@@ -2,13 +2,16 @@ import { Rectangle, Ticker } from 'pixi.js'
 import { EGraphics, Movement, Prison } from '../components/CTypes'
 import { EManager, getEType } from '../entities/EManager'
 import { keyMap } from './KeyboardListener'
+import { touchState } from './PointAndMoveListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
 import { gameState } from './gameState'
 import { ButterflyData } from '../worlds/LevelSettings'
+import { ZoneShape, isRectShape, isEllipseShape, isPolygonShape } from '../maps/MapTypes'
+import { isPointInRect, isPointInEllipse, isPointInPolygon } from '../helpers'
 
-export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
+export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle, boundary?: ZoneShape) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
   const catId = em.getEntitiesByEType('Cat')?.[0]
   const cat = catId ? em.getComponent<Movement>(catId, 'Movement') : undefined
@@ -22,7 +25,7 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
   const cm = em.getComponent<Movement>(catId, 'Movement')
   if (cm) {
-    readCatInput(cm, width, height, screen)
+    readCatInput(cm, width, height, screen, boundary)
     em.getComponent<EGraphics>(catId, 'Graphics')?.render(cm)
   }
 
@@ -39,7 +42,7 @@ export function movementSystem(em: EManager, width: number, height: number, scre
     }
 
     if (eType === 'World') {
-      readWorldInput(m, width, height, screen)
+      readWorldInput(m, width, height, screen, boundary)
     }
 
     if (eType === 'Cloud') {
@@ -171,31 +174,111 @@ function randomAngle() {
   return Math.random() * Math.PI * 2
 }
 
-function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle) {
+function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle, boundary?: ZoneShape) {
   const margin = 100
-
-  const xLimit = width - screen.width
-  const yLimit = height - screen.height
   const speed = (boostCount > 0 ? 50 : 10) * gameState.speedFactor
 
-  if (keyMap.ArrowDown && m.y - speed > -yLimit - margin) m.y -= speed
-  if (keyMap.ArrowUp && m.y + speed < margin) m.y += speed
-  if (keyMap.ArrowRight && m.x - speed > -xLimit - margin) m.x -= speed
-  if (keyMap.ArrowLeft && m.x + speed < margin) m.x += speed
+  let xMin: number, xMax: number, yMin: number, yMax: number
+
+  // Calculate scrolling limits based on boundary shape
+  if (boundary) {
+    if (isRectShape(boundary)) {
+      // For rect boundary, calculate exact scrolling limits
+      // World position is negative when scrolled right/down
+      // World x=0 means left edge of world is at left edge of screen
+      // World x=-100 means world has scrolled 100px left (right edge visible)
+      xMax = margin // World can't scroll left beyond this
+      xMin = -(boundary.width - screen.width) - margin // World can't scroll right beyond this
+      yMax = margin // World can't scroll up beyond this
+      yMin = -(boundary.height - screen.height) - margin // World can't scroll down beyond this
+    } else if (isEllipseShape(boundary)) {
+      // For ellipse, use bounding box of the ellipse
+      const ellipseLeft = boundary.cx - boundary.rx
+      const ellipseRight = boundary.cx + boundary.rx
+      const ellipseTop = boundary.cy - boundary.ry
+      const ellipseBottom = boundary.cy + boundary.ry
+      const ellipseWidth = ellipseRight - ellipseLeft
+      const ellipseHeight = ellipseBottom - ellipseTop
+
+      xMax = margin
+      xMin = -(ellipseWidth - screen.width) - margin
+      yMax = margin
+      yMin = -(ellipseHeight - screen.height) - margin
+    } else if (isPolygonShape(boundary)) {
+      // For polygon, calculate bounding box
+      const xs = boundary.points.map(p => p.x)
+      const ys = boundary.points.map(p => p.y)
+      const polyLeft = Math.min(...xs)
+      const polyRight = Math.max(...xs)
+      const polyTop = Math.min(...ys)
+      const polyBottom = Math.max(...ys)
+      const polyWidth = polyRight - polyLeft
+      const polyHeight = polyBottom - polyTop
+
+      xMax = margin
+      xMin = -(polyWidth - screen.width) - margin
+      yMax = margin
+      yMin = -(polyHeight - screen.height) - margin
+    } else {
+      // Fallback to world size
+      xMin = -(width - screen.width) - margin
+      xMax = margin
+      yMin = -(height - screen.height) - margin
+      yMax = margin
+    }
+  } else {
+    // Legacy behavior: use world size
+    xMin = -(width - screen.width) - margin
+    xMax = margin
+    yMin = -(height - screen.height) - margin
+    yMax = margin
+  }
+
+  // Apply movement with boundary checks
+  // World scrolls opposite to arrow keys: ArrowDown scrolls world up (negative y)
+  if (keyMap.ArrowDown && m.y - speed > yMin) m.y -= speed
+  if (keyMap.ArrowUp && m.y + speed < yMax) m.y += speed
+  if (keyMap.ArrowRight && m.x - speed > xMin) m.x -= speed
+  if (keyMap.ArrowLeft && m.x + speed < xMax) m.x += speed
 }
 
 let boostAvailableMs = 0
 let boostCount = 0
-function readCatInput(m: Movement, width: number, height: number, screen: Rectangle) {
+function readCatInput(m: Movement, width: number, height: number, screen: Rectangle, boundary?: ZoneShape) {
+  if (gameState.movementControl === 'point-and-move') {
+    readPointAndMoveInput(m, width, height, screen, boundary)
+    return
+  }
   if (lastCatAttackTime > 0) {
     lastCatAttackTime--
   }
 
   const margin = 50
-  const xMax = width - screen.width / 2 - margin
-  const yMax = height - screen.height / 2 - margin
-  const xMin = -screen.width / 2 + margin
-  const yMin = -screen.height / 2 + margin
+  let xMax: number, yMax: number, xMin: number, yMin: number
+
+  // Calculate movement limits based on boundary shape
+  if (boundary) {
+    if (isRectShape(boundary)) {
+      // For rect boundary, calculate exact limits
+      // Cat position is relative to screen center, boundary is in world coordinates
+      xMin = boundary.x - screen.width / 2 + margin
+      xMax = boundary.x + boundary.width - screen.width / 2 - margin
+      yMin = boundary.y - screen.height / 2 + margin
+      yMax = boundary.y + boundary.height - screen.height / 2 - margin
+    } else {
+      // For ellipse/polygon, use world size as limits (will be checked per-move)
+      xMax = width - screen.width / 2 - margin
+      yMax = height - screen.height / 2 - margin
+      xMin = -screen.width / 2 + margin
+      yMin = -screen.height / 2 + margin
+    }
+  } else {
+    // Legacy behavior: use world size
+    xMax = width - screen.width / 2 - margin
+    yMax = height - screen.height / 2 - margin
+    xMin = -screen.width / 2 + margin
+    yMin = -screen.height / 2 + margin
+  }
 
   const now = new Date().getTime()
   if (boostAvailableMs !== 0 && boostAvailableMs < now) {
@@ -215,11 +298,51 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
     m.speed = 10 * gameState.speedFactor
   }
 
+  // Helper function to check if a position is within boundary
+  const isPositionInBoundary = (x: number, y: number): boolean => {
+    if (!boundary) return true
+
+    // Convert cat position (relative to screen center) to world coordinates
+    const worldX = x + screen.width / 2
+    const worldY = y + screen.height / 2
+
+    if (isRectShape(boundary)) {
+      return isPointInRect(worldX, worldY, boundary)
+    } else if (isEllipseShape(boundary)) {
+      return isPointInEllipse(worldX, worldY, boundary)
+    } else if (isPolygonShape(boundary)) {
+      return isPointInPolygon(worldX, worldY, boundary.points)
+    }
+    return true
+  }
+
   // move to opposite direction than the world
-  if (keyMap.ArrowDown && m.y + m.speed < yMax) m.y += m.speed
-  if (keyMap.ArrowUp && m.y - m.speed > yMin) m.y -= m.speed
-  if (keyMap.ArrowRight && m.x + m.speed < xMax) m.x += m.speed
-  if (keyMap.ArrowLeft && m.x - m.speed > xMin) m.x -= m.speed
+  // For rect boundaries, use simple limit checks
+  // For ellipse/polygon boundaries, check if next position would be in boundary
+  if (keyMap.ArrowDown) {
+    const nextY = m.y + m.speed
+    if (nextY < yMax && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+  }
+  if (keyMap.ArrowUp) {
+    const nextY = m.y - m.speed
+    if (nextY > yMin && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+  }
+  if (keyMap.ArrowRight) {
+    const nextX = m.x + m.speed
+    if (nextX < xMax && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+  }
+  if (keyMap.ArrowLeft) {
+    const nextX = m.x - m.speed
+    if (nextX > xMin && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+  }
 
   if (keyMap.ArrowLeft || keyMap.ArrowUp || keyMap.ArrowRight || keyMap.ArrowDown) {
     m.action = 'Walk'
@@ -235,4 +358,63 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   else if (w) m.rotation = (Math.PI / 4) * 0
   else if (d) m.rotation = (Math.PI / 4) * 2
   else if (s) m.rotation = (Math.PI / 4) * 4
+}
+function readPointAndMoveInput(m: Movement, width: number, height: number, screen: Rectangle, boundary?: ZoneShape) {
+  if (touchState.touching) {
+    const catX = screen.width / 2
+    const catY = screen.height / 2
+    const angle = Math.atan2(touchState.y - catY, touchState.x - catX) + Math.PI / 2
+    m.rotation = angle
+    m.speed = 10 * gameState.speedFactor
+    const margin = 50
+    
+    let xMax: number, yMax: number, xMin: number, yMin: number
+
+    // Calculate movement limits based on boundary shape
+    if (boundary && isRectShape(boundary)) {
+      // For rect boundary, calculate exact limits
+      xMin = boundary.x - screen.width / 2 + margin
+      xMax = boundary.x + boundary.width - screen.width / 2 - margin
+      yMin = boundary.y - screen.height / 2 + margin
+      yMax = boundary.y + boundary.height - screen.height / 2 - margin
+    } else {
+      // For ellipse/polygon or no boundary, use world size
+      xMax = width - screen.width / 2 - margin
+      yMax = height - screen.height / 2 - margin
+      xMin = -screen.width / 2 + margin
+      yMin = -screen.height / 2 + margin
+    }
+
+    // Helper function to check if a position is within boundary
+    const isPositionInBoundary = (x: number, y: number): boolean => {
+      if (!boundary) return true
+
+      // Convert cat position (relative to screen center) to world coordinates
+      const worldX = x + screen.width / 2
+      const worldY = y + screen.height / 2
+
+      if (isRectShape(boundary)) {
+        return isPointInRect(worldX, worldY, boundary)
+      } else if (isEllipseShape(boundary)) {
+        return isPointInEllipse(worldX, worldY, boundary)
+      } else if (isPolygonShape(boundary)) {
+        return isPointInPolygon(worldX, worldY, boundary.points)
+      }
+      return true
+    }
+
+    const nextX = m.x + Math.sin(m.rotation) * m.speed
+    const nextY = m.y - Math.cos(m.rotation) * m.speed
+
+    if (nextX > xMin && nextX < xMax && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+    if (nextY > yMin && nextY < yMax && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+
+    m.action = 'Walk'
+  } else {
+    m.action = 'Idle'
+  }
 }
