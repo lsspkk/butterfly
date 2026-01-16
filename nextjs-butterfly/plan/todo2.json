@@ -454,14 +454,14 @@
       "todoTxtRef": "TASK 5.1: Create Map Parser Unit Tests (todo2.txt)",
       "epic": "Testing and Validation",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [2],
       "subtasks": [
         {
           "id": "12.1",
           "title": "Test valid input parsing",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapParser.test.ts",
           "testRequired": true,
           "description": "Test all parser functions with valid input"
@@ -469,7 +469,7 @@
         {
           "id": "12.2",
           "title": "Test invalid input error handling",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapParser.test.ts",
           "testRequired": true,
           "description": "Test error cases and validation"
@@ -477,7 +477,7 @@
         {
           "id": "12.3",
           "title": "Test edge cases",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapParser.test.ts",
           "testRequired": true,
           "description": "Test empty zones, comments, whitespace handling"
@@ -490,14 +490,14 @@
       "todoTxtRef": "TASK 5.2: Create Integration Tests (todo2.txt)",
       "epic": "Testing and Validation",
       "priority": 2,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [6, 10],
       "subtasks": [
         {
           "id": "13.1",
           "title": "Test MapLoader fetching and parsing",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/maps/MapLoader.test.ts",
           "testRequired": true,
           "description": "Integration test for loader with mock fetch"
@@ -505,7 +505,7 @@
         {
           "id": "13.2",
           "title": "Test Level using MapData",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.test.ts",
           "testRequired": true,
           "description": "Test Level initialization with MapData"
@@ -518,14 +518,14 @@
       "todoTxtRef": "TASK 5.3: Visual Validation and Debug Mode (todo2.txt)",
       "epic": "Testing and Validation",
       "priority": 3,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [8],
       "subtasks": [
         {
           "id": "14.1",
           "title": "Add debug zone boundary visualization",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/entities/World.ts",
           "testRequired": false,
           "description": "Render colored overlays for flower zones"
@@ -533,7 +533,7 @@
         {
           "id": "14.2",
           "title": "Add toggle for debug mode",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/systems/gameState.ts",
           "testRequired": false,
           "description": "Keyboard shortcut or dev flag to toggle debug view"

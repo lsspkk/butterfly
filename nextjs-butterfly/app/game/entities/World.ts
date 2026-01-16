@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
 import { randomColor, isPointInRect, isPointInEllipse, isPointInPolygon } from '../helpers'
 import { MapData, ZoneShape } from '../maps/MapTypes'
+import { gameState } from '../systems/gameState'
 
 export default class World implements EGraphics {
   app: PIXI.Application
@@ -15,6 +16,8 @@ export default class World implements EGraphics {
   height: number
   mapData?: MapData
   boundary?: ZoneShape
+  debugGraphics?: PIXI.Graphics
+  lastDebugMode: boolean = false
 
   constructor(app: PIXI.Application, height: number, width: number, mapData?: MapData) {
     this.mapData = mapData
@@ -204,10 +207,84 @@ export default class World implements EGraphics {
     return grass
   }
 
+  createDebugVisualization(): PIXI.Graphics {
+    const debug = new PIXI.Graphics()
+    
+    if (!this.mapData || !this.mapData.zones || this.mapData.zones.length === 0) {
+      return debug
+    }
+
+    // Define colors for zones (cycling through different colors)
+    const colors = [
+      0xff0000, // Red
+      0x00ff00, // Green
+      0x0000ff, // Blue
+      0xffff00, // Yellow
+      0xff00ff, // Magenta
+      0x00ffff, // Cyan
+      0xff8800, // Orange
+      0x8800ff, // Purple
+    ]
+
+    // Draw each zone with a semi-transparent colored overlay
+    this.mapData.zones.forEach((zone, index) => {
+      const color = colors[index % colors.length]
+      const alpha = 0.3
+
+      debug.setStrokeStyle({ width: 3, color: color, alpha: 1 })
+
+      if (zone.shape.type === 'rect') {
+        debug
+          .rect(zone.shape.x, zone.shape.y, zone.shape.width, zone.shape.height)
+          .fill({ color, alpha })
+          .stroke()
+      } else if (zone.shape.type === 'ellipse') {
+        debug
+          .ellipse(zone.shape.cx, zone.shape.cy, zone.shape.rx, zone.shape.ry)
+          .fill({ color, alpha })
+          .stroke()
+      } else if (zone.shape.type === 'polygon') {
+        const flatPoints: number[] = []
+        for (const point of zone.shape.points) {
+          flatPoints.push(point.x, point.y)
+        }
+        debug
+          .poly(flatPoints)
+          .fill({ color, alpha })
+          .stroke()
+      }
+    })
+
+    return debug
+  }
+
+  updateDebugVisualization() {
+    const debugMode = gameState.debugMode || false
+
+    // Check if debug mode changed
+    if (debugMode !== this.lastDebugMode) {
+      this.lastDebugMode = debugMode
+
+      // Remove old debug graphics if exists
+      if (this.debugGraphics) {
+        this.container.removeChild(this.debugGraphics)
+        this.debugGraphics.destroy()
+        this.debugGraphics = undefined
+      }
+
+      // Add new debug graphics if debug mode is on
+      if (debugMode) {
+        this.debugGraphics = this.createDebugVisualization()
+        this.container.addChild(this.debugGraphics)
+      }
+    }
+  }
+
   render(m: Movement) {
     this.container.x = m.x
     this.container.y = m.y
 
     this.animateGrass()
+    this.updateDebugVisualization()
   }
 }

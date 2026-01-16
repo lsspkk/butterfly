@@ -714,3 +714,54 @@ Summary of changes:
 
 16:14 - Task 11 complete (all subtasks done)
 
+16:16 - Verified Task 12 status
+16:16 - Task 12 was already completed during subtasks 2.2-2.6
+16:16 - MapParser.test.ts has 140 passing tests covering:
+  * Valid input parsing (subtask 12.1)
+  * Invalid input error handling (subtask 12.2)
+  * Edge cases: comments, whitespace, empty lines (subtask 12.3)
+16:16 - Updated todo2.json to mark Task 12 as completed
+
+16:16 - Verified Task 13 status
+16:16 - Task 13 was already completed during earlier work
+16:16 - MapLoader.test.ts has 17 passing tests (subtask 13.1)
+16:16 - Level.test.ts has 62 passing tests including MapData integration (subtask 13.2)
+16:16 - Updated todo2.json to mark Task 13 as completed
+
+16:16 - Started Subtask 14.1
+16:17 - Updated app/game/systems/gameState.ts
+16:17 - Updated app/game/entities/World.ts
+16:17 - Subtask 14.1 complete
+
+Summary of changes for Subtask 14.1:
+- Added debugMode boolean flag to GameState type
+- Initialized debugMode to false in gameState object
+- Added debugGraphics and lastDebugMode properties to World class
+- Implemented createDebugVisualization() method in World class:
+  * Renders colored overlays for each flower zone
+  * Supports rect, ellipse, and polygon zone shapes
+  * Uses semi-transparent fills (30% alpha) with solid borders
+  * Cycles through 8 different colors for multiple zones
+- Implemented updateDebugVisualization() method:
+  * Checks if debug mode changed
+  * Adds/removes debug graphics based on debug mode state
+  * Called from render() method on every frame
+- Debug visualization shows flower zones with colored overlays when enabled
+
+16:17 - Started Subtask 14.2
+16:18 - Updated app/game/systems/KeyboardListener.ts
+16:18 - Subtask 14.2 complete
+
+Summary of changes for Subtask 14.2:
+- Added 'D' key to keyMap for debug mode toggle
+- Imported gameState and updateGameState in KeyboardListener
+- Added debugKeyPressed flag to prevent repeated toggles
+- Implemented Shift+D keyboard shortcut to toggle debug mode:
+  * Toggles gameState.debugMode between true/false
+  * Logs debug mode status to console
+  * Prevents repeated toggles while key is held down
+- Updated keydown and keyup methods to arrow functions for proper 'this' binding
+- Debug mode can now be toggled during gameplay with Shift+D
+
+16:18 - Task 14 complete (all subtasks done)
+
