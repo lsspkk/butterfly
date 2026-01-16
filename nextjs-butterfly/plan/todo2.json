@@ -310,14 +310,14 @@
       "todoTxtRef": "TASK 3.1: Update World Boundary Rendering (todo2.txt)",
       "epic": "World Rendering Updates",
       "priority": 2,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 3,
       "dependencies": [5],
       "subtasks": [
         {
           "id": "8.1",
           "title": "Update World constructor to accept boundary",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/entities/World.ts",
           "testRequired": true,
           "description": "Accept Zone boundary definition in constructor"
@@ -325,7 +325,7 @@
         {
           "id": "8.2",
           "title": "Render background matching boundary shape",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/entities/World.ts",
           "testRequired": true,
           "description": "Draw background fill for rect boundary (extensible to others)"
@@ -333,7 +333,7 @@
         {
           "id": "8.3",
           "title": "Render edge graphics at boundary",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/entities/World.ts",
           "testRequired": true,
           "description": "Draw edge/border outside playable area"
@@ -341,7 +341,7 @@
         {
           "id": "8.4",
           "title": "Constrain grass spawning to playable area",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/entities/World.ts",
           "testRequired": true,
           "description": "Grass blades only spawn within boundary"

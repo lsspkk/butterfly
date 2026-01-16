@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { EGraphics, Movement } from '../components/CTypes'
-import { randomColor } from '../helpers'
-import { MapData } from '../maps/MapTypes'
+import { randomColor, isPointInRect, isPointInEllipse, isPointInPolygon } from '../helpers'
+import { MapData, ZoneShape } from '../maps/MapTypes'
 
 export default class World implements EGraphics {
   app: PIXI.Application
@@ -14,9 +14,11 @@ export default class World implements EGraphics {
   width: number
   height: number
   mapData?: MapData
+  boundary?: ZoneShape
 
   constructor(app: PIXI.Application, height: number, width: number, mapData?: MapData) {
     this.mapData = mapData
+    this.boundary = mapData?.boundary
     this.count = 0
     this.app = app
     this.screen = app.screen
@@ -27,10 +29,10 @@ export default class World implements EGraphics {
 
     const { width: ew, height: eh } = app.screen
 
-    this.edges = new PIXI.Graphics().rect(-ew, -eh, width + ew * 2, height + eh * 2).fill(0x113300)
+    this.edges = this.createEdges(width, height, ew, eh)
     this.container.addChild(this.edges)
 
-    this.background = new PIXI.Graphics().rect(0, 0, width, height).fill(randomColor([100, 120], [70, 100], [40, 60]))
+    this.background = this.createBackground(width, height)
     this.container.addChild(this.background)
 
     this.container.height = height + eh * 2
@@ -41,12 +43,92 @@ export default class World implements EGraphics {
     this.grass.forEach((blade) => this.container.addChild(blade))
   }
 
+  createEdges(width: number, height: number, ew: number, eh: number): PIXI.Graphics {
+    const edges = new PIXI.Graphics()
+    const edgeColor = 0x113300
+
+    if (!this.boundary) {
+      // No boundary defined - use full world rectangle (legacy behavior)
+      edges.rect(-ew, -eh, width + ew * 2, height + eh * 2).fill(edgeColor)
+      return edges
+    }
+
+    // Create a large rectangle covering the entire extended world
+    edges.rect(-ew, -eh, width + ew * 2, height + eh * 2).fill(edgeColor)
+
+    // Cut out the playable area based on boundary shape
+    if (this.boundary.type === 'rect') {
+      edges.rect(this.boundary.x, this.boundary.y, this.boundary.width, this.boundary.height).cut()
+    } else if (this.boundary.type === 'ellipse') {
+      edges.ellipse(this.boundary.cx, this.boundary.cy, this.boundary.rx, this.boundary.ry).cut()
+    } else if (this.boundary.type === 'polygon') {
+      // Convert points array to flat coordinate array for PixiJS polygon
+      const flatPoints: number[] = []
+      for (const point of this.boundary.points) {
+        flatPoints.push(point.x, point.y)
+      }
+      edges.poly(flatPoints).cut()
+    }
+
+    return edges
+  }
+
+  createBackground(width: number, height: number): PIXI.Graphics {
+    const bg = new PIXI.Graphics()
+    const color = randomColor([100, 120], [70, 100], [40, 60])
+
+    if (!this.boundary) {
+      // No boundary defined - use full world rectangle (legacy behavior)
+      bg.rect(0, 0, width, height).fill(color)
+      return bg
+    }
+
+    // Render background matching boundary shape
+    if (this.boundary.type === 'rect') {
+      bg.rect(this.boundary.x, this.boundary.y, this.boundary.width, this.boundary.height).fill(color)
+    } else if (this.boundary.type === 'ellipse') {
+      bg.ellipse(this.boundary.cx, this.boundary.cy, this.boundary.rx, this.boundary.ry).fill(color)
+    } else if (this.boundary.type === 'polygon') {
+      // Convert points array to flat coordinate array for PixiJS polygon
+      const flatPoints: number[] = []
+      for (const point of this.boundary.points) {
+        flatPoints.push(point.x, point.y)
+      }
+      bg.poly(flatPoints).fill(color)
+    }
+
+    return bg
+  }
+
   getScale() {
     const { height, width } = this.app.screen
     const delta = height > width ? height : width
 
     const NORMAL = 1400
     return delta / NORMAL
+  }
+
+  /**
+   * Check if a point is within the playable boundary
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @returns true if point is within boundary, false otherwise
+   */
+  isPointInBoundary(x: number, y: number): boolean {
+    if (!this.boundary) {
+      // No boundary defined - all points within world dimensions are valid
+      return x >= 0 && x <= this.width && y >= 0 && y <= this.height
+    }
+
+    if (this.boundary.type === 'rect') {
+      return isPointInRect(x, y, this.boundary)
+    } else if (this.boundary.type === 'ellipse') {
+      return isPointInEllipse(x, y, this.boundary)
+    } else if (this.boundary.type === 'polygon') {
+      return isPointInPolygon(x, y, this.boundary.points)
+    }
+
+    return false
   }
 
   addChild(child: PIXI.Container) {
@@ -103,8 +185,20 @@ export default class World implements EGraphics {
       blade.rect(0, 0, 3, 40 + Math.random() * 10 - 10)
       blade.rotation = (Math.random() * Math.PI) / 8 - Math.PI / 16
       blade.fill(randomColor([100, 120], [70, 100], [40, 60]))
-      blade.x = Math.random() * (this.container.width - ew * 2)
-      blade.y = Math.random() * (this.container.height - eh * 2)
+      
+      // Generate position within boundary using rejection sampling
+      let x: number, y: number
+      let attempts = 0
+      const maxAttempts = 100
+      
+      do {
+        x = Math.random() * (this.container.width - ew * 2)
+        y = Math.random() * (this.container.height - eh * 2)
+        attempts++
+      } while (attempts < maxAttempts && !this.isPointInBoundary(x, y))
+      
+      blade.x = x
+      blade.y = y
       grass.push(blade)
     }
     return grass

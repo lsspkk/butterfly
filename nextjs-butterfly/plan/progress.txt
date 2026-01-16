@@ -437,3 +437,110 @@ Summary of changes:
 - Verified LevelConfig.flowers count is correctly distributed across MapData zones
 
 15:49 - Task 7 complete (all subtasks done)
+15:50 - Started Subtask 8.1
+15:52 - Created app/game/entities/World.test.ts
+15:52 - Updated app/game/entities/World.ts
+15:52 - Tests pass app/game/entities/World.test.ts
+15:52 - Subtask 8.1 complete
+
+Summary of changes:
+- Added ZoneShape import to World.ts
+- Added boundary property to World class (type: ZoneShape | undefined)
+- Updated World constructor to extract and store boundary from MapData
+- Boundary is now easily accessible via world.boundary for rendering operations
+- Created comprehensive test suite with 11 tests covering:
+  * Boundary extraction without MapData (returns undefined)
+  * Boundary extraction with rect shape
+  * Boundary extraction with ellipse shape
+  * Boundary extraction with polygon shape
+  * Boundary extraction with multiple zones
+  * Complex polygon boundary extraction
+  * Boundary reference integrity
+  * Minimal MapData handling
+  * Type guard validation for all three shape types
+- All tests passing (11/11)
+- World constructor now properly accepts and stores boundary definition
+- Ready for subtasks 8.2-8.4 to implement boundary-based rendering
+
+15:53 - Started Subtask 8.2
+15:54 - Updated app/game/entities/World.ts
+15:54 - Updated app/game/entities/World.test.ts
+15:54 - Tests pass app/game/entities/World.test.ts
+15:54 - Subtask 8.2 complete
+
+Summary of changes:
+- Implemented createBackground() method in World class to render boundary-aware backgrounds
+- Background rendering now matches boundary shape type:
+  * rect: Draws rectangle with boundary x, y, width, height
+  * ellipse: Draws ellipse with boundary cx, cy, rx, ry
+  * polygon: Draws polygon by flattening points array to coordinate array
+  * undefined: Falls back to legacy full-world rectangle (backward compatible)
+- Replaced inline background creation with createBackground() method call
+- Added comprehensive test suite with 12 new tests covering:
+  * Legacy behavior without boundary (full rectangle)
+  * Rect boundary rendering (origin, offset, small)
+  * Ellipse boundary rendering (ellipse, circle, small)
+  * Polygon boundary rendering (triangle, square, complex 7-point)
+  * Different world sizes
+  * Verification that fill() is always called after shape method
+- All 23 tests passing (11 boundary extraction + 12 background rendering)
+- Background now correctly renders matching the boundary shape from MapData
+- Maintains full backward compatibility with levels that don't have MapData
+
+15:55 - Started Subtask 8.3
+15:56 - Updated app/game/entities/World.ts
+15:56 - Updated app/game/entities/World.test.ts
+15:56 - Tests pass app/game/entities/World.test.ts
+15:56 - Subtask 8.3 complete
+
+Summary of changes:
+- Implemented createEdges() method in World class to render boundary-aware edges
+- Edge rendering creates a large rectangle covering extended world, then cuts out playable area
+- Supports all three boundary shape types:
+  * rect: Cuts out rectangular playable area from edges
+  * ellipse: Cuts out elliptical playable area from edges
+  * polygon: Cuts out polygonal playable area from edges
+  * undefined: Falls back to legacy full-world rectangle (backward compatible)
+- Uses PixiJS cut() method to create "donut" effect (edges outside, playable area inside)
+- Replaced inline edge creation with createEdges() method call in constructor
+- Added cut() method to MockGraphics test helper
+- Created comprehensive test suite with 15 new tests covering:
+  * Legacy behavior without boundary (full rectangle)
+  * Rect boundary cutout (origin, offset, small, full-world)
+  * Ellipse boundary cutout (ellipse, circle, small, off-center)
+  * Polygon boundary cutout (triangle, square, complex 7-point)
+  * Different screen sizes and margins
+  * Verification that cut() is always called after boundary shape
+- All 37 tests passing (23 previous + 14 new edge rendering tests)
+- Edge graphics now correctly render outside the playable boundary area
+- Maintains full backward compatibility with levels that don't have MapData
+
+15:57 - Started Subtask 8.4
+15:59 - Updated app/game/helpers.ts
+15:59 - Updated app/game/entities/World.ts
+15:59 - Updated app/game/entities/World.test.ts
+15:59 - Tests pass app/game/entities/World.test.ts
+15:59 - Tests pass app/game/helpers.test.ts
+15:59 - Subtask 8.4 complete
+
+Summary of changes:
+- Exported isPointInEllipse() and isPointInPolygon() functions from helpers.ts
+- Added isPointInRect() function to helpers.ts for rectangle boundary checking
+- Implemented isPointInBoundary() method in World class to check if point is within boundary
+- Supports all three boundary shape types: rect, ellipse, and polygon
+- Updated createGrass() method to use rejection sampling for grass spawning
+- Grass blades now only spawn within the playable boundary area
+- Uses up to 100 attempts per blade to find valid position within boundary
+- Added comprehensive test suite with 10 new tests covering:
+  * Legacy behavior without boundary (full world spawning)
+  * Grass spawning within rect boundary
+  * Grass spawning within ellipse boundary
+  * Grass spawning within polygon boundary
+  * Small circular boundary handling
+  * Complex polygon boundary handling
+  * Full-world rect boundary handling
+  * Point-in-boundary verification for all three shape types
+- All 47 tests passing (37 previous + 10 new grass spawning tests)
+- Task 8 (Update World Boundary Rendering) is now complete - all subtasks done
+
+15:59 - Task 8 complete (all subtasks done)
