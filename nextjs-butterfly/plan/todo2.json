@@ -282,14 +282,14 @@
       "todoTxtRef": "TASK 2.4: Update LevelSettings Integration (todo2.txt)",
       "epic": "Level System Integration",
       "priority": 2,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 2,
       "dependencies": [5],
       "subtasks": [
         {
           "id": "7.1",
           "title": "Add optional mapId to LevelConfig type",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/LevelSettings.ts",
           "testRequired": true,
           "description": "Link LevelConfig to specific map by ID"
@@ -297,7 +297,7 @@
         {
           "id": "7.2",
           "title": "Ensure flower count distribution across zones",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/LevelSettings.ts",
           "testRequired": true,
           "description": "LevelConfig.flowers count distributed across MapData zones"
