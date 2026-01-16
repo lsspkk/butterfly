@@ -238,14 +238,14 @@
       "todoTxtRef": "TASK 2.3: Refactor Flower Placement to Use Zones (todo2.txt)",
       "epic": "Level System Integration",
       "priority": 1,
-      "status": "not-started",
+      "status": "completed",
       "estimatedHours": 3,
       "dependencies": [5],
       "subtasks": [
         {
           "id": "6.1",
           "title": "Create getFlowerXYInZone helper function",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/helpers.ts",
           "testRequired": true,
           "description": "Generate random point within a Zone (rect/ellipse)"
@@ -253,7 +253,7 @@
         {
           "id": "6.2",
           "title": "Implement zone-based flower distribution",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Distribute flowers across zones proportionally"
@@ -261,7 +261,7 @@
         {
           "id": "6.3",
           "title": "Maintain safe zone around cat spawn",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Ensure no flowers spawn too close to cat start position"
@@ -269,7 +269,7 @@
         {
           "id": "6.4",
           "title": "Verify bees and butterflies still assigned correctly",
-          "status": "not-started",
+          "status": "completed",
           "deliverable": "app/game/worlds/Level.ts",
           "testRequired": true,
           "description": "Existing random assignment from flowers should still work"

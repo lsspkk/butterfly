@@ -309,3 +309,84 @@ Summary of changes:
 - Task 5 (Refactor Level.ts to Use MapData) is now complete - all subtasks done
 
 15:38 - Task 5 complete (all subtasks done)
+15:38 - Started Subtask 6.1
+15:40 - Updated app/game/helpers.ts
+15:40 - Created app/game/helpers.test.ts
+15:40 - Tests pass app/game/helpers.test.ts
+15:40 - Subtask 6.1 complete
+
+Summary of changes:
+- Implemented getFlowerXYInZone() function to generate random points within zones
+- Supports all three zone shape types: rect, ellipse, and polygon
+- Rectangle: Simple random point generation within bounds
+- Ellipse: Polar coordinate method for uniform distribution within ellipse
+- Polygon: Rejection sampling with ray casting algorithm for point-in-polygon test
+- Added helper functions: isPointInEllipse() and isPointInPolygon()
+- Created comprehensive test suite with 14 tests covering:
+  * Rectangle zones (simple, origin, small, wide)
+  * Ellipse zones (circle, ellipse, origin, small)
+  * Polygon zones (triangle, square, pentagon, complex)
+  * Distribution tests to verify randomness and variety
+- All tests passing (14/14)
+- Function ready for integration with Level.ts flower placement system
+
+15:40 - Started Subtask 6.2
+15:42 - Updated app/game/worlds/Level.ts
+15:42 - Updated app/game/worlds/Level.test.ts
+15:42 - Tests pass app/game/worlds/Level.test.ts
+15:42 - Subtask 6.2 complete
+
+Summary of changes:
+- Implemented zone-based flower distribution in Level.ts createFLowers() method
+- Added getFlowerXYInZone import from helpers.ts
+- Created isInCatSafeZone() helper method to check if position is too close to cat spawn
+- Modified createFLowers() to distribute flowers proportionally across zones when MapData is provided
+- Distribution algorithm: floor(count / zones) per zone, with remainder distributed to first zones
+- Each flower position is generated within its assigned zone using getFlowerXYInZone()
+- Safe zone avoidance: retry up to 50 times if flower spawns too close to cat (300 unit radius)
+- Maintains backward compatibility: falls back to legacy random placement when no zones or no MapData
+- Added 47 comprehensive unit tests covering:
+  * Proportional distribution across zones (even and uneven splits)
+  * All level configurations (Level 4: 18/4, Level 5: 25/5, Level 7: 35/7, Level 8: 35/8)
+  * Safe zone avoidance logic for various cat positions
+  * Support for all zone shape types (rect, ellipse, polygon, mixed)
+  * Backward compatibility with no zones or undefined MapData
+  * Edge cases: zero flowers, single flower, large counts
+- All 47 tests passing
+15:43 - Started Subtask 6.3
+15:44 - Tests pass app/game/worlds/Level.test.ts
+15:44 - Subtask 6.3 complete
+
+Summary of changes:
+- Verified that safe zone functionality is already fully implemented
+- isInCatSafeZone() method (lines 144-149) checks if position is within 300 units of cat spawn
+- createFLowers() method (lines 169-179) uses retry logic (up to 50 attempts) to avoid cat safe zone
+- Safe zone calculation uses correct cat spawn position from MapData when available
+- Legacy path also maintains safe zone via getFlowerXYWithSafeZone() method
+- Comprehensive test coverage for safe zone avoidance:
+  * Tests for identifying points in/out of safe zone
+  * Tests for cat at various positions (origin, edge, center)
+  * Tests verify 300-unit safe distance calculation
+- All 47 tests passing, including safe zone tests
+- No code changes needed - functionality already complete from subtask 6.2
+- Started Subtask 6.4
+15:45 - Updated app/game/worlds/Level.test.ts
+15:45 - Tests pass app/game/worlds/Level.test.ts
+15:45 - Subtask 6.4 complete
+
+Summary of changes:
+- Verified that bee and butterfly assignment logic works correctly with zone-based flower placement
+- Existing assignment mechanism (lines 74-117 in Level.ts) is agnostic to flower placement method
+- Assignment uses randomIndexArray to shuffle flower IDs, then pops indices for bees and butterflies
+- Created comprehensive test suite with 15 new tests covering:
+  * Assignment with sufficient flowers (4 tests for different level configurations)
+  * Unique flower assignment - no duplicates (2 tests)
+  * Assignment with zone-based flower placement (2 tests for multi-zone scenarios)
+  * Assignment with legacy random placement (1 test for backward compatibility)
+  * Edge cases: exact count, no bees, no butterflies, single flower (4 tests)
+  * Assignment order independence across different configurations (2 tests)
+- All 62 tests passing (47 previous + 15 new)
+- Verified assignment works correctly for all level configurations (Levels 1, 4, 5, 8)
+- No code changes needed - assignment logic already works with both placement methods
+
+15:46 - Task 6 complete (all subtasks done)
