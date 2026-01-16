@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Level } from '../game/worlds/Level'
 import { levelConfigList } from '../game/worlds/LevelSettings'
-import { updateGameState } from '../game/systems/gameState'
+import { gameState, updateGameState } from '../game/systems/gameState'
 import { TouchControls } from '../components/TouchControls'
 import { Application } from 'pixi.js'
 import { ActionButton } from '../components/ActionButton'
@@ -64,7 +64,7 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
 
   return (
     <>
-      <TouchControls visible={dialogState === 'none' && isMobile} />
+      <TouchControls visible={dialogState === 'none' && isMobile && gameState.movementControl === 'joystick'} />
       <ActionButton visible={dialogState === 'none' && isMobile} />
       {dialogState !== 'none' && pixiApp && (
         <div

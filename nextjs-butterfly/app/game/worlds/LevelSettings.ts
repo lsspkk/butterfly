@@ -4,6 +4,8 @@ export type LevelConfig = {
   flowers: number
   butterflies: number
   beeMaxSpeed: number
+  /** Optional map ID to link this level to a specific MapData. Defaults to level number if not specified. */
+  mapId?: number
 }
 
 export type ButterflyData = {
@@ -14,15 +16,22 @@ export type ButterflyData = {
 }
 
 export const levelConfigList: LevelConfig[] = [
-  { level: 1, bees: 3, flowers: 10, butterflies: 3, beeMaxSpeed: 1 },
-  { level: 2, bees: 5, flowers: 10, butterflies: 4, beeMaxSpeed: 2 },
-  { level: 3, bees: 7, flowers: 15, butterflies: 5, beeMaxSpeed: 4 },
-  { level: 4, bees: 9, flowers: 18, butterflies: 8, beeMaxSpeed: 6 },
-  { level: 5, bees: 20, flowers: 25, butterflies: 5, beeMaxSpeed: 2 },
-  { level: 6, bees: 22, flowers: 35, butterflies: 5, beeMaxSpeed: 3 },
-  { level: 7, bees: 8, flowers: 35, butterflies: 10, beeMaxSpeed: 4 },
-  { level: 8, bees: 16, flowers: 35, butterflies: 15, beeMaxSpeed: 5 },
+  { level: 1, bees: 3, flowers: 10, butterflies: 3, beeMaxSpeed: 1, mapId: 1 },
+  { level: 2, bees: 5, flowers: 10, butterflies: 4, beeMaxSpeed: 2, mapId: 2 },
+  { level: 3, bees: 7, flowers: 15, butterflies: 5, beeMaxSpeed: 4, mapId: 3 },
+  { level: 4, bees: 9, flowers: 18, butterflies: 8, beeMaxSpeed: 6, mapId: 4 },
+  { level: 5, bees: 20, flowers: 25, butterflies: 5, beeMaxSpeed: 2, mapId: 5 },
+  { level: 6, bees: 22, flowers: 35, butterflies: 5, beeMaxSpeed: 3, mapId: 6 },
+  { level: 7, bees: 8, flowers: 35, butterflies: 10, beeMaxSpeed: 4, mapId: 7 },
+  { level: 8, bees: 16, flowers: 35, butterflies: 15, beeMaxSpeed: 5, mapId: 8 },
 ]
+
+/**
+ * Get the map ID for a level config, falling back to level number if not specified
+ */
+export const getMapIdForLevel = (config: LevelConfig): number => {
+  return config.mapId ?? config.level;
+}
 
 export const createRandomButterflies = ({ level, butterflies }: LevelConfig): ButterflyData[] => {
   const choices = []

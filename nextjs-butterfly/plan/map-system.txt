@@ -1,0 +1,491 @@
+================================================================================
+                    BUTTERFLY GAME - MAP SYSTEM TECHNICAL GUIDE
+================================================================================
+
+This document explains how the new map system works for developers and level
+designers. The map system allows custom level layouts with defined boundaries
+and flower spawn zones.
+
+
+================================================================================
+1. OVERVIEW
+================================================================================
+
+CURRENT SYSTEM:
+- All levels use a simple rectangular world (2x screen width, 2x screen height)
+- Flowers spawn randomly anywhere in the world
+- Cat always spawns at center of screen
+
+NEW MAP SYSTEM:
+- Levels can have custom world sizes (configurable multipliers)
+- Playable boundaries can be rectangles, ellipses, or polygons
+- Flowers spawn only within defined "zones"
+- Cat spawn position is configurable per level
+
+
+================================================================================
+2. MAP FILE FORMAT
+================================================================================
+
+Maps are defined in human-readable text files. Each level is a block of
+directives:
+
+    # This is a comment
+    LEVEL 1
+    SIZE 2.0 1.5
+    BOUNDARY rect 5% 5% 90% 90%
+    ZONE center rect 40% 40% 20% 20%
+    ZONE left ellipse 20% 50% 10% 15%
+    CAT_SPAWN 50% 80%
+
+DIRECTIVES:
+-----------
+  LEVEL <number>       - Start a new level definition
+  SIZE <w> <h>         - World size as multipliers of viewport (2.0 = 2x width)
+  BOUNDARY <shape>     - Defines playable area boundary
+  ZONE <id> <shape>    - Defines a flower spawn zone
+  CAT_SPAWN <x> <y>    - Initial cat position
+
+
+================================================================================
+3. COORDINATE SYSTEM
+================================================================================
+
+Coordinates use a standard screen-based system:
+
+    (0,0) -------- X increases ---------> (100%, 0)
+      |                                        |
+      |                                        |
+      Y                                        |
+    increases                                  |
+      |                                        |
+      |                                        |
+      v                                        v
+    (0, 100%) <-------------------------> (100%, 100%)
+
+
+TWO COORDINATE TYPES:
+---------------------
+
+  PERCENTAGE (%)              ABSOLUTE (pixels)
+  ---------------             ------------------
+  "50%"  = center             "400" = 400 pixels
+  "0%"   = left/top           "0"   = left/top edge
+  "100%" = right/bottom
+
+  Can be mixed: "ZONE a rect 10% 50 80% 200"
+                            ^   ^   ^    ^
+                            %  px   %   px
+
+
+PERCENTAGE TO PIXEL CONVERSION:
+-------------------------------
+  For X coordinates:  pixels = (percentage / 100) * worldWidth
+  For Y coordinates:  pixels = (percentage / 100) * worldHeight
+
+  Example: On a 1920x1080 viewport with SIZE 2.0 2.0:
+    - World is 3840 x 2160 pixels
+    - "50%" X = 1920 pixels (center)
+    - "25%" Y = 540 pixels
+
+
+================================================================================
+4. SHAPE TYPES
+================================================================================
+
+Three shape types are supported for boundaries and zones:
+
+
+RECTANGLE (rect)
+----------------
+  Syntax: rect <x> <y> <width> <height>
+
+  Parameters:
+    x, y     = top-left corner position
+    width    = horizontal size
+    height   = vertical size
+
+  Example: "rect 10% 10% 80% 80%"
+
+    +------------------------------------------+
+    |  10%                                     |
+    |  +--------------------------------+      |
+    |  |                                |      |
+    |  |     Playable Area              | 80%  |
+    |  |     (rect zone)                |      |
+    |  |                                |      |
+    |  +--------------------------------+      |
+    |               80%                        |
+    +------------------------------------------+
+
+
+ELLIPSE
+-------
+  Syntax: ellipse <cx> <cy> <rx> <ry>
+
+  Parameters:
+    cx, cy   = center point
+    rx       = horizontal radius
+    ry       = vertical radius
+
+  Example: "ellipse 50% 50% 40% 40%"
+
+    +------------------------------------------+
+    |                                          |
+    |              .-""""-.                    |
+    |            .'        '.                  |
+    |           /   (cx,cy)  \                 |
+    |          |      *       |  <-- ry       |
+    |           \            /                 |
+    |            '.        .'                  |
+    |              '-....-'                    |
+    |                 ^                        |
+    |                rx                        |
+    +------------------------------------------+
+
+
+POLYGON
+-------
+  Syntax: polygon <x1> <y1> <x2> <y2> <x3> <y3> ...
+
+  Parameters:
+    Pairs of x,y coordinates (minimum 3 vertices = 6 values)
+
+  Example: "polygon 50% 10% 90% 80% 10% 80%"
+
+    +------------------------------------------+
+    |                  *                       |
+    |                 /|\                      |
+    |                / | \                     |
+    |               /  |  \                    |
+    |              /   |   \                   |
+    |             /    |    \                  |
+    |            /     |     \                 |
+    |           *------+------*                |
+    |        (10%,80%)    (90%,80%)            |
+    +------------------------------------------+
+
+
+================================================================================
+5. EXAMPLE LEVEL LAYOUTS
+================================================================================
+
+LEVEL 1 - Simple Center Zone
+----------------------------
+
+    LEVEL 1
+    SIZE 1.5 1.5
+    BOUNDARY rect 0 0 100% 100%
+    ZONE center rect 30% 30% 40% 40%
+    CAT_SPAWN 50% 80%
+
+    World View:
+    +--------------------------------------------------+
+    |                                                  |
+    |                                                  |
+    |            +------------------+                  |
+    |            |                  |                  |
+    |            |   ZONE: center   |                  |
+    |            |  (flowers here)  |                  |
+    |            |                  |                  |
+    |            +------------------+                  |
+    |                                                  |
+    |                    [CAT]                         |
+    +--------------------------------------------------+
+
+
+LEVEL 3 - Triangle Pattern
+--------------------------
+
+    LEVEL 3
+    SIZE 2.0 2.0
+    BOUNDARY rect 5% 5% 90% 90%
+    ZONE top rect 40% 10% 20% 20%
+    ZONE bottomleft rect 10% 60% 20% 20%
+    ZONE bottomright rect 70% 60% 20% 20%
+    CAT_SPAWN 50% 50%
+
+    World View:
+    +--------------------------------------------------+
+    |                                                  |
+    |               +----------+                       |
+    |               |   top    |                       |
+    |               +----------+                       |
+    |                                                  |
+    |                  [CAT]                           |
+    |                                                  |
+    |   +----------+              +----------+         |
+    |   |bottomleft|              |bottomright|        |
+    |   +----------+              +----------+         |
+    +--------------------------------------------------+
+
+
+LEVEL 5 - Ellipse Boundary with Multiple Zones
+----------------------------------------------
+
+    LEVEL 5
+    SIZE 2.0 2.0
+    BOUNDARY ellipse 50% 50% 45% 45%
+    ZONE north ellipse 50% 25% 15% 10%
+    ZONE south ellipse 50% 75% 15% 10%
+    ZONE west ellipse 25% 50% 10% 15%
+    ZONE east ellipse 75% 50% 10% 15%
+    CAT_SPAWN 50% 50%
+
+    World View (ellipse boundary):
+             .----------------------------.
+           .'           (north)            '.
+          /              [O]                 \
+         |                                    |
+        |  (west)                    (east)   |
+        |   [O]        [CAT]          [O]     |
+        |                                     |
+         |                                   |
+          \              [O]                /
+           '.          (south)            .'
+             '---------------------------'
+
+
+================================================================================
+6. HOW THE PARSER WORKS
+================================================================================
+
+The parser (MapParser.ts) processes map files in stages:
+
+    +-------------+     +-----------+     +-------------+     +----------+
+    | Raw Text    | --> | Tokenize  | --> | Parse       | --> | MapData  |
+    | File        |     | Lines     |     | Directives  |     | Objects  |
+    +-------------+     +-----------+     +-------------+     +----------+
+
+
+STAGE 1: Tokenization
+---------------------
+  - Each line is split into tokens
+  - Comments (# ...) are stripped
+  - Empty lines are skipped
+
+  Input:  "ZONE center rect 30% 30% 40% 40%  # Main area"
+  Output: ["ZONE", "center", "rect", "30%", "30%", "40%", "40%"]
+
+
+STAGE 2: Directive Parsing
+--------------------------
+  - First token identifies the directive type
+  - Parser function called based on directive
+  - LevelBuilder accumulates parsed data
+
+  parseLevel()    -> extracts level number
+  parseSize()     -> extracts width/height multipliers
+  parseBoundary() -> extracts boundary shape
+  parseZone()     -> extracts zone id + shape
+  parseCatSpawn() -> extracts spawn coordinates
+
+
+STAGE 3: Coordinate Conversion
+------------------------------
+  When finalizing, percentage values are converted to absolute pixels:
+
+  Viewport: 1920 x 1080
+  SIZE: 2.0 x 2.0
+  World: 3840 x 2160
+
+  "ZONE center rect 30% 30% 40% 40%"
+
+    x = 30% of 3840 = 1152 px
+    y = 30% of 2160 = 648 px
+    w = 40% of 3840 = 1536 px
+    h = 40% of 2160 = 864 px
+
+
+STAGE 4: Output Structure
+-------------------------
+
+  MapData {
+    levelNumber: 1
+    widthMultiplier: 2.0
+    heightMultiplier: 2.0
+    boundary: RectShape { type: 'rect', x: 0, y: 0, width: 3840, height: 2160 }
+    zones: [
+      Zone { id: 'center', shape: RectShape { x: 1152, y: 648, w: 1536, h: 864 } }
+    ]
+    catSpawn: Point { x: 1920, y: 1728 }
+  }
+
+
+================================================================================
+7. INTEGRATION WITH GAME SYSTEMS
+================================================================================
+
+The map system integrates with three main game systems:
+
+
+A) LEVEL CREATION (Level.ts)
+----------------------------
+
+  Current Flow:
+    Level constructor -> hardcoded world size -> random flower placement
+
+  New Flow:
+    Level constructor -> MapData -> calculated world size -> zone-based flowers
+
+    +--------+     +---------+     +---------------+
+    | Level  | --> | MapData | --> | World.ts      |
+    | Config |     |         |     | (boundary)    |
+    +--------+     +---------+     +---------------+
+                        |
+                        v
+               +---------------+
+               | createFlowers |
+               | (use zones)   |
+               +---------------+
+
+
+B) FLOWER PLACEMENT
+-------------------
+
+  Flowers are distributed across zones. Each zone gets a share of flowers
+  based on area or equal distribution.
+
+  Example with 12 flowers and 3 zones:
+    - Zone "top": 4 flowers
+    - Zone "bottomleft": 4 flowers
+    - Zone "bottomright": 4 flowers
+
+  Within each zone, flowers are placed at random positions:
+
+    Zone (rect):
+    +------------------+
+    |  *        *      |    * = flower position
+    |       *          |
+    |    *       *     |
+    |          *       |
+    +------------------+
+
+    Zone (ellipse):
+    Points generated with:
+      angle = random 0 to 2*PI
+      radius = random 0 to rx/ry
+      x = cx + radius * cos(angle)
+      y = cy + radius * sin(angle)
+
+
+C) MOVEMENT BOUNDARIES (movementSystem.ts)
+------------------------------------------
+
+  The cat cannot move outside the map boundary.
+
+  For rectangular boundaries:
+    if (cat.x < boundary.x) cat.x = boundary.x
+    if (cat.x > boundary.x + boundary.width) cat.x = boundary.x + boundary.width
+    if (cat.y < boundary.y) cat.y = boundary.y
+    if (cat.y > boundary.y + boundary.height) cat.y = boundary.y + boundary.height
+
+    +------------------------+
+    |                        |
+    |   Cat tries to move    |
+    |   here ------>  X      |  <-- blocked by boundary
+    |                 |      |
+    |            [CAT]       |
+    |                        |
+    +------------------------+
+
+  World scrolling also respects boundaries:
+    - Camera follows cat
+    - Camera stops at world edges
+    - Boundary determines the "edge of the world"
+
+
+================================================================================
+8. DATA FLOW DIAGRAM
+================================================================================
+
+    +------------------+
+    | public/maps/     |
+    | levels.txt       |
+    +--------+---------+
+             |
+             v (fetch)
+    +------------------+
+    | MapLoader        |
+    | loadMaps()       |
+    +--------+---------+
+             |
+             v (parse)
+    +------------------+
+    | MapParser        |
+    | parseMapFile()   |
+    +--------+---------+
+             |
+             v (returns)
+    +------------------+
+    | MapData[]        |
+    | (all levels)     |
+    +--------+---------+
+             |
+             v (lookup by level number)
+    +------------------+
+    | startLevel(n)    |
+    | in page.tsx      |
+    +--------+---------+
+             |
+             +------------+------------+
+             |            |            |
+             v            v            v
+    +--------+---+  +-----+------+  +--+----------+
+    | World.ts   |  | Level.ts   |  | movement   |
+    | (boundary  |  | (flowers   |  | System.ts  |
+    |  rendering)|  |  in zones) |  | (cat limits)|
+    +------------+  +------------+  +-------------+
+
+
+================================================================================
+9. ERROR HANDLING
+================================================================================
+
+The parser provides detailed error messages with line numbers:
+
+  "Line 5: BOUNDARY directive expects 4 parameters for rect, got 3"
+  "Line 8: Invalid zone ID: 123zone (must start with letter)"
+  "Line 12: Duplicate zone ID: center"
+  "Level 2 missing CAT_SPAWN directive"
+
+If a map file fails to load or parse, the game falls back to a default
+rectangular map matching the old behavior.
+
+
+================================================================================
+10. QUICK REFERENCE
+================================================================================
+
+DIRECTIVE SYNTAX:
+  LEVEL <number>
+  SIZE <width_mult> <height_mult>
+  BOUNDARY rect <x> <y> <width> <height>
+  BOUNDARY ellipse <cx> <cy> <rx> <ry>
+  BOUNDARY polygon <x1> <y1> <x2> <y2> <x3> <y3> ...
+  ZONE <id> rect <x> <y> <width> <height>
+  ZONE <id> ellipse <cx> <cy> <rx> <ry>
+  ZONE <id> polygon <x1> <y1> <x2> <y2> <x3> <y3> ...
+  CAT_SPAWN <x> <y>
+
+COORDINATES:
+  Percentage: "50%"  (relative to world size)
+  Absolute:   "500"  (pixels)
+
+REQUIRED PER LEVEL:
+  - Exactly 1 LEVEL directive
+  - Exactly 1 SIZE directive
+  - Exactly 1 BOUNDARY directive
+  - Exactly 1 CAT_SPAWN directive
+  - At least 1 ZONE directive
+
+FILES:
+  app/game/maps/MapTypes.ts    - Type definitions
+  app/game/maps/MapParser.ts   - Parser implementation
+  app/game/maps/MapLoader.ts   - Async loader (planned)
+  public/maps/levels.txt       - Level definitions (planned)
+
+
+================================================================================
+END OF DOCUMENT
+================================================================================

@@ -10,7 +10,7 @@ import Butterfly from '../entities/Butterfly'
 import Cat from '../entities/Cat'
 import Bush, { getGardener } from '../entities/Bush'
 import Hud from '../entities/Hud'
-import { getFlowerRandomXY, randomIndexArray } from '../helpers'
+import { getFlowerRandomXY, randomIndexArray, getFlowerXYInZone } from '../helpers'
 import Bubble from '../entities/Bubble'
 import { AllAssets } from '@/app/page'
 import { audioEngine } from '../systems/AudioSystem'
@@ -135,20 +135,73 @@ export class Level {
     return { x, y }
   }
 
+  /**
+   * Check if a position is in the safe zone around the cat spawn
+   * @param x X coordinate in world space
+   * @param y Y coordinate in world space
+   * @returns true if position is too close to cat spawn
+   */
+  isInCatSafeZone(x: number, y: number): boolean {
+    const catX = this.mapData ? this.mapData.catSpawn.x : this.screen.width / 2
+    const catY = this.mapData ? this.mapData.catSpawn.y : this.screen.height / 2
+    const safeDistance = 300
+    return Math.abs(catX - x) < safeDistance && Math.abs(catY - y) < safeDistance
+  }
+
   createFLowers(em: EManager, count: number) {
     const flowers = []
     const gardener = getGardener()
-    for (let i = 0; i < count; i++) {
-      const flowerId = em.create('Flower')
-      const { x, y } = this.getFlowerXYWithSafeZone()
-      em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-      em.addComponent(
-        flowerId,
-        'Graphics',
-        new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
-      )
-      flowers.push(flowerId)
+
+    // If MapData with zones is provided, distribute flowers across zones
+    if (this.mapData && this.mapData.zones.length > 0) {
+      const zones = this.mapData.zones
+      const flowersPerZone = Math.floor(count / zones.length)
+      const remainder = count % zones.length
+
+      for (let zoneIndex = 0; zoneIndex < zones.length; zoneIndex++) {
+        const zone = zones[zoneIndex]
+        // Add extra flower to first zones if there's a remainder
+        const zoneFlowerCount = flowersPerZone + (zoneIndex < remainder ? 1 : 0)
+
+        for (let i = 0; i < zoneFlowerCount; i++) {
+          const flowerId = em.create('Flower')
+          
+          // Generate position within zone, avoiding cat safe zone
+          let x: number, y: number
+          let attempts = 0
+          const maxAttempts = 50
+          
+          do {
+            const pos = getFlowerXYInZone(zone)
+            x = pos.x
+            y = pos.y
+            attempts++
+          } while (attempts < maxAttempts && this.isInCatSafeZone(x, y))
+
+          em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
+          em.addComponent(
+            flowerId,
+            'Graphics',
+            new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
+          )
+          flowers.push(flowerId)
+        }
+      }
+    } else {
+      // Legacy behavior: random placement with safe zone
+      for (let i = 0; i < count; i++) {
+        const flowerId = em.create('Flower')
+        const { x, y } = this.getFlowerXYWithSafeZone()
+        em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
+        em.addComponent(
+          flowerId,
+          'Graphics',
+          new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
+        )
+        flowers.push(flowerId)
+      }
     }
+
     return flowers
   }
 
@@ -185,7 +238,8 @@ export class Level {
     if (!this.em) {
       return
     }
-    movementSystem(this.em, this.width, this.height, this.screen)
+    const boundary = this.mapData?.boundary
+    movementSystem(this.em, this.width, this.height, this.screen, boundary)
 
     const { showDialog, dialogState, setDialogState } = gameState
     if (!showDialog || !dialogState || !setDialogState) {

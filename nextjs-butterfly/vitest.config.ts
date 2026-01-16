@@ -12,6 +12,17 @@ const dirname =
 export default defineConfig({
   test: {
     workspace: [
+      // Unit tests workspace
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['**/*.test.ts', '**/*.test.tsx'],
+          exclude: ['**/*.stories.tsx'],
+          environment: 'node',
+        },
+      },
+      // Storybook tests workspace
       {
         extends: true,
         plugins: [
