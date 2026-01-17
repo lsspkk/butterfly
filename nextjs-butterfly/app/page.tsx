@@ -5,17 +5,20 @@ import KeyboardListener from './game/systems/KeyboardListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
 import { DialogContainer } from './dialogs/DialogContainer'
-import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
+import { allButterflyData, loadLevelConfigs, getLevelConfigs } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
 import { calculateSpeedFactor, updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
+import { PointAndMoveListener } from './game/systems/PointAndMoveListener'
 import { useIsPortrait } from './hooks/useIsPortrait'
 import { useIsMobile } from './hooks/useIsMobile'
+import { mapLoader } from './game/maps/MapLoader'
 
 // initialize the pixi application
 // and make a full screen view
 
-async function initPixiApp(canvas: HTMLCanvasElement) {
+async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: string) => void) {
+  onProgress?.('Initializing PixiJS...')
   const app = new PIXI.Application<PIXI.WebGLRenderer<HTMLCanvasElement>>()
   await app.init({
     view: canvas,
@@ -24,6 +27,7 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
     backgroundColor: 0xffffff,
   })
 
+  onProgress?.('Loading bees and clouds...')
   const beeAssets = {
     body: await loadSvg('bee_body.svg'),
     leftWing: await loadSvg('bee_wing_left.svg'),
@@ -31,15 +35,35 @@ async function initPixiApp(canvas: HTMLCanvasElement) {
   }
   const cloudAssets = [await loadSvg('cloud1.svg')]
 
+  onProgress?.('Loading cat sprites...')
   await PIXI.Assets.load(['/sprites/cats/cat1.json', '/sprites/cats/cat1.png'])
 
+  onProgress?.('Loading butterflies...')
   await loadButterflies()
+
+  onProgress?.('Loading bubbles...')
   await loadBubbles()
   await loadAnimations(['popA1', 'popA2', 'popB1', 'popB2'], '/bubbles')
 
+  onProgress?.('Loading flowers and leaves...')
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
 
+  // Load level configurations
+  onProgress?.('Loading level configurations...')
+  await loadLevelConfigs()
+
+  // Load map data for all levels
+  onProgress?.('Loading level maps...')
+  try {
+    await mapLoader.loadMaps(window.innerWidth, window.innerHeight)
+    onProgress?.('Maps loaded successfully!')
+  } catch (error) {
+    console.error('Failed to load maps, will use default fallback:', error)
+    onProgress?.('Maps failed to load, using defaults')
+  }
+
+  onProgress?.('Ready!')
   const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets }
 
   return { app, assets }
@@ -91,6 +115,7 @@ export default function Home() {
   const isLoaded = useRef<boolean>(false)
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
   const [assets, setAssets] = useState<AllAssets | undefined>(undefined)
+  const [loadingStatus, setLoadingStatus] = useState<string>('Initializing...')
   const isPortrait = useIsPortrait()
   const isMobile = useIsMobile()
 
@@ -108,20 +133,23 @@ export default function Home() {
     isLoaded.current = true
     let keyboard: undefined | KeyboardListener = undefined
     let touch: undefined | TouchListener = undefined
+    let pointAndMove: undefined | PointAndMoveListener = undefined
     let localPixiApp: PIXI.Application | undefined = undefined
 
-    initPixiApp(canvasRef.current).then(({ app, assets: loadedAssets }) => {
+    initPixiApp(canvasRef.current, (status) => setLoadingStatus(status)).then(({ app, assets: loadedAssets }) => {
       localPixiApp = app
       setPixiApp(() => app)
       setAssets(() => loadedAssets)
       keyboard = new KeyboardListener()
       touch = new TouchListener()
+      pointAndMove = new PointAndMoveListener()
       app.ticker.add(() => runGameLoop())
     })
 
     return () => {
       keyboard?.destroy()
       touch?.destroy()
+      pointAndMove?.destroy()
       localPixiApp?.destroy(true, { children: true, texture: true })
     }
   }, [isPortrait, isMobile])
@@ -133,7 +161,14 @@ export default function Home() {
     pixiApp.resize()
     calculateSpeedFactor(pixiApp.screen, isMobile)
 
-    const newLevel = new Level(pixiApp, assets, levelConfigList[nro])
+    // Retrieve map data for this level
+    // Note: levels.txt uses 1-based numbering (LEVEL 1-8), so we use mapId from config
+    const levelConfigs = getLevelConfigs()
+    const levelConfig = levelConfigs[nro]
+    const mapId = levelConfig.mapId ?? levelConfig.level
+    const mapData = mapLoader.isLoaded() ? mapLoader.getMapForLevel(mapId) : undefined
+
+    const newLevel = new Level(pixiApp, assets, levelConfig, mapData)
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel
   }
@@ -143,7 +178,12 @@ export default function Home() {
       <DialogContainer startLevel={startLevel} pixiApp={pixiApp} />
 
       <main className='flex flex-col gap-8 row-start-2 items-center sm:items-start'>
-        {!pixiApp && <div className='text-4xl text-center'>Loading...</div>}
+        {!pixiApp && (
+          <div className='text-center'>
+            <div className='text-4xl mb-4'>Loading...</div>
+            <div className='text-xl text-gray-600'>{loadingStatus}</div>
+          </div>
+        )}
 
         <div className='w-screen h-screen absolute top-0 left-0 z-[-1]'>
           <canvas ref={canvasRef} className='w-screen h-screen' />

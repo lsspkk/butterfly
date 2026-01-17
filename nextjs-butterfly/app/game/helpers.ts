@@ -2,6 +2,7 @@ import { Container, Graphics } from 'pixi.js'
 import Bush from './entities/Bush'
 import { EManager } from './entities/EManager'
 import { Movement } from './components/CTypes'
+import { Zone, isRectShape, isEllipseShape, isPolygonShape } from './maps/MapTypes'
 
 type Range = [number, number]
 export function randomColor(hueRange: Range, satRange: Range, ligRange: Range): number {
@@ -60,4 +61,157 @@ export function wiggle(s: Container, m: Movement, factor: number) {
   if (Math.random() < 0.1) return
   s.x = m.x + Math.sin(Math.random() * 2 * Math.PI) * 10 * factor
   s.y = m.y + Math.cos(Math.random() * 2 * Math.PI) * 10 * factor
+}
+
+/**
+ * Generate a random point within a Zone
+ * @param zone The zone to generate a point within
+ * @returns A random point {x, y} within the zone's shape
+ */
+export function getFlowerXYInZone(zone: Zone): { x: number; y: number } {
+  const { shape } = zone
+
+  if (isRectShape(shape)) {
+    // Random point within rectangle
+    return {
+      x: shape.x + Math.random() * shape.width,
+      y: shape.y + Math.random() * shape.height,
+    }
+  }
+
+  if (isEllipseShape(shape)) {
+    // Random point within ellipse using rejection sampling
+    // Generate points in bounding box until one falls within ellipse
+    let x: number, y: number
+    let attempts = 0
+    const maxAttempts = 100
+
+    do {
+      // Generate random point in bounding box
+      const angle = Math.random() * 2 * Math.PI
+      const r = Math.sqrt(Math.random()) // Square root for uniform distribution
+      x = shape.cx + r * shape.rx * Math.cos(angle)
+      y = shape.cy + r * shape.ry * Math.sin(angle)
+      attempts++
+    } while (attempts < maxAttempts && !isPointInEllipse(x, y, shape))
+
+    return { x, y }
+  }
+
+  if (isPolygonShape(shape)) {
+    // Random point within polygon using rejection sampling
+    // Find bounding box of polygon
+    const xs = shape.points.map((p) => p.x)
+    const ys = shape.points.map((p) => p.y)
+    const minX = Math.min(...xs)
+    const maxX = Math.max(...xs)
+    const minY = Math.min(...ys)
+    const maxY = Math.max(...ys)
+
+    // Generate random points in bounding box until one falls within polygon
+    let x: number, y: number
+    let attempts = 0
+    const maxAttempts = 100
+
+    do {
+      x = minX + Math.random() * (maxX - minX)
+      y = minY + Math.random() * (maxY - minY)
+      attempts++
+    } while (attempts < maxAttempts && !isPointInPolygon(x, y, shape.points))
+
+    return { x, y }
+  }
+
+  // Fallback to origin if shape type is unknown
+  return { x: 0, y: 0 }
+}
+
+/**
+ * Check if a point is inside a rectangle
+ */
+export function isPointInRect(
+  x: number,
+  y: number,
+  rect: { x: number; y: number; width: number; height: number }
+): boolean {
+  return x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height
+}
+
+/**
+ * Check if a point is inside an ellipse
+ */
+export function isPointInEllipse(
+  x: number,
+  y: number,
+  ellipse: { cx: number; cy: number; rx: number; ry: number }
+): boolean {
+  const dx = x - ellipse.cx
+  const dy = y - ellipse.cy
+  return (dx * dx) / (ellipse.rx * ellipse.rx) + (dy * dy) / (ellipse.ry * ellipse.ry) <= 1
+}
+
+/**
+ * Check if a point is inside a polygon using ray casting algorithm
+ */
+export function isPointInPolygon(x: number, y: number, points: Array<{ x: number; y: number }>): boolean {
+  let inside = false
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const xi = points[i].x
+    const yi = points[i].y
+    const xj = points[j].x
+    const yj = points[j].y
+
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi
+    if (intersect) inside = !inside
+  }
+  return inside
+}
+
+function shuffleArray<T>(arr: T[]): void {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+}
+
+export function distributeAcrossZones<T>(items: T[], zoneCount: number, count: number): T[] {
+  if (zoneCount <= 1 || items.length === 0) {
+    const shuffled = [...items]
+    shuffleArray(shuffled)
+    return shuffled.slice(0, Math.min(count, items.length))
+  }
+
+  const itemsPerZone = Math.floor(items.length / zoneCount)
+  const itemsRemainder = items.length % zoneCount
+  const itemsByZone: T[][] = []
+
+  let offset = 0
+  for (let z = 0; z < zoneCount; z++) {
+    const zoneSize = itemsPerZone + (z < itemsRemainder ? 1 : 0)
+    const zoneItems = items.slice(offset, offset + zoneSize)
+    shuffleArray(zoneItems)
+    itemsByZone.push(zoneItems)
+    offset += zoneSize
+  }
+
+  const result: T[] = []
+  const zonePointers = new Array(zoneCount).fill(0)
+  let zoneIndex = 0
+
+  for (let i = 0; i < count && result.length < items.length; i++) {
+    let attempts = 0
+    while (zonePointers[zoneIndex] >= itemsByZone[zoneIndex].length && attempts < zoneCount) {
+      zoneIndex = (zoneIndex + 1) % zoneCount
+      attempts++
+    }
+
+    if (zonePointers[zoneIndex] < itemsByZone[zoneIndex].length) {
+      result.push(itemsByZone[zoneIndex][zonePointers[zoneIndex]])
+      zonePointers[zoneIndex]++
+    }
+
+    zoneIndex = (zoneIndex + 1) % zoneCount
+  }
+
+  return result
 }

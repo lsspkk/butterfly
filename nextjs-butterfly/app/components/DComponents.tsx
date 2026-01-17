@@ -78,3 +78,40 @@ export function DCheckBox({
     </label>
   )
 }
+
+export function DRadioGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className='flex items-center justify-between'>
+      <span className='ml-2 text-white'>{label}</span>
+      <div>{children}</div>
+    </div>
+  )
+}
+
+export function DRadio({
+  label,
+  name,
+  value,
+  checked,
+  onChange,
+}: {
+  label: string
+  name: string
+  value: string
+  checked: boolean
+  onChange: (value: string) => void
+}) {
+  return (
+    <label className='flex items-center'>
+      <input
+        type='radio'
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={(e) => onChange(e.target.value)}
+        className='form-radio h-5 w-5 text-blue-600'
+      />
+      <span className='ml-2 text-white'>{label}</span>
+    </label>
+  )
+}

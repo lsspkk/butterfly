@@ -13,12 +13,19 @@ export type GameState = {
   inPrison: number
   speedFactor: number
   useMobileControls?: boolean
+  movementControl?: 'joystick' | 'point-and-move'
   showDialog?: boolean
   dialogState?: DialogState
   setDialogState?: Dispatch<SetStateAction<DialogState>>
   setAllowAction?: Dispatch<SetStateAction<boolean>>
   levelGameLoop?: () => void
   levelRescue?: ButterflyData[]
+  debugMode?: boolean
+  // Game completion stats
+  totalBeeStings: number
+  totalScoreLost: number
+  totalButterfliesRescued: number
+  totalPotentialScore: number
 }
 
 export const gameState: GameState = {
@@ -29,6 +36,12 @@ export const gameState: GameState = {
   paused: false,
   inPrison: 100,
   dialogState: 'start',
+  debugMode: false,
+  // Game completion stats
+  totalBeeStings: 0,
+  totalScoreLost: 0,
+  totalButterfliesRescued: 0,
+  totalPotentialScore: 0,
 }
 
 export function updateGameState(newState: Partial<GameState>) {
@@ -62,4 +75,5 @@ export function storageSave(key: string, value: any) {
 setTimeout(() => {
   gameState.musicOn = storageRead('musicOn', true)
   gameState.soundOn = storageRead('soundOn', true)
+  gameState.movementControl = storageRead('movementControl', 'joystick')
 }, 400)

@@ -2,13 +2,16 @@ import { Rectangle, Ticker } from 'pixi.js'
 import { EGraphics, Movement, Prison } from '../components/CTypes'
 import { EManager, getEType } from '../entities/EManager'
 import { keyMap } from './KeyboardListener'
+import { touchState } from './PointAndMoveListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
 import { audioEngine } from './AudioSystem'
 import { gameState } from './gameState'
 import { ButterflyData } from '../worlds/LevelSettings'
+import { ZoneShape, isRectShape, isEllipseShape, isPolygonShape } from '../maps/MapTypes'
+import { isPointInRect, isPointInEllipse, isPointInPolygon } from '../helpers'
 
-export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle) {
+export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[]) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
   const catId = em.getEntitiesByEType('Cat')?.[0]
   const cat = catId ? em.getComponent<Movement>(catId, 'Movement') : undefined
@@ -22,7 +25,7 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
   const cm = em.getComponent<Movement>(catId, 'Movement')
   if (cm) {
-    readCatInput(cm, width, height, screen)
+    readCatInput(cm, width, height, screen, boundaries)
     em.getComponent<EGraphics>(catId, 'Graphics')?.render(cm)
   }
 
@@ -39,7 +42,12 @@ export function movementSystem(em: EManager, width: number, height: number, scre
     }
 
     if (eType === 'World') {
-      readWorldInput(m, width, height, screen)
+      // World follows cat to keep cat centered on screen
+      // World position is negative of cat position
+      if (cat) {
+        m.x = -cat.x
+        m.y = -cat.y
+      }
     }
 
     if (eType === 'Cloud') {
@@ -84,6 +92,9 @@ let lastCatAttackTime = 0
 
 function updateScoreAndRescue(butterflyData: ButterflyData) {
   gameState.score += gameState.level
+  // Track game completion stats
+  gameState.totalButterfliesRescued += 1
+  gameState.totalPotentialScore += gameState.level
   hud?.setScore(gameState.score)
 
   if (gameState.soundOn) audioEngine?.playSound('pop')
@@ -141,6 +152,9 @@ function moveBee(m: Movement, screen: Rectangle, cat?: Movement) {
     if (now - lastCatAttackTime > 2000) {
       lastCatAttackTime = now
       gameState.score -= gameState.level
+      // Track bee stings for game completion stats
+      gameState.totalBeeStings += 1
+      gameState.totalScoreLost += gameState.level
       hud?.setScore(gameState.score)
       hud?.setMessage('Ouch!')
       setTimeout(() => hud?.setMessage(''), 1000)
@@ -171,31 +185,120 @@ function randomAngle() {
   return Math.random() * Math.PI * 2
 }
 
-function readWorldInput(m: Movement, width: number, height: number, screen: Rectangle) {
+// Legacy function kept for alternative game modes (e.g., catch game variant)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _readWorldInput(m: Movement, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[]) {
   const margin = 100
-
-  const xLimit = width - screen.width
-  const yLimit = height - screen.height
   const speed = (boostCount > 0 ? 50 : 10) * gameState.speedFactor
 
-  if (keyMap.ArrowDown && m.y - speed > -yLimit - margin) m.y -= speed
-  if (keyMap.ArrowUp && m.y + speed < margin) m.y += speed
-  if (keyMap.ArrowRight && m.x - speed > -xLimit - margin) m.x -= speed
-  if (keyMap.ArrowLeft && m.x + speed < margin) m.x += speed
+  let xMin: number, xMax: number, yMin: number, yMax: number
+
+  // Calculate scrolling limits based on bounding box of all boundaries
+  if (boundaries && boundaries.length > 0) {
+    // Find bounding box that encompasses all boundaries
+    let overallLeft = Infinity,
+      overallRight = -Infinity
+    let overallTop = Infinity,
+      overallBottom = -Infinity
+
+    for (const boundary of boundaries) {
+      if (isRectShape(boundary)) {
+        overallLeft = Math.min(overallLeft, boundary.x)
+        overallRight = Math.max(overallRight, boundary.x + boundary.width)
+        overallTop = Math.min(overallTop, boundary.y)
+        overallBottom = Math.max(overallBottom, boundary.y + boundary.height)
+      } else if (isEllipseShape(boundary)) {
+        overallLeft = Math.min(overallLeft, boundary.cx - boundary.rx)
+        overallRight = Math.max(overallRight, boundary.cx + boundary.rx)
+        overallTop = Math.min(overallTop, boundary.cy - boundary.ry)
+        overallBottom = Math.max(overallBottom, boundary.cy + boundary.ry)
+      } else if (isPolygonShape(boundary)) {
+        const xs = boundary.points.map((p) => p.x)
+        const ys = boundary.points.map((p) => p.y)
+        overallLeft = Math.min(overallLeft, ...xs)
+        overallRight = Math.max(overallRight, ...xs)
+        overallTop = Math.min(overallTop, ...ys)
+        overallBottom = Math.max(overallBottom, ...ys)
+      }
+    }
+
+    const overallWidth = overallRight - overallLeft
+    const overallHeight = overallBottom - overallTop
+
+    xMax = margin
+    xMin = -(overallWidth - screen.width) - margin
+    yMax = margin
+    yMin = -(overallHeight - screen.height) - margin
+  } else {
+    // Legacy behavior: use world size
+    xMin = -(width - screen.width) - margin
+    xMax = margin
+    yMin = -(height - screen.height) - margin
+    yMax = margin
+  }
+
+  // Apply movement with boundary checks
+  // World scrolls opposite to arrow keys: ArrowDown scrolls world up (negative y)
+  if (keyMap.ArrowDown && m.y - speed > yMin) m.y -= speed
+  if (keyMap.ArrowUp && m.y + speed < yMax) m.y += speed
+  if (keyMap.ArrowRight && m.x - speed > xMin) m.x -= speed
+  if (keyMap.ArrowLeft && m.x + speed < xMax) m.x += speed
 }
 
 let boostAvailableMs = 0
 let boostCount = 0
-function readCatInput(m: Movement, width: number, height: number, screen: Rectangle) {
+function readCatInput(m: Movement, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[]) {
+  if (gameState.movementControl === 'point-and-move') {
+    readPointAndMoveInput(m, width, height, screen, boundaries)
+    return
+  }
   if (lastCatAttackTime > 0) {
     lastCatAttackTime--
   }
 
   const margin = 50
-  const xMax = width - screen.width / 2 - margin
-  const yMax = height - screen.height / 2 - margin
-  const xMin = -screen.width / 2 + margin
-  const yMin = -screen.height / 2 + margin
+  let xMax: number, yMax: number, xMin: number, yMin: number
+
+  // Calculate movement limits based on bounding box of all boundaries
+  if (boundaries && boundaries.length > 0) {
+    // Find bounding box that encompasses all boundaries
+    let overallLeft = Infinity,
+      overallRight = -Infinity
+    let overallTop = Infinity,
+      overallBottom = -Infinity
+
+    for (const boundary of boundaries) {
+      if (isRectShape(boundary)) {
+        overallLeft = Math.min(overallLeft, boundary.x)
+        overallRight = Math.max(overallRight, boundary.x + boundary.width)
+        overallTop = Math.min(overallTop, boundary.y)
+        overallBottom = Math.max(overallBottom, boundary.y + boundary.height)
+      } else if (isEllipseShape(boundary)) {
+        overallLeft = Math.min(overallLeft, boundary.cx - boundary.rx)
+        overallRight = Math.max(overallRight, boundary.cx + boundary.rx)
+        overallTop = Math.min(overallTop, boundary.cy - boundary.ry)
+        overallBottom = Math.max(overallBottom, boundary.cy + boundary.ry)
+      } else if (isPolygonShape(boundary)) {
+        const xs = boundary.points.map((p) => p.x)
+        const ys = boundary.points.map((p) => p.y)
+        overallLeft = Math.min(overallLeft, ...xs)
+        overallRight = Math.max(overallRight, ...xs)
+        overallTop = Math.min(overallTop, ...ys)
+        overallBottom = Math.max(overallBottom, ...ys)
+      }
+    }
+
+    xMin = overallLeft - screen.width / 2 + margin
+    xMax = overallRight - screen.width / 2 - margin
+    yMin = overallTop - screen.height / 2 + margin
+    yMax = overallBottom - screen.height / 2 - margin
+  } else {
+    // Legacy behavior: use world size
+    xMax = width - screen.width / 2 - margin
+    yMax = height - screen.height / 2 - margin
+    xMin = -screen.width / 2 + margin
+    yMin = -screen.height / 2 + margin
+  }
 
   const now = new Date().getTime()
   if (boostAvailableMs !== 0 && boostAvailableMs < now) {
@@ -215,11 +318,54 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
     m.speed = 10 * gameState.speedFactor
   }
 
+  // Helper function to check if a position is within any boundary
+  const isPositionInBoundary = (x: number, y: number): boolean => {
+    if (!boundaries || boundaries.length === 0) return true
+
+    // Convert cat position (relative to screen center) to world coordinates
+    const worldX = x + screen.width / 2
+    const worldY = y + screen.height / 2
+
+    // Check if point is in ANY boundary (union)
+    for (const boundary of boundaries) {
+      if (isRectShape(boundary)) {
+        if (isPointInRect(worldX, worldY, boundary)) return true
+      } else if (isEllipseShape(boundary)) {
+        if (isPointInEllipse(worldX, worldY, boundary)) return true
+      } else if (isPolygonShape(boundary)) {
+        if (isPointInPolygon(worldX, worldY, boundary.points)) return true
+      }
+    }
+    return false
+  }
+
   // move to opposite direction than the world
-  if (keyMap.ArrowDown && m.y + m.speed < yMax) m.y += m.speed
-  if (keyMap.ArrowUp && m.y - m.speed > yMin) m.y -= m.speed
-  if (keyMap.ArrowRight && m.x + m.speed < xMax) m.x += m.speed
-  if (keyMap.ArrowLeft && m.x - m.speed > xMin) m.x -= m.speed
+  // For rect boundaries, use simple limit checks
+  // For ellipse/polygon boundaries, check if next position would be in boundary
+  if (keyMap.ArrowDown) {
+    const nextY = m.y + m.speed
+    if (nextY < yMax && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+  }
+  if (keyMap.ArrowUp) {
+    const nextY = m.y - m.speed
+    if (nextY > yMin && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+  }
+  if (keyMap.ArrowRight) {
+    const nextX = m.x + m.speed
+    if (nextX < xMax && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+  }
+  if (keyMap.ArrowLeft) {
+    const nextX = m.x - m.speed
+    if (nextX > xMin && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+  }
 
   if (keyMap.ArrowLeft || keyMap.ArrowUp || keyMap.ArrowRight || keyMap.ArrowDown) {
     m.action = 'Walk'
@@ -235,4 +381,91 @@ function readCatInput(m: Movement, width: number, height: number, screen: Rectan
   else if (w) m.rotation = (Math.PI / 4) * 0
   else if (d) m.rotation = (Math.PI / 4) * 2
   else if (s) m.rotation = (Math.PI / 4) * 4
+}
+function readPointAndMoveInput(m: Movement, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[]) {
+  if (touchState.touching) {
+    const catX = screen.width / 2
+    const catY = screen.height / 2
+    const angle = Math.atan2(touchState.y - catY, touchState.x - catX) + Math.PI / 2
+    m.rotation = angle
+    m.speed = 10 * gameState.speedFactor
+    const margin = 50
+
+    let xMax: number, yMax: number, xMin: number, yMin: number
+
+    // Calculate movement limits based on bounding box of all boundaries
+    if (boundaries && boundaries.length > 0) {
+      let overallLeft = Infinity,
+        overallRight = -Infinity
+      let overallTop = Infinity,
+        overallBottom = -Infinity
+
+      for (const boundary of boundaries) {
+        if (isRectShape(boundary)) {
+          overallLeft = Math.min(overallLeft, boundary.x)
+          overallRight = Math.max(overallRight, boundary.x + boundary.width)
+          overallTop = Math.min(overallTop, boundary.y)
+          overallBottom = Math.max(overallBottom, boundary.y + boundary.height)
+        } else if (isEllipseShape(boundary)) {
+          overallLeft = Math.min(overallLeft, boundary.cx - boundary.rx)
+          overallRight = Math.max(overallRight, boundary.cx + boundary.rx)
+          overallTop = Math.min(overallTop, boundary.cy - boundary.ry)
+          overallBottom = Math.max(overallBottom, boundary.cy + boundary.ry)
+        } else if (isPolygonShape(boundary)) {
+          const xs = boundary.points.map((p) => p.x)
+          const ys = boundary.points.map((p) => p.y)
+          overallLeft = Math.min(overallLeft, ...xs)
+          overallRight = Math.max(overallRight, ...xs)
+          overallTop = Math.min(overallTop, ...ys)
+          overallBottom = Math.max(overallBottom, ...ys)
+        }
+      }
+
+      xMin = overallLeft - screen.width / 2 + margin
+      xMax = overallRight - screen.width / 2 - margin
+      yMin = overallTop - screen.height / 2 + margin
+      yMax = overallBottom - screen.height / 2 - margin
+    } else {
+      // For no boundaries, use world size
+      xMax = width - screen.width / 2 - margin
+      yMax = height - screen.height / 2 - margin
+      xMin = -screen.width / 2 + margin
+      yMin = -screen.height / 2 + margin
+    }
+
+    // Helper function to check if a position is within any boundary
+    const isPositionInBoundary = (x: number, y: number): boolean => {
+      if (!boundaries || boundaries.length === 0) return true
+
+      // Convert cat position (relative to screen center) to world coordinates
+      const worldX = x + screen.width / 2
+      const worldY = y + screen.height / 2
+
+      // Check if point is in ANY boundary (union)
+      for (const boundary of boundaries) {
+        if (isRectShape(boundary)) {
+          if (isPointInRect(worldX, worldY, boundary)) return true
+        } else if (isEllipseShape(boundary)) {
+          if (isPointInEllipse(worldX, worldY, boundary)) return true
+        } else if (isPolygonShape(boundary)) {
+          if (isPointInPolygon(worldX, worldY, boundary.points)) return true
+        }
+      }
+      return false
+    }
+
+    const nextX = m.x + Math.sin(m.rotation) * m.speed
+    const nextY = m.y - Math.cos(m.rotation) * m.speed
+
+    if (nextX > xMin && nextX < xMax && isPositionInBoundary(nextX, m.y)) {
+      m.x = nextX
+    }
+    if (nextY > yMin && nextY < yMax && isPositionInBoundary(m.x, nextY)) {
+      m.y = nextY
+    }
+
+    m.action = 'Walk'
+  } else {
+    m.action = 'Idle'
+  }
 }

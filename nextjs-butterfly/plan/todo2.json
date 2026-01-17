@@ -1,0 +1,544 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-16",
+  "humanReadable": "todo2.txt",
+  "description": "Map System Feature - Custom level layouts with editable flower zones",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Design Map File Format",
+      "todoTxtRef": "TASK 1.1: Design Map File Format (todo2.txt)",
+      "epic": "Map Data Format and Parser",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [],
+      "subtasks": [
+        {
+          "id": "1.1",
+          "title": "Document format specification with level metadata",
+          "status": "completed",
+          "deliverable": "plan/MAP_FORMAT.md",
+          "testRequired": false,
+          "description": "Define LEVEL, SIZE directives and metadata structure"
+        },
+        {
+          "id": "1.2",
+          "title": "Define boundary and zone syntax",
+          "status": "completed",
+          "deliverable": "plan/MAP_FORMAT.md",
+          "testRequired": false,
+          "description": "Define BOUNDARY and ZONE directives for rect, ellipse, polygon"
+        },
+        {
+          "id": "1.3",
+          "title": "Document percentage vs absolute positioning",
+          "status": "completed",
+          "deliverable": "plan/MAP_FORMAT.md",
+          "testRequired": false,
+          "description": "Explain how 50% vs 100 (pixels) work in the format"
+        },
+        {
+          "id": "1.4",
+          "title": "Add example maps to documentation",
+          "status": "completed",
+          "deliverable": "plan/MAP_FORMAT.md",
+          "testRequired": false,
+          "description": "Include 2-3 complete example level definitions"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Create Map Parser",
+      "todoTxtRef": "TASK 1.2: Create Map Parser (todo2.txt)",
+      "epic": "Map Data Format and Parser",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 3,
+      "dependencies": [1],
+      "subtasks": [
+        {
+          "id": "2.1",
+          "title": "Create MapData and Zone type definitions",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapTypes.ts",
+          "testRequired": false,
+          "description": "Define TypeScript types for MapData, Zone, ZoneShape"
+        },
+        {
+          "id": "2.2",
+          "title": "Implement line tokenizer and comment handling",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.ts",
+          "testRequired": true,
+          "description": "Parse lines, strip comments, handle whitespace"
+        },
+        {
+          "id": "2.3",
+          "title": "Implement LEVEL and SIZE parsing",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.ts",
+          "testRequired": true,
+          "description": "Parse level metadata and size multipliers"
+        },
+        {
+          "id": "2.4",
+          "title": "Implement BOUNDARY parsing",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.ts",
+          "testRequired": true,
+          "description": "Parse boundary definitions for rect, ellipse, polygon"
+        },
+        {
+          "id": "2.5",
+          "title": "Implement ZONE parsing",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.ts",
+          "testRequired": true,
+          "description": "Parse flower zone definitions"
+        },
+        {
+          "id": "2.6",
+          "title": "Implement CAT_SPAWN and percentage conversion",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.ts",
+          "testRequired": true,
+          "description": "Parse cat spawn position, convert % to coordinates"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Create Maps Data File",
+      "todoTxtRef": "TASK 1.3: Create Maps Data File (todo2.txt)",
+      "epic": "Map Data Format and Parser",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [1],
+      "subtasks": [
+        {
+          "id": "3.1",
+          "title": "Create Level 1-2 maps (simple layouts)",
+          "status": "completed",
+          "deliverable": "public/maps/levels.txt",
+          "testRequired": false,
+          "description": "Level 1: single center zone, Level 2: two zones left/right"
+        },
+        {
+          "id": "3.2",
+          "title": "Create Level 3-4 maps (medium complexity)",
+          "status": "completed",
+          "deliverable": "public/maps/levels.txt",
+          "testRequired": false,
+          "description": "Level 3: triangle pattern, Level 4: four corners"
+        },
+        {
+          "id": "3.3",
+          "title": "Create Level 5-6 maps (increasing difficulty)",
+          "status": "completed",
+          "deliverable": "public/maps/levels.txt",
+          "testRequired": false,
+          "description": "Level 5: scattered zones, Level 6: perimeter zones"
+        },
+        {
+          "id": "3.4",
+          "title": "Create Level 7-8 maps (complex layouts)",
+          "status": "completed",
+          "deliverable": "public/maps/levels.txt",
+          "testRequired": false,
+          "description": "Level 7-8: complex multi-zone challenge layouts"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Create MapLoader Service",
+      "todoTxtRef": "TASK 2.1: Create MapLoader Service (todo2.txt)",
+      "epic": "Level System Integration",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [2],
+      "subtasks": [
+        {
+          "id": "4.1",
+          "title": "Implement async fetch for levels.txt",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapLoader.ts",
+          "testRequired": true,
+          "description": "Fetch map file from public/maps/levels.txt"
+        },
+        {
+          "id": "4.2",
+          "title": "Implement map caching and getMapForLevel",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapLoader.ts",
+          "testRequired": true,
+          "description": "Cache parsed maps, provide lookup by level number"
+        },
+        {
+          "id": "4.3",
+          "title": "Implement fallback for missing levels",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapLoader.ts",
+          "testRequired": false,
+          "description": "Return default rectangular map if level not found"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Refactor Level.ts to Use MapData",
+      "todoTxtRef": "TASK 2.2: Refactor Level.ts to Use MapData (todo2.txt)",
+      "epic": "Level System Integration",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 4,
+      "dependencies": [4],
+      "subtasks": [
+        {
+          "id": "5.1",
+          "title": "Update Level constructor to accept MapData",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Add optional MapData parameter, maintain backward compat"
+        },
+        {
+          "id": "5.2",
+          "title": "Calculate world dimensions from MapData",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Use widthMultiplier/heightMultiplier from MapData"
+        },
+        {
+          "id": "5.3",
+          "title": "Position cat at MapData.catSpawn",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Use spawn position from map instead of hardcoded center"
+        },
+        {
+          "id": "5.4",
+          "title": "Pass MapData to World constructor",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "World needs boundary info for rendering"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Refactor Flower Placement to Use Zones",
+      "todoTxtRef": "TASK 2.3: Refactor Flower Placement to Use Zones (todo2.txt)",
+      "epic": "Level System Integration",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 3,
+      "dependencies": [5],
+      "subtasks": [
+        {
+          "id": "6.1",
+          "title": "Create getFlowerXYInZone helper function",
+          "status": "completed",
+          "deliverable": "app/game/helpers.ts",
+          "testRequired": true,
+          "description": "Generate random point within a Zone (rect/ellipse)"
+        },
+        {
+          "id": "6.2",
+          "title": "Implement zone-based flower distribution",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Distribute flowers across zones proportionally"
+        },
+        {
+          "id": "6.3",
+          "title": "Maintain safe zone around cat spawn",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Ensure no flowers spawn too close to cat start position"
+        },
+        {
+          "id": "6.4",
+          "title": "Verify bees and butterflies still assigned correctly",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.ts",
+          "testRequired": true,
+          "description": "Existing random assignment from flowers should still work"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Update LevelSettings Integration",
+      "todoTxtRef": "TASK 2.4: Update LevelSettings Integration (todo2.txt)",
+      "epic": "Level System Integration",
+      "priority": 2,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [5],
+      "subtasks": [
+        {
+          "id": "7.1",
+          "title": "Add optional mapId to LevelConfig type",
+          "status": "completed",
+          "deliverable": "app/game/worlds/LevelSettings.ts",
+          "testRequired": true,
+          "description": "Link LevelConfig to specific map by ID"
+        },
+        {
+          "id": "7.2",
+          "title": "Ensure flower count distribution across zones",
+          "status": "completed",
+          "deliverable": "app/game/worlds/LevelSettings.ts",
+          "testRequired": true,
+          "description": "LevelConfig.flowers count distributed across MapData zones"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Update World Boundary Rendering",
+      "todoTxtRef": "TASK 3.1: Update World Boundary Rendering (todo2.txt)",
+      "epic": "World Rendering Updates",
+      "priority": 2,
+      "status": "completed",
+      "estimatedHours": 3,
+      "dependencies": [5],
+      "subtasks": [
+        {
+          "id": "8.1",
+          "title": "Update World constructor to accept boundary",
+          "status": "completed",
+          "deliverable": "app/game/entities/World.ts",
+          "testRequired": true,
+          "description": "Accept Zone boundary definition in constructor"
+        },
+        {
+          "id": "8.2",
+          "title": "Render background matching boundary shape",
+          "status": "completed",
+          "deliverable": "app/game/entities/World.ts",
+          "testRequired": true,
+          "description": "Draw background fill for rect boundary (extensible to others)"
+        },
+        {
+          "id": "8.3",
+          "title": "Render edge graphics at boundary",
+          "status": "completed",
+          "deliverable": "app/game/entities/World.ts",
+          "testRequired": true,
+          "description": "Draw edge/border outside playable area"
+        },
+        {
+          "id": "8.4",
+          "title": "Constrain grass spawning to playable area",
+          "status": "completed",
+          "deliverable": "app/game/entities/World.ts",
+          "testRequired": true,
+          "description": "Grass blades only spawn within boundary"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Update Movement System Boundaries",
+      "todoTxtRef": "TASK 3.2: Update Movement System Boundaries (todo2.txt)",
+      "epic": "World Rendering Updates",
+      "priority": 2,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [5],
+      "subtasks": [
+        {
+          "id": "9.1",
+          "title": "Accept boundary in movement calculations",
+          "status": "completed",
+          "deliverable": "app/game/systems/movementSystem.ts",
+          "testRequired": true,
+          "description": "Pass boundary to movement functions"
+        },
+        {
+          "id": "9.2",
+          "title": "Update readCatInput boundary limits",
+          "status": "completed",
+          "deliverable": "app/game/systems/movementSystem.ts",
+          "testRequired": true,
+          "description": "Calculate cat movement limits from boundary"
+        },
+        {
+          "id": "9.3",
+          "title": "Update readWorldInput for scrolling limits",
+          "status": "completed",
+          "deliverable": "app/game/systems/movementSystem.ts",
+          "testRequired": true,
+          "description": "World scrolling respects boundary edges"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Integrate Map Loading in page.tsx",
+      "todoTxtRef": "TASK 4.1: Integrate Map Loading in page.tsx (todo2.txt)",
+      "epic": "Asset Loading and Initialization",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [4],
+      "subtasks": [
+        {
+          "id": "10.1",
+          "title": "Load maps during asset loading phase",
+          "status": "completed",
+          "deliverable": "app/page.tsx",
+          "testRequired": false,
+          "description": "Add MapLoader.loadMaps() to initialization"
+        },
+        {
+          "id": "10.2",
+          "title": "Store parsed maps in accessible location",
+          "status": "completed",
+          "deliverable": "app/page.tsx",
+          "testRequired": false,
+          "description": "Make maps available for Level creation"
+        },
+        {
+          "id": "10.3",
+          "title": "Pass MapData when creating Level",
+          "status": "completed",
+          "deliverable": "app/page.tsx",
+          "testRequired": false,
+          "description": "Retrieve MapData for level and pass to Level constructor"
+        },
+        {
+          "id": "10.4",
+          "title": "Handle map loading errors gracefully",
+          "status": "completed",
+          "deliverable": "app/page.tsx",
+          "testRequired": false,
+          "description": "Fall back to default behavior if maps fail to load"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Add Map Loading Progress",
+      "todoTxtRef": "TASK 4.2: Add Map Loading Progress (todo2.txt)",
+      "epic": "Asset Loading and Initialization",
+      "priority": 3,
+      "status": "completed",
+      "estimatedHours": 1,
+      "dependencies": [10],
+      "subtasks": [
+        {
+          "id": "11.1",
+          "title": "Include map loading in progress display",
+          "status": "completed",
+          "deliverable": "app/page.tsx",
+          "testRequired": false,
+          "description": "Show map loading status if loading UI exists"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Create Map Parser Unit Tests",
+      "todoTxtRef": "TASK 5.1: Create Map Parser Unit Tests (todo2.txt)",
+      "epic": "Testing and Validation",
+      "priority": 1,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [2],
+      "subtasks": [
+        {
+          "id": "12.1",
+          "title": "Test valid input parsing",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.test.ts",
+          "testRequired": true,
+          "description": "Test all parser functions with valid input"
+        },
+        {
+          "id": "12.2",
+          "title": "Test invalid input error handling",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.test.ts",
+          "testRequired": true,
+          "description": "Test error cases and validation"
+        },
+        {
+          "id": "12.3",
+          "title": "Test edge cases",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapParser.test.ts",
+          "testRequired": true,
+          "description": "Test empty zones, comments, whitespace handling"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Create Integration Tests",
+      "todoTxtRef": "TASK 5.2: Create Integration Tests (todo2.txt)",
+      "epic": "Testing and Validation",
+      "priority": 2,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [6, 10],
+      "subtasks": [
+        {
+          "id": "13.1",
+          "title": "Test MapLoader fetching and parsing",
+          "status": "completed",
+          "deliverable": "app/game/maps/MapLoader.test.ts",
+          "testRequired": true,
+          "description": "Integration test for loader with mock fetch"
+        },
+        {
+          "id": "13.2",
+          "title": "Test Level using MapData",
+          "status": "completed",
+          "deliverable": "app/game/worlds/Level.test.ts",
+          "testRequired": true,
+          "description": "Test Level initialization with MapData"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Visual Validation and Debug Mode",
+      "todoTxtRef": "TASK 5.3: Visual Validation and Debug Mode (todo2.txt)",
+      "epic": "Testing and Validation",
+      "priority": 3,
+      "status": "completed",
+      "estimatedHours": 2,
+      "dependencies": [8],
+      "subtasks": [
+        {
+          "id": "14.1",
+          "title": "Add debug zone boundary visualization",
+          "status": "completed",
+          "deliverable": "app/game/entities/World.ts",
+          "testRequired": false,
+          "description": "Render colored overlays for flower zones"
+        },
+        {
+          "id": "14.2",
+          "title": "Add toggle for debug mode",
+          "status": "completed",
+          "deliverable": "app/game/systems/gameState.ts",
+          "testRequired": false,
+          "description": "Keyboard shortcut or dev flag to toggle debug view"
+        }
+      ]
+    }
+  ]
+}

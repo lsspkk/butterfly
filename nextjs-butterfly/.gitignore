@@ -43,3 +43,12 @@ plan.md
 # the single files of sprites
 public/sprites/ohdakeperhonen/*
 *storybook.log
+
+
+
+
+# AI stuff
+.ralph*
+plan/copy-ideas.txt
+plan/similar.txt
+

@@ -12,25 +12,43 @@ export const keyMap: KeyPressType = {
   w: false,
   s: false,
   Escape: false,
+  D: false, // Debug mode toggle (Shift+D)
 }
 
+import { gameState, updateGameState } from './gameState'
+
 export default class KeyboardListener {
+  private debugKeyPressed: boolean = false
+
   constructor() {
     window.addEventListener('keydown', this.keydown)
     window.addEventListener('keyup', this.keyup)
   }
 
-  keydown(e: KeyboardEvent) {
+  keydown = (e: KeyboardEvent) => {
     const key = e.key == ' ' ? 'space' : e.key
     if (keyMap[key] !== undefined) {
       keyMap[key] = true
     }
+
+    // Toggle debug mode with Shift+D
+    if (e.key === 'D' && e.shiftKey && !this.debugKeyPressed) {
+      this.debugKeyPressed = true
+      const newDebugMode = !gameState.debugMode
+      updateGameState({ debugMode: newDebugMode })
+      console.log(`Debug mode ${newDebugMode ? 'enabled' : 'disabled'}`)
+    }
   }
 
-  keyup(e: KeyboardEvent) {
+  keyup = (e: KeyboardEvent) => {
     const key = e.key == ' ' ? 'space' : e.key
     if (keyMap[key] !== undefined) {
       keyMap[key] = false
+    }
+
+    // Reset debug key flag on release
+    if (e.key === 'D') {
+      this.debugKeyPressed = false
     }
   }
 

@@ -1,0 +1,477 @@
+# Butterfly Game - Map System Feature
+# ====================================
+# 
+# This todo list describes the implementation of a custom map system
+# that allows human-editable level layouts with different shapes,
+# boundaries, and flower placement zones.
+#
+# Currently: All levels use a simple rectangular layout with random flower placement
+# Goal: Levels can have custom shapes, edges, and defined flower zones
+#
+# Key concepts:
+# - Map file: Human-readable text file defining level geometry
+# - Playable area: Where the cat can move (polygon/shape)
+# - Flower zones: Areas where flowers spawn (some get bees, some get butterflies in bubbles)
+# - Edge boundary: Visual and collision boundary of the world
+#
+# ============================================================================
+
+EPIC 1: Map Data Format and Parser
+==================================
+Create a human-editable text format for defining level maps and a parser to read them.
+
+TASK 1.1: Design Map File Format
+--------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 2 hours
+Deliverable: plan/MAP_FORMAT.md
+
+Description:
+Design a simple, human-readable text format for level maps. The format should support:
+- Level metadata (id, name, difficulty)
+- World dimensions (width multiplier, height multiplier relative to screen)
+- Playable area boundary (polygon points or predefined shapes)
+- Multiple flower zones with:
+  - Zone type (rectangle, ellipse, polygon)
+  - Zone coordinates and size
+  - Optional: gardener type preference
+- Cat spawn position
+- Comments for human editors
+
+Example format concept:
+```
+# Level 1 - The Meadow
+LEVEL 1 "The Meadow"
+SIZE 2.0 2.0
+
+# Playable boundary (rectangle for now)
+BOUNDARY rect 0 0 100% 100%
+
+# Flower zones - flowers spawn randomly within these areas
+# Some flowers will have bees, some will have butterflies in bubbles
+ZONE rect 10% 10% 30% 30% 
+ZONE rect 60% 10% 90% 40%
+ZONE ellipse 50% 60% 200 200
+
+CAT_SPAWN 50% 50%
+```
+
+Acceptance criteria:
+- [ ] Document format specification in MAP_FORMAT.md
+- [ ] Include examples for rectangle, ellipse, and polygon zones
+- [ ] Define percentage-based and absolute positioning
+- [ ] Explain how zones relate to flower/bee/butterfly placement
+
+
+TASK 1.2: Create Map Parser
+---------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 3 hours
+Deliverable: app/game/maps/MapParser.ts
+TestRequired: true
+
+Description:
+Implement a parser that reads the map text format and produces a typed MapData object.
+
+The parser should:
+- Parse level metadata
+- Parse world size configuration
+- Parse boundary definition (start with rect, extend to polygon later)
+- Parse multiple flower zones
+- Parse cat spawn position
+- Handle comments and whitespace
+- Validate data and report meaningful errors
+
+Output type structure:
+```typescript
+type ZoneShape = 'rect' | 'ellipse' | 'polygon'
+type Zone = {
+  shape: ZoneShape
+  // For rect: x, y, width, height (as % or px)
+  // For ellipse: cx, cy, rx, ry
+  // For polygon: points array
+  bounds: { x: number, y: number, width: number, height: number } | 
+          { cx: number, cy: number, rx: number, ry: number } |
+          { points: {x: number, y: number}[] }
+  gardenerPreference?: string
+}
+type MapData = {
+  id: number
+  name: string
+  widthMultiplier: number
+  heightMultiplier: number
+  boundary: Zone
+  flowerZones: Zone[]
+  catSpawn: { x: number, y: number }
+}
+```
+
+Acceptance criteria:
+- [ ] Parser handles all format elements
+- [ ] Unit tests for parser with valid input
+- [ ] Unit tests for parser error handling
+- [ ] Percentage values converted to actual coordinates given screen size
+
+
+TASK 1.3: Create Maps Data File
+-------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 2 hours
+Deliverable: public/maps/levels.txt
+TestRequired: false
+
+Description:
+Create the initial maps file with 8 levels (matching current levelConfigList).
+Start with simple rectangular layouts matching current behavior, then can be 
+enhanced with more interesting shapes later.
+
+Each level should have:
+- Increasing complexity in zone placement
+- Different zone configurations
+- Cat spawn in safe area (center typically)
+
+Level progression ideas:
+1. Simple single zone in center
+2. Two zones, left and right
+3. Three zones in triangle pattern
+4. Four corners pattern
+5. Scattered small zones
+6. Large perimeter zones
+7. Complex multi-zone layout
+8. Challenge layout with many small zones
+
+Acceptance criteria:
+- [ ] 8 levels defined in levels.txt
+- [ ] Each level has valid syntax per MAP_FORMAT.md
+- [ ] Levels increase in complexity
+- [ ] All levels use rectangular zones initially (squares as requested)
+
+
+EPIC 2: Level System Integration
+================================
+Integrate the map system with the existing Level class and game loop.
+
+TASK 2.1: Create MapLoader Service
+----------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/maps/MapLoader.ts
+TestRequired: true
+
+Description:
+Create a service that:
+- Loads the levels.txt file (fetch from public/)
+- Uses MapParser to parse all levels
+- Provides getMapForLevel(levelNumber) function
+- Caches parsed maps
+- Falls back to default rect if level not found
+
+Acceptance criteria:
+- [ ] Async loading from public/maps/levels.txt
+- [ ] Returns MapData for requested level
+- [ ] Graceful fallback for missing levels
+- [ ] Unit tests for loader
+
+
+TASK 2.2: Refactor Level.ts to Use MapData
+------------------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 4 hours
+Deliverable: app/game/worlds/Level.ts
+TestRequired: true
+
+Description:
+Modify Level class to:
+- Accept MapData in addition to LevelConfig
+- Use MapData.widthMultiplier/heightMultiplier for world size
+- Use MapData.catSpawn for initial cat position
+- Pass MapData to createFlowers method
+
+Key changes:
+- Constructor accepts optional MapData
+- World dimensions calculated from MapData if provided
+- Cat positioned at MapData.catSpawn
+
+Acceptance criteria:
+- [ ] Level works with MapData
+- [ ] Level still works without MapData (backward compatible)
+- [ ] Cat spawns at correct position
+- [ ] World size respects map configuration
+- [ ] Existing tests still pass
+
+
+TASK 2.3: Refactor Flower Placement to Use Zones
+------------------------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 3 hours
+Deliverable: app/game/worlds/Level.ts, app/game/helpers.ts
+TestRequired: true
+
+Description:
+Modify createFlowers to use MapData.flowerZones instead of random world placement.
+
+Logic:
+- Distribute flowers across zones (proportional to zone area or equal)
+- Each flower placed randomly within its assigned zone
+- Maintain safe zone around cat spawn
+- Existing getFlowerXYWithSafeZone becomes getFlowerXYInZone
+
+The key insight: flowers are placed in zones, then some flowers get bees
+and some get butterflies in bubbles (this is already handled by Level.ts
+using randomIndexArray to pick flowers for bees and butterflies).
+
+Acceptance criteria:
+- [ ] Flowers only spawn within defined zones
+- [ ] Multiple zones all get flowers
+- [ ] Safe zone still respected for cat spawn area
+- [ ] Visual verification flowers appear in zones
+- [ ] Bees and butterflies still assigned to flowers correctly
+
+
+TASK 2.4: Update LevelSettings Integration
+------------------------------------------
+Priority: 2 (Medium)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/worlds/LevelSettings.ts
+TestRequired: true
+
+Description:
+Update LevelSettings to work with MapData:
+- Keep existing LevelConfig for gameplay settings (bees, butterflies, speed)
+- MapData handles spatial configuration
+- Ensure both systems work together in Level constructor
+
+Consider adding mapId to LevelConfig to link config to map:
+```typescript
+type LevelConfig = {
+  level: number
+  mapId?: number  // optional, defaults to level number
+  bees: number
+  flowers: number
+  butterflies: number
+  beeMaxSpeed: number
+}
+```
+
+Acceptance criteria:
+- [ ] LevelConfig and MapData work together
+- [ ] Flower count from LevelConfig distributed across MapData zones
+- [ ] All existing levels still work
+
+
+EPIC 3: World Rendering Updates
+===============================
+Update World.ts to render non-rectangular boundaries and respect map edges.
+
+TASK 3.1: Update World Boundary Rendering
+-----------------------------------------
+Priority: 2 (Medium)
+Status: not-started
+Estimated: 3 hours
+Deliverable: app/game/entities/World.ts
+TestRequired: true
+
+Description:
+Modify World to:
+- Accept boundary shape from MapData
+- Render background only within boundary
+- Render edge/border graphics at boundary
+- For now: support rectangle boundaries (foundation for future shapes)
+
+The current World renders:
+- edges: dark green border outside playable area
+- background: playable area color
+- grass: random grass blades
+
+Changes needed:
+- Accept boundary config in constructor
+- Draw background matching boundary shape
+- Draw edge outside boundary
+
+Acceptance criteria:
+- [ ] World renders rectangular boundary correctly
+- [ ] Edge color visible at world boundary
+- [ ] Background only fills playable area
+- [ ] Grass spawns only in playable area
+
+
+TASK 3.2: Update Movement System Boundaries
+-------------------------------------------
+Priority: 2 (Medium)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/systems/movementSystem.ts
+TestRequired: true
+
+Description:
+Update movement system to respect map boundaries:
+- Cat cannot move outside boundary
+- For rectangular boundaries: use existing margin logic
+- Foundation for future polygon boundary collision
+
+Current code uses width/height for limits. Need to:
+- Accept boundary definition
+- Calculate limits from boundary
+- Apply to readCatInput and readWorldInput
+
+Acceptance criteria:
+- [ ] Cat stops at map boundary edges
+- [ ] World scrolling respects boundary
+- [ ] Works with rectangular boundaries
+- [ ] Existing behavior preserved for levels without MapData
+
+
+EPIC 4: Asset Loading and Initialization
+========================================
+Ensure maps are loaded before game starts.
+
+TASK 4.1: Integrate Map Loading in page.tsx
+-------------------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/page.tsx
+TestRequired: false
+
+Description:
+Update main page to:
+- Load maps file during asset loading phase
+- Parse maps and store in game state or context
+- Pass MapData to Level when starting a level
+
+Current flow:
+1. Load assets (sprites, sounds, etc.)
+2. Show start dialog
+3. Create Level with LevelConfig
+
+New flow:
+1. Load assets AND maps file
+2. Parse maps
+3. Show start dialog
+4. Create Level with LevelConfig AND MapData
+
+Acceptance criteria:
+- [ ] Maps loaded before game starts
+- [ ] MapData available when creating Level
+- [ ] Loading errors handled gracefully
+- [ ] Game works even if maps fail to load (fallback)
+
+
+TASK 4.2: Add Map Loading Progress
+----------------------------------
+Priority: 3 (Low)
+Status: not-started
+Estimated: 1 hour
+Deliverable: app/page.tsx
+TestRequired: false
+
+Description:
+Show map loading status in loading screen if there's a loading indicator.
+Low priority - only if there's already a loading UI.
+
+Acceptance criteria:
+- [ ] Map loading included in any loading progress display
+
+
+EPIC 5: Testing and Validation
+==============================
+
+TASK 5.1: Create Map Parser Unit Tests
+--------------------------------------
+Priority: 1 (Critical)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/maps/MapParser.test.ts
+TestRequired: true
+
+Description:
+Comprehensive unit tests for MapParser:
+- Valid input parsing
+- Invalid input error handling
+- Edge cases (empty zones, comments, whitespace)
+- Percentage to pixel conversion
+
+Acceptance criteria:
+- [ ] All parser functions have tests
+- [ ] Error cases tested
+- [ ] Tests pass
+
+
+TASK 5.2: Create Integration Tests
+----------------------------------
+Priority: 2 (Medium)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/maps/MapLoader.test.ts
+TestRequired: true
+
+Description:
+Integration tests for:
+- MapLoader fetching and parsing
+- Level using MapData
+- Flower placement in zones
+
+Acceptance criteria:
+- [ ] Loader tests pass
+- [ ] Integration with Level tested
+
+
+TASK 5.3: Visual Validation and Debug Mode
+------------------------------------------
+Priority: 3 (Low)
+Status: not-started
+Estimated: 2 hours
+Deliverable: app/game/entities/World.ts (debug rendering)
+TestRequired: false
+
+Description:
+Add debug visualization option:
+- Show zone boundaries as colored overlays
+- Show boundary outline
+- Toggle with keyboard shortcut or dev flag
+
+Useful for map designers to verify their zones.
+
+Acceptance criteria:
+- [ ] Debug mode shows zone boundaries
+- [ ] Can be toggled on/off
+- [ ] Does not affect production build
+
+
+# ============================================================================
+# SUMMARY
+# ============================================================================
+#
+# EPIC 1: Map Data Format and Parser (3 tasks)
+#   - 1.1 Design format documentation
+#   - 1.2 Create parser
+#   - 1.3 Create initial maps file with 8 levels
+#
+# EPIC 2: Level System Integration (4 tasks)
+#   - 2.1 MapLoader service
+#   - 2.2 Refactor Level.ts
+#   - 2.3 Refactor flower placement
+#   - 2.4 Update LevelSettings
+#
+# EPIC 3: World Rendering Updates (2 tasks)
+#   - 3.1 Boundary rendering
+#   - 3.2 Movement boundaries
+#
+# EPIC 4: Asset Loading (2 tasks)
+#   - 4.1 Integrate in page.tsx
+#   - 4.2 Loading progress (low priority)
+#
+# EPIC 5: Testing (3 tasks)
+#   - 5.1 Parser unit tests
+#   - 5.2 Integration tests
+#   - 5.3 Debug visualization
+#
+# Total: 5 Epics, 14 Tasks
+# ============================================================================

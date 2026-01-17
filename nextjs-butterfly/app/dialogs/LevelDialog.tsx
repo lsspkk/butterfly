@@ -1,7 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { ButterflyIcon } from '../components/ButterflyIcon'
-import { DFrame, DTitle, DContent, DText, DFooter, DButton } from '../components/DComponents'
+import { CatIcon } from '../components/CatIcon'
+import { XIcon } from '../components/XIcon'
+import { DFrame, DTitle, DContent, DText, DButton } from '../components/DComponents'
 import { Nice } from '../components/Nice'
 import { ShowCanvas } from '../components/ShowCanvas'
 import { gameState } from '../game/systems/gameState'
@@ -11,10 +13,14 @@ export function LevelDialog({
   completedLevelNro,
   nextLevel,
   totalRescued,
+  isLastLevel,
+  goToStart,
 }: {
   completedLevelNro: number
   nextLevel: () => void
   totalRescued: number
+  isLastLevel: boolean
+  goToStart: () => void
 }) {
   const [keys, setKeys] = useState<string[]>([])
   const [rescued, setRescued] = useState<Map<string, ButterflyData>>(new Map())
@@ -78,16 +84,39 @@ export function LevelDialog({
           <DText className='text-center flex items-center'>
             Score <Nice classname='ml-2'>{gameState.score}</Nice>
           </DText>
+
+          <DText className='text-center flex items-center'>
+            Bee stings <Nice classname='ml-2'>{gameState.totalBeeStings}</Nice>
+          </DText>
+
+          <DText className='text-center flex items-center text-xl mt-4'>
+            Final score <Nice classname='ml-2'>{gameState.score}</Nice>
+          </DText>
+          <DText className='text-center flex items-center'>
+            Maximum possible score <Nice classname='ml-2'>{gameState.totalPotentialScore}</Nice>
+          </DText>
         </div>
       </DContent>
-      <DFooter>
-        <DButton className='z-20' onClick={onNext}>
-          <ButterflyIcon />
+      <div className='flex justify-between items-center w-full gap-16'>
+        <DButton className='z-20' onClick={goToStart}>
+          <XIcon />
         </DButton>
-        <DButton className='z-20' autoFocus onClick={nextLevel}>
-          Play
-        </DButton>
-      </DFooter>
+        <div className='flex gap-16'>
+          <DButton className='z-20' onClick={onNext}>
+            <ButterflyIcon />
+          </DButton>
+          {!isLastLevel && (
+            <DButton className='z-20' autoFocus onClick={nextLevel}>
+              <span className='text-xl'>▶️</span>
+            </DButton>
+          )}
+          {isLastLevel && (
+            <DButton className='z-20 [&_span]:brightness-0 [&_span]:invert' autoFocus onClick={goToStart}>
+              <CatIcon className='text-xl' />
+            </DButton>
+          )}
+        </div>
+      </div>
     </DFrame>
   )
 }

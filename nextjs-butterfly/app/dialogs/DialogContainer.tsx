@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { Level } from '../game/worlds/Level'
-import { levelConfigList } from '../game/worlds/LevelSettings'
-import { updateGameState } from '../game/systems/gameState'
+import { getLevelConfigs } from '../game/worlds/LevelSettings'
+import { gameState, updateGameState } from '../game/systems/gameState'
 import { TouchControls } from '../components/TouchControls'
 import { Application } from 'pixi.js'
 import { ActionButton } from '../components/ActionButton'
@@ -28,7 +28,7 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
 
   useEffect(() => {
     if (dialogState === 'level') {
-      setTotalRescued(totalRescued + levelConfigList[levelNro].butterflies)
+      setTotalRescued(totalRescued + getLevelConfigs()[levelNro].butterflies)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogState])
@@ -51,12 +51,21 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
   }
 
   const start = async () => {
+    // Reset game completion stats
+    setTotalRescued(0)
+    updateGameState({
+      score: 0,
+      totalBeeStings: 0,
+      totalScoreLost: 0,
+      totalButterfliesRescued: 0,
+      totalPotentialScore: 0,
+    })
     startLevelWithNro(0)
   }
 
   const nextLevel = () => {
     let newLevelNro = levelNro + 1
-    if (newLevelNro > levelConfigList.length - 1) {
+    if (newLevelNro > getLevelConfigs().length - 1) {
       newLevelNro = 0
     }
     startLevelWithNro(newLevelNro)
@@ -64,7 +73,7 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
 
   return (
     <>
-      <TouchControls visible={dialogState === 'none' && isMobile} />
+      <TouchControls visible={dialogState === 'none' && isMobile && gameState.movementControl === 'joystick'} />
       <ActionButton visible={dialogState === 'none' && isMobile} />
       {dialogState !== 'none' && pixiApp && (
         <div
@@ -74,7 +83,15 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
           {dialogState === 'start' && <StartDialog start={start} isMobile={isMobile} isPortrait={isPortrait} />}
           {dialogState === 'paused' && <PausedDialog />}
           {dialogState === 'gameover' && <GameOverDialog setDialogState={setDialogState} />}
-          {dialogState === 'level' && <LevelDialog completedLevelNro={levelNro} nextLevel={nextLevel} totalRescued={totalRescued} />}
+          {dialogState === 'level' && (
+            <LevelDialog
+              completedLevelNro={levelNro}
+              nextLevel={nextLevel}
+              totalRescued={totalRescued}
+              isLastLevel={levelNro === getLevelConfigs().length - 1}
+              goToStart={() => setDialogState('start')}
+            />
+          )}
           {dialogState === 'settings' && <SettingsDialog setDialogState={setDialogState} />}
         </div>
       )}
