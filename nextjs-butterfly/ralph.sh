@@ -27,40 +27,24 @@ for i in {1..$MAX_ITERS}; do
     --output-format stream-json \
     "# Butterfly Game Development Task
 
-First read some info files from plan folder
-1. Read CLAUDE.md to understand the project architecture
-2. Read plan/todo.json for available tasks
-   Pick the first available task with status 'not-started'
+Read these files first:
+1. CLAUDE.md - project architecture and commands
+2. plan/todo.json - task list with status, dependencies, phases
+3. plan/todo.txt - DETAILED implementation info (code snippets, exact changes, line numbers)
+
+Pick the first task with status 'not-started' from todo.json.
 
 Rules:
-- ONLY WORK ON A SINGLE TASK AT A TIME
-- Update plan/todo.json status to 'in-progress' before starting
-- Task is NOT complete until tests pass (check testRequired field)
-- APPEND (do not overwrite) progress log into file in project root called plan/progress.txt with timestamps after each agent action, as described below
-- ONLY when ALL tasks AND tasks are 'completed', print exactly: ${STOP_TOKEN}
-- Check plan/todo.json: if ANY task has status 'not-started', do NOT output stop token
-- When task is done
-  - mark task 'completed' in plan/todo.json
-  - append to plan/progress.txt the log line, 
-    and a short (about 10 lines) summary of changes made
-  - stop working: exit this agent session
+- Work on ONE task at a time
+- Update todo.json status to 'in-progress' before starting
+- When task is done: mark 'completed' in todo.json, log to plan/progress.txt, then exit
+- ONLY when ALL tasks are 'completed', print exactly: ${STOP_TOKEN}
 
-Example of log line formats that you use in plan/progress.txt file:
-
-HH:MM - Started Epic X.Y 
-HH:MM - Epic X.Y complete
-HH:MM - Started task X.Y 
-HH:MM - Task X.Y complete
-HH:MM - Created §filenames
-HH:MM - Updated §filenames
-HH:MM - Tests pass §test_filename
-HH:MM - Tests fail §test_filename
-HH:MM - Installed package_name
-HH:MM - [Loop N] Task X.Y complete
-
-IMPORTANT: After completing ONE task, if more work remains, 
-end your response WITHOUT the stop token. 
-The loop will continue.
+Progress log format (append to plan/progress.txt):
+  HH:MM - Started task X.Y
+  HH:MM - Created/Updated §filename
+  HH:MM - Task X.Y complete
+  (add ~5 line summary of changes)
 
 Work incrementally. Small, safe edits. Begin." \
     | tee ".ralph-loop-${i}.ndjson"
@@ -91,4 +75,4 @@ done
 echo ""
 echo "🏁 Ralph the Butterfly complete"
 echo "📊 Total loops: $i"
-echo "🦋 Subtasks complete: $(grep -c 'Subtask.*complete' plan/progress.txt 2>/dev/null || echo '0')"
+echo "🦋 Tasks complete: $(grep -c 'Task.*complete' plan/progress.txt 2>/dev/null || echo '0')"

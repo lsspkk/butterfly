@@ -1,0 +1,185 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-18",
+  "humanReadable": "todo.txt",
+  "description": "Fruit System - Cat picks up fruits, drops them to distract bees",
+  "config": {
+    "fruits": {
+      "apple": { "duration": 5000, "color": "#E53935" },
+      "orange": { "duration": 3000, "color": "#FF9800" },
+      "banana": { "duration": 10000, "color": "#FFEB3B" }
+    },
+    "respawnInterval": { "min": 3000, "max": 7000 },
+    "totalFruits": 3,
+    "pickupDistance": 80
+  },
+  "tasks": [
+    {
+      "id": "1.1",
+      "title": "Create Fruit SVG Assets",
+      "epic": "Fruit Graphics and Entity",
+      "status": "not-started",
+      "phase": 1,
+      "deliverable": ["public/fruits/apple.svg", "public/fruits/orange.svg", "public/fruits/banana.svg"],
+      "description": "Create 3 SVG files (100x100 viewBox): apple (red), orange (orange), banana (yellow curved)"
+    },
+    {
+      "id": "1.2",
+      "title": "Create Fruit Entity Class",
+      "epic": "Fruit Graphics and Entity",
+      "status": "not-started",
+      "phase": 1,
+      "deliverable": "app/game/entities/Fruit.ts",
+      "dependencies": ["1.1"],
+      "exports": ["FruitType", "FruitAssets", "FRUIT_DURATIONS", "default Fruit"],
+      "description": "Fruit class implementing EGraphics with state: isPickedUp, isActive, activeUntil, respawnAt. Methods: pickup(), drop(x,y), consume(), tryRespawn(), isWaitingRespawn()"
+    },
+    {
+      "id": "1.3",
+      "title": "Add Fruit to EntityType",
+      "epic": "Fruit Graphics and Entity",
+      "status": "not-started",
+      "phase": 1,
+      "deliverable": "app/game/entities/EManager.ts",
+      "change": "Line 3: Add 'Fruit' to EntityType union"
+    },
+    {
+      "id": "2.1",
+      "title": "Add Fruit State to gameState",
+      "epic": "Fruit State and Spawning",
+      "status": "not-started",
+      "phase": 1,
+      "deliverable": "app/game/systems/gameState.ts",
+      "dependencies": ["1.2"],
+      "changes": [
+        "Import FruitType from '../entities/Fruit'",
+        "Add to GameState type: heldFruit: FruitType | null, activeFruitId: string | null",
+        "Add initial values: heldFruit: null, activeFruitId: null"
+      ]
+    },
+    {
+      "id": "4.1",
+      "title": "Load Fruit Assets",
+      "epic": "Asset Loading",
+      "status": "not-started",
+      "phase": 2,
+      "deliverable": "app/page.tsx",
+      "dependencies": ["1.1", "1.2"],
+      "changes": [
+        "Import FruitAssets from './game/entities/Fruit'",
+        "Add loadFruits() function returning Promise<FruitAssets>",
+        "Call loadFruits() in initPixiApp after loadLeaves",
+        "Add fruitAssets to assets object",
+        "Add fruitAssets: FruitAssets to AllAssets type"
+      ]
+    },
+    {
+      "id": "2.2",
+      "title": "Spawn 3 Fruits in Level",
+      "epic": "Fruit State and Spawning",
+      "status": "not-started",
+      "phase": 2,
+      "deliverable": "app/game/worlds/Level.ts",
+      "dependencies": ["1.2", "1.3", "4.1"],
+      "changes": [
+        "Import Fruit, FruitType from '../entities/Fruit'",
+        "Add createFruits(em: EManager) method",
+        "Call this.createFruits(em) after createClouds in constructor"
+      ]
+    },
+    {
+      "id": "2.4",
+      "title": "Show Held Fruit in HUD",
+      "epic": "Fruit State and Spawning",
+      "status": "not-started",
+      "phase": 3,
+      "deliverable": "app/game/entities/Hud.ts",
+      "dependencies": ["1.2"],
+      "changes": [
+        "Import FruitType from './Fruit'",
+        "Add fruitIcon: Graphics | null property",
+        "Add setFruit(fruitType: FruitType | null) method - draws colored circle at x=width-200",
+        "Add clearFruit() method"
+      ]
+    },
+    {
+      "id": "2.3",
+      "title": "Fruit Pickup on Cat Collision",
+      "epic": "Fruit State and Spawning",
+      "status": "not-started",
+      "phase": 3,
+      "deliverable": "app/game/systems/movementSystem.ts",
+      "dependencies": ["2.1", "2.2", "2.4"],
+      "changes": [
+        "Import Fruit, FruitType, FruitAssets from '../entities/Fruit'",
+        "Add checkFruitPickup(em, cat, screen) function",
+        "Call checkFruitPickup after cat rendering in movementSystem"
+      ],
+      "logic": "If !gameState.heldFruit and cat within pickupDistance of fruit: call fruit.pickup(), set gameState.heldFruit, call hud.setFruit()"
+    },
+    {
+      "id": "3.1",
+      "title": "Add Drop Input",
+      "epic": "Fruit Drop and Bee Attraction",
+      "status": "not-started",
+      "phase": 4,
+      "deliverable": "app/game/systems/KeyboardListener.ts",
+      "change": "Add 'Enter: false' to keyMap object"
+    },
+    {
+      "id": "3.2",
+      "title": "Drop Fruit at Cat Position",
+      "epic": "Fruit Drop and Bee Attraction",
+      "status": "not-started",
+      "phase": 4,
+      "deliverable": "app/game/systems/movementSystem.ts",
+      "dependencies": ["2.3", "3.1"],
+      "changes": [
+        "Add enterKeyPressed debounce flag",
+        "Add checkFruitDrop(em, cat, screen) function",
+        "Add dropFruitAtCat(em, cat, screen) function",
+        "Call checkFruitDrop after checkFruitPickup in movementSystem"
+      ],
+      "logic": "If gameState.heldFruit and Enter pressed: find picked-up fruit, set position to cat, call fruit.drop(), set gameState.activeFruitId, clear heldFruit"
+    },
+    {
+      "id": "3.3",
+      "title": "Bees Fly to Active Fruit",
+      "epic": "Fruit Drop and Bee Attraction",
+      "status": "not-started",
+      "phase": 4,
+      "deliverable": "app/game/systems/movementSystem.ts",
+      "dependencies": ["3.2"],
+      "changes": [
+        "Add getActiveFruitPosition(em) helper function",
+        "Modify moveBee signature: add fruitTarget?: {x,y} parameter",
+        "Update moveBee: if fruitTarget, use as target instead of cat",
+        "Update moveBee: if targeting fruit, move to it and stay (no attack)",
+        "Update moveBee call in main loop: pass getActiveFruitPosition(em)"
+      ]
+    },
+    {
+      "id": "3.4",
+      "title": "Fruit Timer and Respawn",
+      "epic": "Fruit Drop and Bee Attraction",
+      "status": "not-started",
+      "phase": 5,
+      "deliverable": ["app/game/systems/movementSystem.ts", "app/game/worlds/Level.ts"],
+      "dependencies": ["3.3"],
+      "changes": [
+        "Add updateFruits(em, fruitAssets, width, height) function",
+        "Modify movementSystem signature: add fruitAssets?: FruitAssets parameter",
+        "Call updateFruits at end of movementSystem if fruitAssets provided",
+        "Update Level.ts gameLoop: pass this.assets.fruitAssets to movementSystem"
+      ],
+      "logic": "For each fruit: if isActive and now >= activeUntil, call consume() and clear activeFruitId. If isWaitingRespawn() and now >= respawnAt, call tryRespawn with random type and position"
+    }
+  ],
+  "phases": [
+    { "id": 1, "name": "Foundation", "tasks": ["1.1", "1.2", "1.3", "2.1"] },
+    { "id": 2, "name": "Loading & Spawning", "tasks": ["4.1", "2.2"] },
+    { "id": 3, "name": "Pickup & Display", "tasks": ["2.4", "2.3"] },
+    { "id": 4, "name": "Drop & Attraction", "tasks": ["3.1", "3.2", "3.3"] },
+    { "id": 5, "name": "Timer & Respawn", "tasks": ["3.4"] }
+  ]
+}

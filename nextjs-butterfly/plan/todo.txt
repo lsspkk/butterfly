@@ -1,6 +1,596 @@
-[x] EPIC-1: Implement Point-and-Move Control Scheme
-  [x] EPIC-1.1: Add the new `movementControl` setting to the `GameState` and the `SettingsDialog`.
-  [x] EPIC-1.2: Create a new touch listener for the "point-and-move" logic.
-  [x] EPIC-1.3: Modify the `movementSystem` to use the new touch listener's input when the "point-and-move" mode is active.
-  [x] EPIC-1.4: Conditionally render the joystick and activate the `TouchListener` based on the `movementControl` setting.
-  [x] EPIC-1.5: Implement the "point-and-move" logic in the `movementSystem`.
+# Butterfly Game - Fruit System Feature
+# =====================================
+#
+# Cat picks up fruits, drops them to distract bees.
+# 3 fruit types with different distraction durations:
+#   - Apple: 5 seconds
+#   - Orange: 3 seconds
+#   - Banana: 10 seconds
+# 3 fruits spawn randomly, respawn 3-7s after consumed.
+#
+# ============================================================================
+
+EPIC 1: Fruit Graphics and Entity
+=================================
+
+TASK 1.1: Create Fruit SVG Assets
+---------------------------------
+Status: not-started
+Deliverable: public/fruits/apple.svg, orange.svg, banana.svg
+
+Create directory: public/fruits/
+
+apple.svg (~100x100 viewBox):
+```svg
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="55" r="40" fill="#E53935"/>
+  <ellipse cx="50" cy="55" rx="35" ry="38" fill="#EF5350"/>
+  <path d="M50 15 Q55 5 60 10" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="62" cy="12" rx="8" ry="5" fill="#4CAF50" transform="rotate(30 62 12)"/>
+</svg>
+```
+
+orange.svg:
+```svg
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="50" cy="50" r="42" fill="#FF9800"/>
+  <circle cx="50" cy="50" r="38" fill="#FFB74D"/>
+  <circle cx="35" cy="40" r="3" fill="#F57C00"/>
+  <circle cx="55" cy="35" r="2" fill="#F57C00"/>
+  <circle cx="65" cy="50" r="2.5" fill="#F57C00"/>
+  <circle cx="40" cy="60" r="2" fill="#F57C00"/>
+  <ellipse cx="50" cy="12" rx="6" ry="4" fill="#4CAF50"/>
+</svg>
+```
+
+banana.svg:
+```svg
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 70 Q10 50 25 30 Q45 10 70 15 Q90 20 85 35 Q80 25 60 25 Q35 25 25 50 Q18 65 25 75 Z" fill="#FFD54F"/>
+  <path d="M25 65 Q20 50 30 35 Q45 20 65 22 Q55 25 40 35 Q28 50 28 65 Z" fill="#FFEB3B"/>
+  <ellipse cx="22" cy="72" rx="4" ry="3" fill="#5D4037"/>
+</svg>
+```
+
+---
+
+TASK 1.2: Create Fruit Entity Class
+-----------------------------------
+Status: not-started
+Deliverable: app/game/entities/Fruit.ts
+
+```typescript
+import { Graphics, GraphicsContext } from 'pixi.js'
+import { EGraphics, Movement } from '../components/CTypes'
+import World from './World'
+
+export type FruitType = 'apple' | 'orange' | 'banana'
+
+export const FRUIT_DURATIONS: Record<FruitType, number> = {
+  apple: 5000,
+  orange: 3000,
+  banana: 10000,
+}
+
+export type FruitAssets = Record<FruitType, GraphicsContext>
+
+export default class Fruit implements EGraphics {
+  graphics: Graphics
+  fruitType: FruitType
+  world: World
+  scale: number
+
+  // State
+  isPickedUp: boolean = false
+  isActive: boolean = false
+  activeUntil: number = 0
+  respawnAt: number = 0
+
+  constructor(
+    world: World,
+    asset: GraphicsContext,
+    fruitType: FruitType,
+    x: number,
+    y: number
+  ) {
+    this.fruitType = fruitType
+    this.world = world
+    this.graphics = new Graphics(asset)
+    this.scale = 0.4 * world.getScale()
+    this.graphics.scale.set(this.scale)
+    this.graphics.pivot.set(50, 50) // center pivot for 100x100 SVG
+    this.graphics.x = x
+    this.graphics.y = y
+    world.addChild(this.graphics)
+  }
+
+  render(m: Movement) {
+    this.graphics.x = m.x
+    this.graphics.y = m.y
+    this.graphics.visible = !this.isPickedUp
+  }
+
+  pickup() {
+    this.isPickedUp = true
+    this.graphics.visible = false
+  }
+
+  drop(x: number, y: number): void {
+    this.isPickedUp = false
+    this.isActive = true
+    this.graphics.visible = true
+    this.activeUntil = Date.now() + FRUIT_DURATIONS[this.fruitType]
+  }
+
+  consume(): void {
+    this.isActive = false
+    this.graphics.visible = false
+    this.respawnAt = Date.now() + 3000 + Math.random() * 4000
+  }
+
+  tryRespawn(x: number, y: number, newType: FruitType, asset: GraphicsContext): boolean {
+    if (this.respawnAt === 0 || Date.now() < this.respawnAt) return false
+
+    this.fruitType = newType
+    this.graphics.context = asset
+    this.graphics.visible = true
+    this.isActive = false
+    this.isPickedUp = false
+    this.respawnAt = 0
+    return true
+  }
+
+  isWaitingRespawn(): boolean {
+    return this.respawnAt > 0 && !this.isPickedUp && !this.isActive
+  }
+}
+```
+
+---
+
+TASK 1.3: Add Fruit to EntityType
+---------------------------------
+Status: not-started
+Deliverable: app/game/entities/EManager.ts
+
+Line 3, add 'Fruit' to union:
+```typescript
+export type EntityType = 'Bee' | 'Butterfly' | 'Flower' | 'Cloud' | 'Raindrop' | 'Grass' | 'Pond' | 'River' | 'World' | 'Cat' | 'Hud' | 'Bubble' | 'Fruit'
+```
+
+---
+
+EPIC 2: Fruit State and Spawning
+================================
+
+TASK 2.1: Add Fruit State to gameState
+--------------------------------------
+Status: not-started
+Deliverable: app/game/systems/gameState.ts
+
+Add import at top:
+```typescript
+import { FruitType } from '../entities/Fruit'
+```
+
+Add to GameState type (after line 28):
+```typescript
+  heldFruit: FruitType | null
+  activeFruitId: string | null
+```
+
+Add to gameState object (after line 44):
+```typescript
+  heldFruit: null,
+  activeFruitId: null,
+```
+
+---
+
+TASK 2.2: Spawn 3 Fruits in Level
+---------------------------------
+Status: not-started
+Deliverable: app/game/worlds/Level.ts
+
+Add import at top:
+```typescript
+import Fruit, { FruitType } from '../entities/Fruit'
+```
+
+After line 128 (after createClouds call), add:
+```typescript
+this.createFruits(em)
+```
+
+Add method after createClouds method:
+```typescript
+createFruits(em: EManager) {
+  const fruitTypes: FruitType[] = ['apple', 'orange', 'banana']
+
+  for (let i = 0; i < 3; i++) {
+    const { x, y } = this.getFlowerXYWithSafeZone()
+    const fruitType = fruitTypes[i]
+    const asset = this.assets.fruitAssets[fruitType]
+
+    const fruitId = em.create('Fruit')
+    em.addComponent(fruitId, 'Movement', new Movement(x, y, 1))
+    em.addComponent(fruitId, 'Graphics', new Fruit(this.world, asset, fruitType, x, y))
+  }
+}
+```
+
+---
+
+TASK 2.3: Fruit Pickup on Cat Collision
+---------------------------------------
+Status: not-started
+Deliverable: app/game/systems/movementSystem.ts
+
+Add import:
+```typescript
+import Fruit, { FruitType, FruitAssets, FRUIT_DURATIONS } from '../entities/Fruit'
+```
+
+Add function after popBubble (around line 89):
+```typescript
+function checkFruitPickup(em: EManager, cat: Movement, screen: Rectangle) {
+  if (gameState.heldFruit) return
+
+  const catx = cat.x + screen.width / 2
+  const caty = cat.y + screen.height / 2
+  const pickupDistance = 80 * gameState.speedFactor
+
+  const fruitIds = em.getEntitiesByEType('Fruit')
+  for (const fruitId of fruitIds) {
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    if (!fm || !fruit || fruit.isPickedUp || !fruit.graphics.visible) continue
+
+    const dx = catx - fm.x
+    const dy = caty - fm.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    if (distance < pickupDistance) {
+      fruit.pickup()
+      gameState.heldFruit = fruit.fruitType
+      hud?.setFruit(fruit.fruitType)
+      if (gameState.soundOn) audioEngine?.playSound('pop')
+      break
+    }
+  }
+}
+```
+
+Add call in movementSystem, after cat rendering (around line 31):
+```typescript
+if (cm) {
+  readCatInput(cm, width, height, screen, boundaries)
+  em.getComponent<EGraphics>(catId, 'Graphics')?.render(cm)
+  checkFruitPickup(em, cm, screen)  // ADD THIS
+}
+```
+
+---
+
+TASK 2.4: Show Held Fruit in HUD
+--------------------------------
+Status: not-started
+Deliverable: app/game/entities/Hud.ts
+
+Add import:
+```typescript
+import { FruitType } from './Fruit'
+import { Graphics } from 'pixi.js'
+```
+
+Add properties after line 11:
+```typescript
+fruitIcon: Graphics | null = null
+```
+
+Add method after setScore:
+```typescript
+setFruit(fruitType: FruitType | null) {
+  if (this.fruitIcon) {
+    this.background.removeChild(this.fruitIcon)
+    this.fruitIcon = null
+  }
+
+  if (fruitType) {
+    const colors: Record<FruitType, number> = {
+      apple: 0xE53935,
+      orange: 0xFF9800,
+      banana: 0xFFEB3B
+    }
+    this.fruitIcon = new Graphics().circle(0, 0, 8).fill(colors[fruitType])
+    this.fruitIcon.x = this.app.screen.width - 200
+    this.fruitIcon.y = 14
+    this.background.addChild(this.fruitIcon)
+  }
+}
+
+clearFruit() {
+  this.setFruit(null)
+}
+```
+
+---
+
+EPIC 3: Fruit Drop and Bee Attraction
+=====================================
+
+TASK 3.1: Add Drop Input
+------------------------
+Status: not-started
+Deliverable: app/game/systems/KeyboardListener.ts
+
+Add to keyMap (after line 14):
+```typescript
+Enter: false,
+```
+
+---
+
+TASK 3.2: Drop Fruit at Cat Position
+------------------------------------
+Status: not-started
+Deliverable: app/game/systems/movementSystem.ts
+
+Add after checkFruitPickup function:
+```typescript
+let enterKeyPressed = false
+
+function checkFruitDrop(em: EManager, cat: Movement, screen: Rectangle) {
+  if (!gameState.heldFruit) return
+
+  // Check Enter key (with debounce)
+  if (keyMap.Enter && !enterKeyPressed) {
+    enterKeyPressed = true
+    dropFruitAtCat(em, cat, screen)
+  }
+  if (!keyMap.Enter) {
+    enterKeyPressed = false
+  }
+}
+
+function dropFruitAtCat(em: EManager, cat: Movement, screen: Rectangle) {
+  const catx = cat.x + screen.width / 2
+  const caty = cat.y + screen.height / 2
+
+  const fruitIds = em.getEntitiesByEType('Fruit')
+  for (const fruitId of fruitIds) {
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    if (!fruit || !fm) continue
+
+    if (fruit.isPickedUp && fruit.fruitType === gameState.heldFruit) {
+      fm.x = catx
+      fm.y = caty
+      fruit.drop(catx, caty)
+      gameState.activeFruitId = fruitId
+      gameState.heldFruit = null
+      hud?.clearFruit()
+      if (gameState.soundOn) audioEngine?.playSound('pop')
+      break
+    }
+  }
+}
+```
+
+Add call after checkFruitPickup in movementSystem:
+```typescript
+checkFruitDrop(em, cm, screen)
+```
+
+---
+
+TASK 3.3: Bees Fly to Active Fruit
+----------------------------------
+Status: not-started
+Deliverable: app/game/systems/movementSystem.ts
+
+Add helper function before moveBee:
+```typescript
+function getActiveFruitPosition(em: EManager): { x: number, y: number } | undefined {
+  if (!gameState.activeFruitId) return undefined
+
+  const fruit = em.getComponent<Fruit>(gameState.activeFruitId, 'Graphics')
+  const fm = em.getComponent<Movement>(gameState.activeFruitId, 'Movement')
+
+  if (fruit?.isActive && fm) {
+    return { x: fm.x, y: fm.y }
+  }
+  return undefined
+}
+```
+
+Modify moveBee signature (line 118):
+```typescript
+function moveBee(m: Movement, screen: Rectangle, cat?: Movement, fruitTarget?: { x: number, y: number }) {
+```
+
+Replace target calculation (lines 122-126):
+```typescript
+  // Target is fruit if active, otherwise cat
+  let targetX: number, targetY: number
+
+  if (fruitTarget) {
+    targetX = fruitTarget.x
+    targetY = fruitTarget.y
+  } else {
+    targetX = cat.x + screen.width / 2
+    targetY = cat.y + screen.height / 2
+  }
+
+  const a = Math.atan2(targetY - m.y, targetX - m.x) + Math.PI / 2
+  m.rotation = a
+
+  const dx = targetX - m.x
+  const dy = targetY - m.y
+  const distance = Math.sqrt(dx * dx + dy * dy)
+```
+
+Add after distance calculation, before attack check (around line 140):
+```typescript
+  // If targeting fruit, just move to it and stay there
+  if (fruitTarget) {
+    if (distance > 50 * gameState.speedFactor) {
+      m.speed = m.maxSpeed * gameState.speedFactor
+      m.x += Math.sin(m.rotation) * m.speed
+      m.y -= Math.cos(m.rotation) * m.speed
+    } else {
+      m.speed = 0
+    }
+    return
+  }
+```
+
+Update moveBee call in main loop (around line 37):
+```typescript
+if (eType === 'Bee') {
+  const fruitTarget = getActiveFruitPosition(em)
+  moveBee(m, screen, cat, fruitTarget)
+}
+```
+
+---
+
+TASK 3.4: Fruit Timer and Respawn
+---------------------------------
+Status: not-started
+Deliverable: app/game/systems/movementSystem.ts
+
+Add function:
+```typescript
+function updateFruits(em: EManager, fruitAssets: FruitAssets, width: number, height: number) {
+  const now = Date.now()
+  const fruitTypes: FruitType[] = ['apple', 'orange', 'banana']
+  const fruitIds = em.getEntitiesByEType('Fruit')
+
+  for (const fruitId of fruitIds) {
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    if (!fruit || !fm) continue
+
+    // Check active fruit timer
+    if (fruit.isActive && now >= fruit.activeUntil) {
+      fruit.consume()
+      if (gameState.activeFruitId === fruitId) {
+        gameState.activeFruitId = null
+      }
+    }
+
+    // Check respawn
+    if (fruit.isWaitingRespawn()) {
+      const newType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)]
+      const x = 100 + Math.random() * (width - 200)
+      const y = 100 + Math.random() * (height - 200)
+      if (fruit.tryRespawn(x, y, newType, fruitAssets[newType])) {
+        fm.x = x
+        fm.y = y
+      }
+    }
+
+    // Render
+    fruit.render(fm)
+  }
+}
+```
+
+Modify movementSystem signature to accept fruitAssets:
+```typescript
+export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[], fruitAssets?: FruitAssets) {
+```
+
+Add call at end of movementSystem (before closing brace):
+```typescript
+if (fruitAssets) {
+  updateFruits(em, fruitAssets, width, height)
+}
+```
+
+Update call in Level.ts gameLoop (around line 264):
+```typescript
+movementSystem(this.em, this.width, this.height, this.screen, boundaries, this.assets.fruitAssets)
+```
+
+---
+
+EPIC 4: Asset Loading
+=====================
+
+TASK 4.1: Load Fruit Assets
+---------------------------
+Status: not-started
+Deliverable: app/page.tsx
+
+Add import at top:
+```typescript
+import { FruitAssets } from './game/entities/Fruit'
+```
+
+Add after line 50 (loadLeaves):
+```typescript
+onProgress?.('Loading fruits...')
+const fruitAssets = await loadFruits()
+```
+
+Add function after loadLeaves:
+```typescript
+async function loadFruits(): Promise<FruitAssets> {
+  const [apple, orange, banana] = await Promise.all([
+    loadSvg('fruits/apple.svg'),
+    loadSvg('fruits/orange.svg'),
+    loadSvg('fruits/banana.svg'),
+  ])
+  return { apple, orange, banana }
+}
+```
+
+Update assets object (around line 67):
+```typescript
+const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets, fruitAssets }
+```
+
+Update AllAssets type (around line 106):
+```typescript
+export type AllAssets = {
+  beeAssets: BeeAssets
+  cloudAssets: PIXI.GraphicsContext[]
+  flowerAssets: { flower: string; asset: PIXI.GraphicsContext }[]
+  leafAssets: PIXI.GraphicsContext[]
+  fruitAssets: FruitAssets
+}
+```
+
+---
+
+# ============================================================================
+# IMPLEMENTATION ORDER
+# ============================================================================
+#
+# Phase 1 - Foundation:
+#   1. TASK 1.1 - Create SVG files in public/fruits/
+#   2. TASK 1.3 - Add 'Fruit' to EntityType in EManager.ts
+#   3. TASK 1.2 - Create Fruit.ts entity class
+#   4. TASK 2.1 - Add heldFruit, activeFruitId to gameState.ts
+#
+# Phase 2 - Loading & Spawning:
+#   5. TASK 4.1 - Load fruit assets in page.tsx
+#   6. TASK 2.2 - Create fruits in Level.ts constructor
+#
+# Phase 3 - Pickup & Display:
+#   7. TASK 2.4 - Add setFruit/clearFruit to Hud.ts
+#   8. TASK 2.3 - Add checkFruitPickup in movementSystem.ts
+#
+# Phase 4 - Drop & Attraction:
+#   9. TASK 3.1 - Add Enter to keyMap
+#   10. TASK 3.2 - Add checkFruitDrop, dropFruitAtCat
+#   11. TASK 3.3 - Modify moveBee to target fruit
+#
+# Phase 5 - Timer & Respawn:
+#   12. TASK 3.4 - Add updateFruits, modify movementSystem signature
+#
+# ============================================================================
+# SUMMARY: 4 Epics, 12 Tasks
+# ============================================================================
