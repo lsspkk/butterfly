@@ -4,6 +4,7 @@ import * as PIXI from 'pixi.js'
 import KeyboardListener from './game/systems/KeyboardListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
+import { FruitAssets } from './game/entities/Fruit'
 import { DialogContainer } from './dialogs/DialogContainer'
 import { allButterflyData, loadLevelConfigs, getLevelConfigs } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
@@ -49,6 +50,9 @@ async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: stri
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
 
+  onProgress?.('Loading fruits...')
+  const fruitAssets = await loadFruits()
+
   // Load level configurations
   onProgress?.('Loading level configurations...')
   await loadLevelConfigs()
@@ -64,7 +68,7 @@ async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: stri
   }
 
   onProgress?.('Ready!')
-  const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets }
+  const assets = { beeAssets, cloudAssets, flowerAssets, leafAssets, fruitAssets }
 
   return { app, assets }
 }
@@ -91,6 +95,15 @@ async function loadFlowers() {
 async function loadLeaves() {
   return await Promise.all(leafNames.map((leaf) => loadSvg(`leaves/${leaf}.svg`)))
 }
+
+async function loadFruits(): Promise<FruitAssets> {
+  const [apple, orange, banana] = await Promise.all([
+    loadSvg('fruits/apple.svg'),
+    loadSvg('fruits/orange.svg'),
+    loadSvg('fruits/banana.svg'),
+  ])
+  return { apple, orange, banana }
+}
 const bubblePngs = ['bubbleA1.png', 'bubbleA2.png', 'bubbleB1.png', 'bubbleB2.png']
 async function loadBubbles() {
   return await Promise.all(bubblePngs.map((bubble) => PIXI.Assets.load(`/bubbles/${bubble}`)))
@@ -108,6 +121,7 @@ export type AllAssets = {
   cloudAssets: PIXI.GraphicsContext[]
   flowerAssets: { flower: string; asset: PIXI.GraphicsContext }[]
   leafAssets: PIXI.GraphicsContext[]
+  fruitAssets: FruitAssets
 }
 
 export default function Home() {

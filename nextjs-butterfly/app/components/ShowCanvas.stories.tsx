@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ActionButton } from '../components/ActionButton'
 import { ShowCanvas } from '../components/ShowCanvas'
-import { allButterflyData } from '../game/worlds/LevelSettings'
+import { allButterflyData, ButterflyData } from '../game/worlds/LevelSettings'
 import { DButton, DContent, DFooter, DFrame } from './DComponents'
 import { Meta, StoryObj } from '@storybook/react'
 
@@ -13,11 +13,17 @@ function Show() {
     setIndex(i)
   }
 
+  const rescued = new Map<string, ButterflyData>()
+
+  for (let i = 0; i <= allButterflyData.length; i++) {
+    rescued.set(`butterfly_${i}`, allButterflyData[i])
+  }
+
   return (
     <div className='fixed top-0 left-0 w-screen h-screen overflow-scroll  bg-gradient-to-br from-green-400 to-green-800 flex flex-col justify-stretch items-stretch'>
       <DFrame>
         <DContent>
-          <ShowCanvas data={allButterflyData[index]} />
+          <ShowCanvas data={allButterflyData[index]} rescued={rescued} />
         </DContent>
         <DFooter>
           <ActionButton onClick={onNext} location='' allowIntervalMs={200} />

@@ -2,6 +2,7 @@ import { DialogState } from '@/app/dialogs/DialogContainer'
 import { Rectangle } from 'pixi.js'
 import { Dispatch, SetStateAction } from 'react'
 import { ButterflyData } from '../worlds/LevelSettings'
+import { FruitType } from '../entities/Fruit'
 
 export type GameState = {
   score: number
@@ -26,6 +27,9 @@ export type GameState = {
   totalScoreLost: number
   totalButterfliesRescued: number
   totalPotentialScore: number
+  // Fruit system
+  heldFruit: FruitType | null
+  activeFruitId: string | null
 }
 
 export const gameState: GameState = {
@@ -42,6 +46,9 @@ export const gameState: GameState = {
   totalScoreLost: 0,
   totalButterfliesRescued: 0,
   totalPotentialScore: 0,
+  // Fruit system
+  heldFruit: null,
+  activeFruitId: null,
 }
 
 export function updateGameState(newState: Partial<GameState>) {

@@ -13,6 +13,7 @@ export const keyMap: KeyPressType = {
   s: false,
   Escape: false,
   D: false, // Debug mode toggle (Shift+D)
+  Enter: false,
 }
 
 import { gameState, updateGameState } from './gameState'

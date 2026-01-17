@@ -781,3 +781,185 @@ Summary of completed work:
 
 All features implemented, tested, and committed to git.
 
+00:32 - Started task 1.1
+16:20 - Created §public/fruits/apple.svg
+16:20 - Created §public/fruits/orange.svg
+16:20 - Created §public/fruits/banana.svg
+16:20 - Task 1.1 complete
+
+Summary of changes:
+- Created public/fruits/ directory for fruit SVG assets
+- Created apple.svg: Red apple with stem and green leaf (100x100 viewBox)
+- Created orange.svg: Orange fruit with texture spots and green top (100x100 viewBox)
+- Created banana.svg: Yellow curved banana with brown tip (100x100 viewBox)
+- All SVGs follow game's visual style with simple, colorful graphics suitable for PixiJS rendering
+
+00:34 - Started task 1.2
+00:34 - Created §app/game/entities/Fruit.ts
+$(date +"%H:%M") - Task 1.2 complete
+
+Summary of changes:
+- Created app/game/entities/Fruit.ts entity class implementing EGraphics interface
+- Exported FruitType union type for 'apple', 'orange', 'banana'
+- Exported FRUIT_DURATIONS config: apple (5s), orange (3s), banana (10s)
+- Exported FruitAssets type as Record<FruitType, GraphicsContext>
+- Implemented Fruit class with state management: isPickedUp, isActive, activeUntil, respawnAt
+- Implemented pickup() method to hide fruit when collected by cat
+- Implemented drop(x,y) method to activate fruit at position with timer
+- Implemented consume() method to deactivate fruit and schedule respawn (3-7s random)
+- Implemented tryRespawn(x,y,type,asset) method to respawn fruit at new position with new type
+- Implemented isWaitingRespawn() helper to check if fruit is awaiting respawn
+- Used Graphics with GraphicsContext for SVG asset rendering
+- Scaled fruit to 40% of world scale with centered pivot (50,50) for 100x100 SVG viewBox
+
+00:35 - Started task 1.3
+00:35 - Updated §app/game/entities/EManager.ts
+00:35 - Task 1.3 complete
+
+Summary of changes:
+- Added 'Fruit' to EntityType union in EManager.ts line 3
+- Enables entity manager to create and track Fruit entities
+- Fruit can now be used with em.create('Fruit') and em.getEntitiesByEType('Fruit')
+- Completes Phase 1 of Fruit System (Foundation)
+- Ready for Phase 2: Fruit state management and spawning
+
+00:37 - Started task 2.1
+00:37 - Updated §app/game/systems/gameState.ts
+00:37 - Task 2.1 complete
+
+Summary of changes:
+- Added import for FruitType from '../entities/Fruit' to gameState.ts
+- Added heldFruit: FruitType | null to GameState type (tracks which fruit cat is holding)
+- Added activeFruitId: string | null to GameState type (tracks which fruit is currently attracting bees)
+- Initialized heldFruit: null in gameState object
+- Initialized activeFruitId: null in gameState object
+- Completes fruit state management foundation for pickup/drop mechanics
+
+00:38 - Started task 4.1
+00:38 - Updated §app/page.tsx
+00:38 - Task 4.1 complete
+
+Summary of changes:
+- Added import for FruitAssets from './game/entities/Fruit' to page.tsx
+- Implemented loadFruits() function that loads apple, orange, and banana SVGs in parallel
+- Added 'Loading fruits...' progress message to initPixiApp
+- Called loadFruits() after loadLeaves in asset loading sequence
+- Added fruitAssets to assets object returned from initPixiApp
+- Updated AllAssets type to include fruitAssets: FruitAssets property
+- Fruit SVG assets now loaded and cached for use in Level creation
+
+00:39 - Started task 2.2
+00:39 - Updated §app/game/worlds/Level.ts
+00:39 - Task 2.2 complete
+
+Summary of changes:
+- Added import for Fruit and FruitType from '../entities/Fruit' to Level.ts
+- Implemented createFruits(em: EManager) method in Level class
+- Method spawns 3 fruits (apple, orange, banana) at random safe positions
+- Uses getFlowerXYWithSafeZone() to ensure fruits don't spawn too close to cat
+- Each fruit gets Movement component and Graphics component (Fruit entity)
+- Called createFruits(em) after createClouds in Level constructor (line 130)
+- Fruits now spawn in every level with proper positioning and asset rendering
+
+00:40 - Started task 2.4
+00:40 - Updated §app/game/entities/Hud.ts
+00:40 - Task 2.4 complete
+
+Summary of changes:
+- Added import for FruitType from './Fruit' to Hud.ts
+- Added fruitIcon: Graphics | null = null property to Hud class
+- Implemented setFruit(fruitType: FruitType | null) method that:
+  * Removes existing fruit icon if present
+  * Creates colored circle (8px radius) for each fruit type (apple=red, orange=orange, banana=yellow)
+  * Positions icon at x=width-200, y=14 in the HUD background
+- Implemented clearFruit() method to remove fruit icon
+- HUD now ready to display held fruit indicator when cat picks up fruit
+
+00:41 - Started task 2.3
+00:41 - Updated §app/game/systems/movementSystem.ts
+00:41 - Task 2.3 complete
+
+Summary of changes:
+- Added import for Fruit entity to movementSystem.ts
+- Implemented checkFruitPickup(em, cat, screen) function that:
+  * Returns early if cat already holding fruit
+  * Calculates cat position in world coordinates
+  * Uses 80 * speedFactor as pickup distance threshold
+  * Iterates through all Fruit entities
+  * Checks distance between cat and each visible, non-picked-up fruit
+  * On collision: calls fruit.pickup(), sets gameState.heldFruit, updates HUD, plays pop sound
+- Added checkFruitPickup call in movementSystem after cat rendering (line 30)
+- Cat can now pick up fruits by walking near them, with visual and audio feedback
+
+00:42 - Started task 3.1
+00:42 - Updated §app/game/systems/KeyboardListener.ts
+00:42 - Task 3.1 complete
+
+Summary of changes:
+- Added Enter: false to keyMap object in KeyboardListener.ts
+- Enter key now tracked in keyboard input system
+- Ready for use in fruit drop functionality (task 3.2)
+
+00:43 - Started task 3.2
+00:43 - Updated §app/game/systems/movementSystem.ts
+00:43 - Task 3.2 complete
+
+Summary of changes:
+- Added enterKeyPressed debounce flag to prevent repeated drops
+- Implemented checkFruitDrop(em, cat, screen) function that:
+  * Returns early if no fruit held
+  * Checks if Enter key pressed (with debounce)
+  * Calls dropFruitAtCat when Enter pressed
+  * Resets debounce flag when Enter released
+- Implemented dropFruitAtCat(em, cat, screen) function that:
+  * Calculates cat position in world coordinates
+  * Finds the picked-up fruit matching gameState.heldFruit
+  * Sets fruit position to cat position
+  * Calls fruit.drop() to activate fruit with timer
+  * Sets gameState.activeFruitId for bee attraction
+  * Clears heldFruit state and HUD icon
+  * Plays pop sound for feedback
+- Added checkFruitDrop call after checkFruitPickup in movementSystem (line 31)
+- Cat can now drop held fruit by pressing Enter key
+
+00:44 - Started task 3.3
+00:44 - Updated §app/game/systems/movementSystem.ts
+00:44 - Task 3.3 complete
+
+Summary of changes:
+- Implemented getActiveFruitPosition(em) helper function that:
+  * Returns undefined if no activeFruitId in gameState
+  * Gets fruit Graphics and Movement components
+  * Returns {x, y} position if fruit is active, undefined otherwise
+- Modified moveBee signature to accept optional fruitTarget: {x, y} parameter
+- Updated moveBee logic to prioritize fruit target over cat:
+  * If fruitTarget provided, use fruit position as target
+  * Otherwise, use cat position as target (legacy behavior)
+  * Calculate rotation and distance based on selected target
+  * If targeting fruit: move to it until within 50 units, then stop (no attack)
+  * If targeting cat: use original detect/chase/attack logic
+- Updated moveBee call site to pass getActiveFruitPosition(em) result
+- Bees now fly to and gather around dropped fruits, ignoring the cat while fruit is active
+
+00:45 - Started task 3.4
+00:45 - Updated §app/game/systems/movementSystem.ts
+00:45 - Updated §app/game/worlds/Level.ts
+00:45 - Task 3.4 complete
+
+Summary of changes:
+- Added FruitType and FruitAssets imports to movementSystem.ts
+- Updated movementSystem signature to accept optional fruitAssets: FruitAssets parameter
+- Implemented updateFruits(em, fruitAssets, width, height) function that:
+  * Iterates through all Fruit entities each frame
+  * Checks if active fruit timer expired (now >= activeUntil)
+  * If expired: calls fruit.consume() and clears gameState.activeFruitId
+  * Checks if fruit is waiting for respawn (isWaitingRespawn())
+  * If ready: spawns fruit at random position with random type using tryRespawn()
+  * Updates Movement component position for respawned fruits
+  * Calls fruit.render(fm) to update visual state
+- Added updateFruits call at end of movementSystem if fruitAssets provided
+- Updated Level.ts gameLoop to pass this.assets.fruitAssets to movementSystem (line 280)
+- Fruit system now complete with timer-based consumption (apple: 5s, orange: 3s, banana: 10s)
+- Fruits respawn 3-7 seconds after consumption at random positions with random types
+- All 12 tasks complete - Fruit System Feature fully implemented!
+

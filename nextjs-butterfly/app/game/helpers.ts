@@ -215,3 +215,117 @@ export function distributeAcrossZones<T>(items: T[], zoneCount: number, count: n
 
   return result
 }
+
+import { ZoneShape, EllipseShape, PolygonShape, RectShape } from './maps/MapTypes'
+
+/**
+ * Generate a random point within the playable area defined by boundaries.
+ * The playable area is the union of all boundary shapes.
+ *
+ * @param boundaries Array of boundary shapes defining the playable area
+ * @param worldWidth Fallback world width if no boundaries provided
+ * @param worldHeight Fallback world height if no boundaries provided
+ * @param margin Margin from edges (default 100)
+ * @returns A random point {x, y} within the playable area
+ */
+export function getRandomPointInBoundaries(
+  boundaries: ZoneShape[] | undefined,
+  worldWidth: number,
+  worldHeight: number,
+  margin: number = 100
+): { x: number; y: number } {
+  // Fallback to world bounds if no boundaries defined
+  if (!boundaries || boundaries.length === 0) {
+    return {
+      x: margin + Math.random() * (worldWidth - 2 * margin),
+      y: margin + Math.random() * (worldHeight - 2 * margin),
+    }
+  }
+
+  // Pick a random boundary shape (weighted by approximate area would be ideal, but random is simpler)
+  const boundaryIndex = Math.floor(Math.random() * boundaries.length)
+  const shape = boundaries[boundaryIndex]
+
+  return getRandomPointInShape(shape, margin)
+}
+
+/**
+ * Generate a random point within a single boundary shape
+ */
+function getRandomPointInShape(shape: ZoneShape, margin: number): { x: number; y: number } {
+  if (isRectShape(shape)) {
+    return getRandomPointInRectWithMargin(shape, margin)
+  }
+
+  if (isEllipseShape(shape)) {
+    return getRandomPointInEllipseWithMargin(shape, margin)
+  }
+
+  if (isPolygonShape(shape)) {
+    return getRandomPointInPolygonWithMargin(shape, margin)
+  }
+
+  // Fallback
+  return { x: 0, y: 0 }
+}
+
+/**
+ * Generate a random point inside a rectangle with margin from edges
+ */
+function getRandomPointInRectWithMargin(rect: RectShape, margin: number): { x: number; y: number } {
+  const effectiveMargin = Math.min(margin, rect.width / 4, rect.height / 4)
+  return {
+    x: rect.x + effectiveMargin + Math.random() * (rect.width - 2 * effectiveMargin),
+    y: rect.y + effectiveMargin + Math.random() * (rect.height - 2 * effectiveMargin),
+  }
+}
+
+/**
+ * Generate a random point inside an ellipse with margin from edges
+ */
+function getRandomPointInEllipseWithMargin(ellipse: EllipseShape, margin: number): { x: number; y: number } {
+  // Reduce radii by margin to keep points away from edge
+  const effectiveRx = Math.max(ellipse.rx - margin, ellipse.rx * 0.5)
+  const effectiveRy = Math.max(ellipse.ry - margin, ellipse.ry * 0.5)
+
+  // Use polar coordinates for uniform distribution within ellipse
+  const angle = Math.random() * 2 * Math.PI
+  const r = Math.sqrt(Math.random()) // Square root for uniform distribution
+
+  return {
+    x: ellipse.cx + r * effectiveRx * Math.cos(angle),
+    y: ellipse.cy + r * effectiveRy * Math.sin(angle),
+  }
+}
+
+/**
+ * Generate a random point inside a polygon with margin from edges
+ * Uses rejection sampling with the polygon's bounding box
+ */
+function getRandomPointInPolygonWithMargin(polygon: PolygonShape, margin: number): { x: number; y: number } {
+  const points = polygon.points
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const minX = Math.min(...xs) + margin
+  const maxX = Math.max(...xs) - margin
+  const minY = Math.min(...ys) + margin
+  const maxY = Math.max(...ys) - margin
+
+  // Ensure valid range
+  const safeMinX = Math.min(minX, maxX)
+  const safeMaxX = Math.max(minX, maxX)
+  const safeMinY = Math.min(minY, maxY)
+  const safeMaxY = Math.max(minY, maxY)
+
+  let x: number, y: number
+  let attempts = 0
+  const maxAttempts = 100
+
+  do {
+    x = safeMinX + Math.random() * (safeMaxX - safeMinX)
+    y = safeMinY + Math.random() * (safeMaxY - safeMinY)
+    attempts++
+  } while (attempts < maxAttempts && !isPointInPolygon(x, y, points))
+
+  return { x, y }
+}

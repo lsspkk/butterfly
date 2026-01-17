@@ -1,6 +1,6 @@
 import { CType } from '../components/CTypes'
 
-export type EntityType = 'Bee' | 'Butterfly' | 'Flower' | 'Cloud' | 'Raindrop' | 'Grass' | 'Pond' | 'River' | 'World' | 'Cat' | 'Hud' | 'Bubble'
+export type EntityType = 'Bee' | 'Butterfly' | 'Flower' | 'Cloud' | 'Raindrop' | 'Grass' | 'Pond' | 'River' | 'World' | 'Cat' | 'Hud' | 'Bubble' | 'Fruit'
 
 export function getEType(id: string): EntityType {
   return id.split('_')[0] as EntityType

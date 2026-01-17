@@ -9,8 +9,9 @@ import Cloud from '../entities/Cloud'
 import Butterfly from '../entities/Butterfly'
 import Cat from '../entities/Cat'
 import Bush, { getGardener } from '../entities/Bush'
+import Fruit, { FruitType } from '../entities/Fruit'
 import Hud from '../entities/Hud'
-import { getFlowerRandomXY, getFlowerXYInZone, distributeAcrossZones } from '../helpers'
+import { getFlowerRandomXY, getFlowerXYInZone, distributeAcrossZones, getRandomPointInBoundaries } from '../helpers'
 import Bubble from '../entities/Bubble'
 import { AllAssets } from '@/app/page'
 import { audioEngine } from '../systems/AudioSystem'
@@ -86,6 +87,9 @@ export class Level {
       zoneCount,
       butterflies.length
     )
+
+    // Create fruits before bees and cat so they render underneath
+    this.createFruits(em)
 
     // Calculate cat spawn position
     // If MapData is provided, use catSpawn position (already in world coordinates)
@@ -240,6 +244,36 @@ export class Level {
     return clouds
   }
 
+  createFruits(em: EManager) {
+    const fruitTypes: FruitType[] = ['apple', 'orange', 'banana']
+
+    for (let i = 0; i < 3; i++) {
+      // Use boundaries for spawn position, with safe zone check
+      let x: number, y: number
+      let attempts = 0
+      const maxAttempts = 50
+
+      do {
+        const pos = getRandomPointInBoundaries(
+          this.mapData?.boundaries,
+          this.width,
+          this.height,
+          100
+        )
+        x = pos.x
+        y = pos.y
+        attempts++
+      } while (attempts < maxAttempts && this.isInCatSafeZone(x, y))
+
+      const fruitType = fruitTypes[i]
+      const asset = this.assets.fruitAssets[fruitType]
+
+      const fruitId = em.create('Fruit')
+      em.addComponent(fruitId, 'Movement', new Movement(x, y, 1))
+      em.addComponent(fruitId, 'Graphics', new Fruit(this.world, asset, fruitType, x, y))
+    }
+  }
+
   /**
    * Position all entities before game starts to avoid visual jump on first frame
    */
@@ -261,7 +295,7 @@ export class Level {
       return
     }
     const boundaries = this.mapData?.boundaries
-    movementSystem(this.em, this.width, this.height, this.screen, boundaries)
+    movementSystem(this.em, this.width, this.height, this.screen, boundaries, this.assets.fruitAssets)
 
     const { showDialog, dialogState, setDialogState } = gameState
     if (!showDialog || !dialogState || !setDialogState) {

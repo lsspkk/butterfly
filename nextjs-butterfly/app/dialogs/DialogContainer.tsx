@@ -42,6 +42,8 @@ export function DialogContainer({ startLevel, pixiApp }: { startLevel: (nro: num
       dialogState: 'none',
       showDialog: false,
       levelRescue: [],
+      heldFruit: null,
+      activeFruitId: null,
     })
     const newLevel = await startLevel(nro)
 

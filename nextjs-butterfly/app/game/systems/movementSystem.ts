@@ -5,13 +5,14 @@ import { keyMap } from './KeyboardListener'
 import { touchState } from './PointAndMoveListener'
 import { hud } from '../worlds/Level'
 import Bubble from '../entities/Bubble'
+import Fruit, { FruitType, FruitAssets } from '../entities/Fruit'
 import { audioEngine } from './AudioSystem'
 import { gameState } from './gameState'
 import { ButterflyData } from '../worlds/LevelSettings'
 import { ZoneShape, isRectShape, isEllipseShape, isPolygonShape } from '../maps/MapTypes'
-import { isPointInRect, isPointInEllipse, isPointInPolygon } from '../helpers'
+import { isPointInRect, isPointInEllipse, isPointInPolygon, getRandomPointInBoundaries } from '../helpers'
 
-export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[]) {
+export function movementSystem(em: EManager, width: number, height: number, screen: Rectangle, boundaries?: ZoneShape[], fruitAssets?: FruitAssets) {
   const relevantEntities = em.getEntitiesByComponents('Movement')
   const catId = em.getEntitiesByEType('Cat')?.[0]
   const cat = catId ? em.getComponent<Movement>(catId, 'Movement') : undefined
@@ -27,6 +28,8 @@ export function movementSystem(em: EManager, width: number, height: number, scre
   if (cm) {
     readCatInput(cm, width, height, screen, boundaries)
     em.getComponent<EGraphics>(catId, 'Graphics')?.render(cm)
+    checkFruitPickup(em, cm, screen)
+    checkFruitDrop(em, cm, screen)
   }
 
   for (const [id] of relevantEntities) {
@@ -34,7 +37,8 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
     const eType = getEType(id)
     if (eType === 'Bee') {
-      moveBee(m, screen, cat)
+      const fruitTarget = getActiveFruitPosition(em)
+      moveBee(m, screen, cat, fruitTarget)
     }
 
     if (eType === 'Butterfly') {
@@ -73,6 +77,43 @@ export function movementSystem(em: EManager, width: number, height: number, scre
 
     em.getComponent<EGraphics>(id, 'Graphics')?.render(m)
   }
+
+  if (fruitAssets) {
+    updateFruits(em, fruitAssets, width, height, boundaries)
+  }
+}
+
+function updateFruits(em: EManager, fruitAssets: FruitAssets, width: number, height: number, boundaries?: ZoneShape[]) {
+  const now = Date.now()
+  const fruitTypes: FruitType[] = ['apple', 'orange', 'banana']
+  const fruitIds = em.getEntitiesByEType('Fruit')
+
+  for (const fruitId of fruitIds) {
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    if (!fruit || !fm) continue
+
+    // Check active fruit timer
+    if (fruit.isActive && now >= fruit.activeUntil) {
+      fruit.consume()
+      if (gameState.activeFruitId === fruitId) {
+        gameState.activeFruitId = null
+      }
+    }
+
+    // Check respawn
+    if (fruit.isWaitingRespawn()) {
+      const newType = fruitTypes[Math.floor(Math.random() * fruitTypes.length)]
+      const { x, y } = getRandomPointInBoundaries(boundaries, width, height, 100)
+      if (fruit.tryRespawn(x, y, newType, fruitAssets[newType])) {
+        fm.x = x
+        fm.y = y
+      }
+    }
+
+    // Render
+    fruit.render(fm)
+  }
 }
 
 const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle) => {
@@ -85,6 +126,70 @@ const popBubble = (m: Movement, bubble: Bubble, cat: Movement, screen: Rectangle
     const butterflyData = bubble.pop()
 
     updateScoreAndRescue(butterflyData)
+  }
+}
+
+function checkFruitPickup(em: EManager, cat: Movement, screen: Rectangle) {
+  if (gameState.heldFruit) return
+
+  const catx = cat.x + screen.width / 2
+  const caty = cat.y + screen.height / 2
+  const pickupDistance = 80 * gameState.speedFactor
+
+  const fruitIds = em.getEntitiesByEType('Fruit')
+  for (const fruitId of fruitIds) {
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    if (!fm || !fruit || fruit.isPickedUp || fruit.isActive || !fruit.graphics.visible) continue
+
+    const dx = catx - fm.x
+    const dy = caty - fm.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    if (distance < pickupDistance) {
+      fruit.pickup()
+      gameState.heldFruit = fruit.fruitType
+      hud?.setFruit(fruit.fruitType)
+      if (gameState.soundOn) audioEngine?.playSound('pop')
+      break
+    }
+  }
+}
+
+let enterKeyPressed = false
+
+function checkFruitDrop(em: EManager, cat: Movement, screen: Rectangle) {
+  if (!gameState.heldFruit) return
+
+  // Check Enter key (with debounce)
+  if (keyMap.Enter && !enterKeyPressed) {
+    enterKeyPressed = true
+    dropFruitAtCat(em, cat, screen)
+  }
+  if (!keyMap.Enter) {
+    enterKeyPressed = false
+  }
+}
+
+function dropFruitAtCat(em: EManager, cat: Movement, screen: Rectangle) {
+  const catx = cat.x + screen.width / 2
+  const caty = cat.y + screen.height / 2
+
+  const fruitIds = em.getEntitiesByEType('Fruit')
+  for (const fruitId of fruitIds) {
+    const fruit = em.getComponent<Fruit>(fruitId, 'Graphics')
+    const fm = em.getComponent<Movement>(fruitId, 'Movement')
+    if (!fruit || !fm) continue
+
+    if (fruit.isPickedUp && fruit.fruitType === gameState.heldFruit) {
+      fm.x = catx
+      fm.y = caty
+      fruit.drop(catx, caty)
+      gameState.activeFruitId = fruitId
+      gameState.heldFruit = null
+      hud?.clearFruit()
+      break
+    }
   }
 }
 
@@ -115,20 +220,53 @@ function updateScoreAndRescue(butterflyData: ButterflyData) {
   }
 }
 
-function moveBee(m: Movement, screen: Rectangle, cat?: Movement) {
+function getActiveFruitPosition(em: EManager): { x: number; y: number } | undefined {
+  if (!gameState.activeFruitId) return undefined
+
+  const fruit = em.getComponent<Fruit>(gameState.activeFruitId, 'Graphics')
+  const fm = em.getComponent<Movement>(gameState.activeFruitId, 'Movement')
+
+  if (fruit?.isActive && fm) {
+    return { x: fm.x, y: fm.y }
+  }
+  return undefined
+}
+
+function moveBee(m: Movement, screen: Rectangle, cat?: Movement, fruitTarget?: { x: number; y: number }) {
   if (!cat) {
     return
   }
   const now = new Date().getTime()
 
-  const catx = cat?.x + screen.width / 2
-  const caty = cat?.y + screen.height / 2
-  const a = Math.atan2(caty - m.y, catx - m.x) + Math.PI / 2
+  // Target is fruit if active, otherwise cat
+  let targetX: number, targetY: number
+
+  if (fruitTarget) {
+    targetX = fruitTarget.x
+    targetY = fruitTarget.y
+  } else {
+    targetX = cat.x + screen.width / 2
+    targetY = cat.y + screen.height / 2
+  }
+
+  const a = Math.atan2(targetY - m.y, targetX - m.x) + Math.PI / 2
   m.rotation = a
 
-  const dx = catx - m.x
-  const dy = caty - m.y
+  const dx = targetX - m.x
+  const dy = targetY - m.y
   const distance = Math.sqrt(dx * dx + dy * dy)
+
+  // If targeting fruit, just move to it and stay there
+  if (fruitTarget) {
+    if (distance > 50 * gameState.speedFactor) {
+      m.speed = m.maxSpeed * gameState.speedFactor
+      m.x += Math.sin(m.rotation) * m.speed
+      m.y -= Math.cos(m.rotation) * m.speed
+    } else {
+      m.speed = 0
+    }
+    return
+  }
 
   // detect the cat
   if (distance < m.detectDistance * (gameState.speedFactor * 2)) {

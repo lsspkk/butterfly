@@ -1,5 +1,6 @@
 import { Application, Container, Graphics, Text } from 'pixi.js'
 import { gameState } from '../systems/gameState'
+import { FruitType } from './Fruit'
 
 export default class Hud {
   app: Application
@@ -10,6 +11,7 @@ export default class Hud {
   background: Graphics
   score: number
   pos: Text
+  fruitIcon: Graphics | null = null
 
   constructor(app: Application, name: string) {
     this.score = 0
@@ -46,6 +48,29 @@ export default class Hud {
   setScore(score: number) {
     this.score = score
     this.scoreText.text = score.toString()
+  }
+
+  setFruit(fruitType: FruitType | null) {
+    if (this.fruitIcon) {
+      this.background.removeChild(this.fruitIcon)
+      this.fruitIcon = null
+    }
+
+    if (fruitType) {
+      const colors: Record<FruitType, number> = {
+        apple: 0xe53935,
+        orange: 0xff9800,
+        banana: 0xffeb3b,
+      }
+      this.fruitIcon = new Graphics().circle(0, 0, 8).fill(colors[fruitType])
+      this.fruitIcon.x = this.app.screen.width - 200
+      this.fruitIcon.y = 14
+      this.background.addChild(this.fruitIcon)
+    }
+  }
+
+  clearFruit() {
+    this.setFruit(null)
   }
 
   private addText(text: string, x: number, y: number, size = 10, fill = '#ffffff') {
