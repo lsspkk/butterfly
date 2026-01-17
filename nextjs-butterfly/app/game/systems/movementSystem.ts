@@ -257,7 +257,7 @@ function moveBee(m: Movement, screen: Rectangle, cat?: Movement, fruitTarget?: {
   const distance = Math.sqrt(dx * dx + dy * dy)
 
   // Apply mobile bee speed reduction (50% slower on mobile)
-  const beeSpeedFactor = gameState.isMobile ? 0.5 : 1.0
+  const beeSpeedFactor = gameState.isMobile ? 0.7 : 1.0
 
   // If targeting fruit, just move to it and stay there
   if (fruitTarget) {
