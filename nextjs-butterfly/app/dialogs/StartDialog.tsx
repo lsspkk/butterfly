@@ -72,7 +72,7 @@ export function StartDialog({ start, isMobile, isPortrait }: { start: () => void
           <DFooter>
             {countDown < 0 && (
               <DButton autoFocus onClick={startCountDown} disabled={countDown !== -1}>
-                Start
+                <span className='text-xl'>&#8250;&#8250;&#8250;</span>
               </DButton>
             )}
 

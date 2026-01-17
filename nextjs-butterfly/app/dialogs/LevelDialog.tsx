@@ -74,7 +74,7 @@ export function LevelDialog({
     <DFrame>
       <DTitle className='text-4xl mb-1'>Level {completedLevelNro + 1} Complete</DTitle>
       <DContent>
-        {data && <ShowCanvas data={data} />}
+        {data && <ShowCanvas data={data} rescued={rescued} />}
 
         <div className='flex w-full flex-col items-center justify-center flex-grow'>
           <DText className='text-center flex items-center'>
@@ -107,7 +107,7 @@ export function LevelDialog({
           </DButton>
           {!isLastLevel && (
             <DButton className='z-20' autoFocus onClick={nextLevel}>
-              <span className='text-xl'>▶️</span>
+              <span className='text-xl'>&#8250;&#8250;&#8250;</span>
             </DButton>
           )}
           {isLastLevel && (

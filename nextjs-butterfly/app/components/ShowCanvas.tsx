@@ -6,7 +6,7 @@ import { ButterflyData } from '@/app/game/worlds/LevelSettings'
 import React, { useRef, useState, useEffect } from 'react'
 import * as PIXI from 'pixi.js'
 
-export function ShowCanvas({ data }: { data: ButterflyData }) {
+export function ShowCanvas({ data, rescued }: { data: ButterflyData; rescued: Map<string, ButterflyData> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [pixiApp, setPixiApp] = useState<PIXI.Application | undefined>(undefined)
 
@@ -51,9 +51,39 @@ export function ShowCanvas({ data }: { data: ButterflyData }) {
     })
   }, [pixiApp, data])
 
+  useEffect(() => {
+    if (!pixiApp) return
+
+    // Clear previous small butterflies
+    smallButterflies.forEach((sb) => {
+      pixiApp.stage.removeChild(sb.room.container)
+      pixiApp.ticker.remove(sb.update.bind(sb))
+    })
+    smallButterflies.length = 0
+
+    // Add small butterflies as a row to the bottom of show area
+    let index = 0
+    const y = pixiApp.renderer.height - 80
+    for (const sb of rescued.values()) {
+      const currentIndex = index
+      loadSprites([sb.sprites]).then(() => {
+        // Calculate x so that all small butterflies are centered and fit within the canvas
+        const total = rescued.size
+        const spacing = pixiApp.renderer.width / 8
+        const totalWidth = (total - 1) * spacing
+        const x = (pixiApp.renderer.width - totalWidth) / 2 + currentIndex * spacing
+        const sbShow = new Show(pixiApp, sb, 'small', x, y)
+        smallButterflies.push(sbShow)
+        pixiApp.ticker.add(sbShow.update.bind(sbShow))
+      })
+      index++
+    }
+  }, [rescued, pixiApp])
+
   return <canvas ref={canvasRef} className='w-screen h-screen fixed top-0 left-0' />
 }
 const shows: Show[] = []
+const smallButterflies: Show[] = []
 const randomXY = (w: number, h: number, edgeDistanceRatio: number = 0.2) => {
   const x = w * (Math.random() * (1 - 2 * edgeDistanceRatio) + edgeDistanceRatio)
   const y = h * (Math.random() * (1 - 2 * edgeDistanceRatio) + edgeDistanceRatio)
@@ -62,16 +92,18 @@ const randomXY = (w: number, h: number, edgeDistanceRatio: number = 0.2) => {
 class Show {
   em = new EManager()
   room: Room
-  constructor(app: PIXI.Application, data: ButterflyData) {
+  butterfly: ShowButterfly
+  constructor(app: PIXI.Application, data: ButterflyData, size: 'normal' | 'small' = 'normal', x?: number, y?: number) {
     const { em } = this
     this.room = new Room(app)
 
     // let's use Entity Manger, so we can add multiple entities to the Show later
     const butterflyId = em.create('Butterfly')
-    const { x, y } = randomXY(this.room.w, this.room.h)
-    const m = new Movement(x, y, 1)
+    const pos = x && y ? { x, y } : randomXY(this.room.w, this.room.h)
+    const m = new Movement(pos.x, pos.y, 1)
+    this.butterfly = new ShowButterfly(this.room, data.sprites, m, size)
     em.addComponent(butterflyId, 'Movement', m)
-    em.addComponent(butterflyId, 'Graphics', new ShowButterfly(this.room, data.sprites, m))
+    em.addComponent(butterflyId, 'Graphics', this.butterfly)
   }
   public update() {
     const relevantEntities = this.em.getEntitiesByComponents('Movement')
@@ -119,7 +151,7 @@ type ButteflyAnimations = {
 class ShowButterfly implements EGraphics {
   sprite: PIXI.AnimatedSprite
   timerId: number
-  constructor(public room: Room, public name: string, m: Movement) {
+  constructor(public room: Room, public name: string, m: Movement, size: 'normal' | 'small' = 'normal') {
     this.timerId = 0
     const { animations } = PIXI.Assets.cache.get<ButteflyAnimations>(`/sprites/${name}.json`).data
     this.sprite = PIXI.AnimatedSprite.fromFrames(animations['fly'])
@@ -128,7 +160,8 @@ class ShowButterfly implements EGraphics {
     this.sprite.x = m.x
     this.sprite.y = m.y
     this.sprite.anchor.set(0.5)
-    this.sprite.scale = (0.3 + 0.2 * Math.random()) * this.room.getScale()
+
+    this.sprite.scale = (0.3 + 0.2 * Math.random()) * this.room.getScale() * (size === 'small' ? 0.3 : 1)
     this.room.addChild(this.sprite)
   }
 
