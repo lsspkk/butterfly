@@ -13,6 +13,7 @@ export type GameState = {
   soundOn?: boolean
   inPrison: number
   speedFactor: number
+  isMobile?: boolean
   useMobileControls?: boolean
   movementControl?: 'joystick' | 'point-and-move'
   showDialog?: boolean
@@ -37,6 +38,7 @@ export const gameState: GameState = {
   level: 1,
   lives: 3,
   speedFactor: 1,
+  isMobile: false,
   paused: false,
   inPrison: 100,
   dialogState: 'start',
@@ -61,7 +63,7 @@ export function calculateSpeedFactor(screen: Rectangle, isMobile: boolean) {
   const NORMAL = 1600
   const value = isMobile ? bigger : width
   const speedFactor = value / NORMAL
-  updateGameState({ speedFactor })
+  updateGameState({ speedFactor, isMobile })
 }
 
 export function storageRead(key: string, defaultValue: any) {

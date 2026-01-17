@@ -97,11 +97,7 @@ async function loadLeaves() {
 }
 
 async function loadFruits(): Promise<FruitAssets> {
-  const [apple, orange, banana] = await Promise.all([
-    loadSvg('fruits/apple.svg'),
-    loadSvg('fruits/orange.svg'),
-    loadSvg('fruits/banana.svg'),
-  ])
+  const [apple, orange, banana] = await Promise.all([loadSvg('fruits/apple.svg'), loadSvg('fruits/orange.svg'), loadSvg('fruits/banana.svg')])
   return { apple, orange, banana }
 }
 const bubblePngs = ['bubbleA1.png', 'bubbleA2.png', 'bubbleB1.png', 'bubbleB2.png']
@@ -140,9 +136,8 @@ export default function Home() {
     if (!canvasRef.current) {
       return
     }
-    if (isPortrait && isMobile) {
-      return
-    }
+    // Don't block on orientation - let game initialize
+    // Users can still play in portrait or will see landscape message
 
     isLoaded.current = true
     let keyboard: undefined | KeyboardListener = undefined
@@ -196,6 +191,16 @@ export default function Home() {
           <div className='text-center'>
             <div className='text-4xl mb-4'>Loading...</div>
             <div className='text-xl text-gray-600'>{loadingStatus}</div>
+          </div>
+        )}
+
+        {pixiApp && isPortrait && isMobile && (
+          <div className='fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 text-white'>
+            <div className='text-center p-8'>
+              <div className='text-3xl mb-4'>📱 ↻</div>
+              <div className='text-2xl mb-2'>Please rotate your device</div>
+              <div className='text-lg text-gray-300'>This game works best in landscape mode</div>
+            </div>
           </div>
         )}
 

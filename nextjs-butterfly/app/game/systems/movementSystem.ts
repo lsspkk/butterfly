@@ -171,7 +171,7 @@ function checkFruitDrop(em: EManager, cat: Movement, screen: Rectangle) {
   }
 }
 
-function dropFruitAtCat(em: EManager, cat: Movement, screen: Rectangle) {
+export function dropFruitAtCat(em: EManager, cat: Movement, screen: Rectangle) {
   const catx = cat.x + screen.width / 2
   const caty = cat.y + screen.height / 2
 
@@ -256,10 +256,13 @@ function moveBee(m: Movement, screen: Rectangle, cat?: Movement, fruitTarget?: {
   const dy = targetY - m.y
   const distance = Math.sqrt(dx * dx + dy * dy)
 
+  // Apply mobile bee speed reduction (50% slower on mobile)
+  const beeSpeedFactor = gameState.isMobile ? 0.5 : 1.0
+
   // If targeting fruit, just move to it and stay there
   if (fruitTarget) {
     if (distance > 50 * gameState.speedFactor) {
-      m.speed = m.maxSpeed * gameState.speedFactor
+      m.speed = m.maxSpeed * gameState.speedFactor * beeSpeedFactor
       m.x += Math.sin(m.rotation) * m.speed
       m.y -= Math.cos(m.rotation) * m.speed
     } else {
@@ -278,7 +281,7 @@ function moveBee(m: Movement, screen: Rectangle, cat?: Movement, fruitTarget?: {
 
   // if the cat is detected, move towards it
   if (m.detectUntilTime > now) {
-    m.speed = m.maxSpeed * gameState.speedFactor
+    m.speed = m.maxSpeed * gameState.speedFactor * beeSpeedFactor
     m.x += Math.sin(m.rotation) * m.speed
     m.y -= Math.cos(m.rotation) * m.speed
   } else {

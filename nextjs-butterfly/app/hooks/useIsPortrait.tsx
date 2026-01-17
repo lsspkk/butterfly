@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 
 export function useIsPortrait() {
-  const [isPortrait, setIsPortrait] = useState(true)
+  const [isPortrait, setIsPortrait] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
     const checkOrientation = () => {
@@ -21,5 +21,5 @@ export function useIsPortrait() {
       window.removeEventListener('resize', checkOrientation)
     }
   }, [])
-  return isPortrait
+  return isPortrait ?? false
 }
