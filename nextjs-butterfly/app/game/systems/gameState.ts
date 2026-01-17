@@ -21,6 +21,11 @@ export type GameState = {
   levelGameLoop?: () => void
   levelRescue?: ButterflyData[]
   debugMode?: boolean
+  // Game completion stats
+  totalBeeStings: number
+  totalScoreLost: number
+  totalButterfliesRescued: number
+  totalPotentialScore: number
 }
 
 export const gameState: GameState = {
@@ -32,6 +37,11 @@ export const gameState: GameState = {
   inPrison: 100,
   dialogState: 'start',
   debugMode: false,
+  // Game completion stats
+  totalBeeStings: 0,
+  totalScoreLost: 0,
+  totalButterfliesRescued: 0,
+  totalPotentialScore: 0,
 }
 
 export function updateGameState(newState: Partial<GameState>) {

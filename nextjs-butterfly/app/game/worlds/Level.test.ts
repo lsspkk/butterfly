@@ -197,7 +197,7 @@ describe('Level Dimension Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 0,
         heightMultiplier: 0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 100, height: 100 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 100, height: 100 }],
         zones: [],
         catSpawn: { x: 50, y: 50 },
       };
@@ -213,7 +213,7 @@ describe('Level Dimension Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 0.5,
         heightMultiplier: 0.75,
-        boundary: { type: 'rect', x: 0, y: 0, width: 400, height: 450 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 400, height: 450 }],
         zones: [],
         catSpawn: { x: 200, y: 225 },
       };
@@ -229,7 +229,7 @@ describe('Level Dimension Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 10.0,
         heightMultiplier: 10.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 8000, height: 6000 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 8000, height: 6000 }],
         zones: [],
         catSpawn: { x: 4000, y: 3000 },
       };
@@ -273,7 +273,7 @@ describe('Cat Spawn Position Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: { type: 'rect', x: 0, y: 0, width: 1200, height: 720 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 1200, height: 720 }],
         zones: [],
         catSpawn: { x: 600, y: 500 },
       };
@@ -290,7 +290,7 @@ describe('Cat Spawn Position Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 1.0,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 800, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 800, height: 600 }],
         zones: [],
         catSpawn: { x: 400, y: 480 }, // 80% down from top
       };
@@ -306,7 +306,7 @@ describe('Cat Spawn Position Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 2.0,
         heightMultiplier: 1.5,
-        boundary: { type: 'rect', x: 0, y: 0, width: 1600, height: 900 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 1600, height: 900 }],
         zones: [],
         catSpawn: { x: 100, y: 100 }, // Top-left corner
       };
@@ -322,7 +322,7 @@ describe('Cat Spawn Position Calculation', () => {
         levelNumber: 8,
         widthMultiplier: 2.5,
         heightMultiplier: 2.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 2000, height: 1200 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 2000, height: 1200 }],
         zones: [],
         catSpawn: { x: 1000, y: 1100 }, // Near bottom
       };
@@ -375,7 +375,7 @@ describe('Cat Spawn Position Calculation', () => {
         levelNumber: 1,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: { type: 'rect', x: 0, y: 0, width: 1200, height: 720 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 1200, height: 720 }],
         zones: [],
         catSpawn: { x: 600, y: 500 },
       };
@@ -402,7 +402,7 @@ describe('MapData Integration', () => {
         levelNumber: 1,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: { type: 'rect', x: 0, y: 0, width: 1200, height: 720 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 1200, height: 720 }],
         zones: [
           {
             id: 'center',
@@ -423,7 +423,7 @@ describe('MapData Integration', () => {
         levelNumber: 4,
         widthMultiplier: 1.6,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 1280, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 1280, height: 600 }],
         zones: [
           { id: 'topleft', shape: { type: 'ellipse', cx: 200, cy: 150, rx: 150, ry: 90 } },
           { id: 'topright', shape: { type: 'ellipse', cx: 1080, cy: 150, rx: 150, ry: 90 } },
@@ -443,7 +443,7 @@ describe('MapData Integration', () => {
         levelNumber: 8,
         widthMultiplier: 2.5,
         heightMultiplier: 2.0,
-        boundary: {
+        boundaries: [{
           type: 'polygon',
           points: [
             { x: 100, y: 0 },
@@ -455,14 +455,14 @@ describe('MapData Integration', () => {
             { x: 0, y: 1100 },
             { x: 0, y: 100 },
           ],
-        },
+        }],
         zones: [],
         catSpawn: { x: 1000, y: 1100 },
       };
 
-      expect(mapData.boundary.type).toBe('polygon');
-      if (mapData.boundary.type === 'polygon') {
-        expect(mapData.boundary.points.length).toBe(8);
+      expect(mapData.boundaries[0].type).toBe('polygon');
+      if (mapData.boundaries[0].type === 'polygon') {
+        expect(mapData.boundaries[0].points.length).toBe(8);
       }
     });
   });
@@ -473,15 +473,15 @@ describe('MapData Integration', () => {
         levelNumber: 1,
         widthMultiplier: 1.0,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 800, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 800, height: 600 }],
         zones: [],
         catSpawn: { x: 400, y: 300 },
       };
 
-      expect(mapData.boundary.type).toBe('rect');
-      if (mapData.boundary.type === 'rect') {
-        expect(mapData.boundary.width).toBe(800);
-        expect(mapData.boundary.height).toBe(600);
+      expect(mapData.boundaries[0].type).toBe('rect');
+      if (mapData.boundaries[0].type === 'rect') {
+        expect(mapData.boundaries[0].width).toBe(800);
+        expect(mapData.boundaries[0].height).toBe(600);
       }
     });
 
@@ -490,17 +490,17 @@ describe('MapData Integration', () => {
         levelNumber: 3,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: { type: 'ellipse', cx: 600, cy: 360, rx: 540, ry: 324 },
+        boundaries: [{ type: 'ellipse', cx: 600, cy: 360, rx: 540, ry: 324 }],
         zones: [],
         catSpawn: { x: 600, y: 360 },
       };
 
-      expect(mapData.boundary.type).toBe('ellipse');
-      if (mapData.boundary.type === 'ellipse') {
-        expect(mapData.boundary.cx).toBe(600);
-        expect(mapData.boundary.cy).toBe(360);
-        expect(mapData.boundary.rx).toBe(540);
-        expect(mapData.boundary.ry).toBe(324);
+      expect(mapData.boundaries[0].type).toBe('ellipse');
+      if (mapData.boundaries[0].type === 'ellipse') {
+        expect(mapData.boundaries[0].cx).toBe(600);
+        expect(mapData.boundaries[0].cy).toBe(360);
+        expect(mapData.boundaries[0].rx).toBe(540);
+        expect(mapData.boundaries[0].ry).toBe(324);
       }
     });
   });
@@ -661,7 +661,7 @@ describe('Zone-Based Flower Distribution', () => {
         levelNumber: 1,
         widthMultiplier: 1.0,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 800, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 800, height: 600 }],
         zones: [
           { id: 'center', shape: { type: 'rect', x: 240, y: 180, width: 320, height: 240 } },
         ],
@@ -677,7 +677,7 @@ describe('Zone-Based Flower Distribution', () => {
         levelNumber: 2,
         widthMultiplier: 1.2,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 960, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 960, height: 600 }],
         zones: [
           { id: 'left', shape: { type: 'ellipse', cx: 240, cy: 300, rx: 144, ry: 180 } },
           { id: 'right', shape: { type: 'ellipse', cx: 720, cy: 300, rx: 144, ry: 180 } },
@@ -695,7 +695,7 @@ describe('Zone-Based Flower Distribution', () => {
         levelNumber: 3,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: { type: 'ellipse', cx: 600, cy: 360, rx: 540, ry: 324 },
+        boundaries: [{ type: 'ellipse', cx: 600, cy: 360, rx: 540, ry: 324 }],
         zones: [
           {
             id: 'triangle',
@@ -721,7 +721,7 @@ describe('Zone-Based Flower Distribution', () => {
         levelNumber: 4,
         widthMultiplier: 1.6,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 24, y: 0, width: 1232, height: 600 },
+        boundaries: [{ type: 'rect', x: 24, y: 0, width: 1232, height: 600 }],
         zones: [
           { id: 'topleft', shape: { type: 'ellipse', cx: 200, cy: 150, rx: 150, ry: 90 } },
           { id: 'topright', shape: { type: 'rect', x: 950, y: 60, width: 300, height: 180 } },
@@ -745,7 +745,7 @@ describe('Zone-Based Flower Distribution', () => {
         levelNumber: 1,
         widthMultiplier: 1.0,
         heightMultiplier: 1.0,
-        boundary: { type: 'rect', x: 0, y: 0, width: 800, height: 600 },
+        boundaries: [{ type: 'rect', x: 0, y: 0, width: 800, height: 600 }],
         zones: [],
         catSpawn: { x: 400, y: 300 },
       };

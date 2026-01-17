@@ -5,7 +5,7 @@ import KeyboardListener from './game/systems/KeyboardListener'
 import { flowerNames, leafNames } from './game/entities/Bush'
 import { BeeAssets } from './game/entities/Bee'
 import { DialogContainer } from './dialogs/DialogContainer'
-import { allButterflyData, levelConfigList } from './game/worlds/LevelSettings'
+import { allButterflyData, loadLevelConfigs, getLevelConfigs } from './game/worlds/LevelSettings'
 import { Level, runGameLoop } from './game/worlds/Level'
 import { calculateSpeedFactor, updateGameState } from './game/systems/gameState'
 import { TouchListener } from './game/systems/TouchListener'
@@ -40,7 +40,7 @@ async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: stri
 
   onProgress?.('Loading butterflies...')
   await loadButterflies()
-  
+
   onProgress?.('Loading bubbles...')
   await loadBubbles()
   await loadAnimations(['popA1', 'popA2', 'popB1', 'popB2'], '/bubbles')
@@ -48,6 +48,10 @@ async function initPixiApp(canvas: HTMLCanvasElement, onProgress?: (status: stri
   onProgress?.('Loading flowers and leaves...')
   const flowerAssets = await loadFlowers()
   const leafAssets = await loadLeaves()
+
+  // Load level configurations
+  onProgress?.('Loading level configurations...')
+  await loadLevelConfigs()
 
   // Load map data for all levels
   onProgress?.('Loading level maps...')
@@ -158,10 +162,13 @@ export default function Home() {
     calculateSpeedFactor(pixiApp.screen, isMobile)
 
     // Retrieve map data for this level
-    // mapLoader.getMapForLevel will return undefined if not loaded, or a fallback if level not found
-    const mapData = mapLoader.isLoaded() ? mapLoader.getMapForLevel(nro) : undefined
+    // Note: levels.txt uses 1-based numbering (LEVEL 1-8), so we use mapId from config
+    const levelConfigs = getLevelConfigs()
+    const levelConfig = levelConfigs[nro]
+    const mapId = levelConfig.mapId ?? levelConfig.level
+    const mapData = mapLoader.isLoaded() ? mapLoader.getMapForLevel(mapId) : undefined
 
-    const newLevel = new Level(pixiApp, assets, levelConfigList[nro], mapData)
+    const newLevel = new Level(pixiApp, assets, levelConfig, mapData)
     setTimeout(() => updateGameState({ paused: false }), 200)
     return newLevel
   }

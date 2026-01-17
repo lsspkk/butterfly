@@ -1,13 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { MapData, RectShape, EllipseShape, PolygonShape, ZoneShape } from '../maps/MapTypes'
-import * as PIXI from 'pixi.js'
 
 /**
- * Helper function to extract boundary from MapData
+ * Helper function to extract boundaries from MapData
  * This mirrors the logic in World constructor
  */
-function extractBoundary(mapData?: MapData): ZoneShape | undefined {
-  return mapData?.boundary
+function extractBoundaries(mapData?: MapData): ZoneShape[] {
+  return mapData?.boundaries ?? []
 }
 
 /**
@@ -83,10 +82,10 @@ function createBackgroundWithBoundary(boundary?: ZoneShape, width = 1600, height
 
 describe('World Boundary Acceptance', () => {
   describe('Boundary Extraction Logic', () => {
-    it('should return undefined when no MapData provided', () => {
-      const boundary = extractBoundary()
+    it('should return empty array when no MapData provided', () => {
+      const boundaries = extractBoundaries()
 
-      expect(boundary).toBeUndefined()
+      expect(boundaries).toEqual([])
     })
 
     it('should extract boundary from MapData with rect shape', () => {
@@ -95,27 +94,28 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const mapData: MapData = {
         levelNumber: 1,
         widthMultiplier: 2.0,
         heightMultiplier: 2.0,
-        boundary: rectBoundary,
+        boundaries: [rectBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(rectBoundary)
-      expect(boundary?.type).toBe('rect')
-      if (boundary?.type === 'rect') {
-        expect(boundary.x).toBe(0)
-        expect(boundary.y).toBe(0)
-        expect(boundary.width).toBe(1600)
-        expect(boundary.height).toBe(1200)
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(rectBoundary)
+      expect(boundaries[0].type).toBe('rect')
+      if (boundaries[0].type === 'rect') {
+        expect(boundaries[0].x).toBe(0)
+        expect(boundaries[0].y).toBe(0)
+        expect(boundaries[0].width).toBe(1600)
+        expect(boundaries[0].height).toBe(1200)
       }
     })
 
@@ -125,27 +125,28 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 700,
-        ry: 500
+        ry: 500,
       }
 
       const mapData: MapData = {
         levelNumber: 3,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: ellipseBoundary,
+        boundaries: [ellipseBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(ellipseBoundary)
-      expect(boundary?.type).toBe('ellipse')
-      if (boundary?.type === 'ellipse') {
-        expect(boundary.cx).toBe(800)
-        expect(boundary.cy).toBe(600)
-        expect(boundary.rx).toBe(700)
-        expect(boundary.ry).toBe(500)
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(ellipseBoundary)
+      expect(boundaries[0]?.type).toBe('ellipse')
+      if (boundaries[0]?.type === 'ellipse') {
+        expect(boundaries[0].cx).toBe(800)
+        expect(boundaries[0].cy).toBe(600)
+        expect(boundaries[0].rx).toBe(700)
+        expect(boundaries[0].ry).toBe(500)
       }
     })
 
@@ -156,27 +157,28 @@ describe('World Boundary Acceptance', () => {
           { x: 100, y: 100 },
           { x: 1500, y: 100 },
           { x: 1500, y: 1100 },
-          { x: 100, y: 1100 }
-        ]
+          { x: 100, y: 1100 },
+        ],
       }
 
       const mapData: MapData = {
         levelNumber: 8,
         widthMultiplier: 2.5,
         heightMultiplier: 2.0,
-        boundary: polygonBoundary,
+        boundaries: [polygonBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 1000 }
+        catSpawn: { x: 800, y: 1000 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(polygonBoundary)
-      expect(boundary?.type).toBe('polygon')
-      if (boundary?.type === 'polygon') {
-        expect(boundary.points).toHaveLength(4)
-        expect(boundary.points[0]).toEqual({ x: 100, y: 100 })
-        expect(boundary.points[3]).toEqual({ x: 100, y: 1100 })
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(polygonBoundary)
+      expect(boundaries[0]?.type).toBe('polygon')
+      if (boundaries[0]?.type === 'polygon') {
+        expect(boundaries[0].points).toHaveLength(4)
+        expect(boundaries[0].points[0]).toEqual({ x: 100, y: 100 })
+        expect(boundaries[0].points[3]).toEqual({ x: 100, y: 1100 })
       }
     })
 
@@ -186,39 +188,40 @@ describe('World Boundary Acceptance', () => {
         x: 50,
         y: 50,
         width: 1500,
-        height: 1100
+        height: 1100,
       }
 
       const mapData: MapData = {
         levelNumber: 4,
         widthMultiplier: 1.6,
         heightMultiplier: 1.0,
-        boundary: rectBoundary,
+        boundaries: [rectBoundary],
         zones: [
           {
             id: 'zone1',
-            shape: { type: 'ellipse', cx: 400, cy: 300, rx: 150, ry: 200 }
+            shape: { type: 'ellipse', cx: 400, cy: 300, rx: 150, ry: 200 },
           },
           {
             id: 'zone2',
-            shape: { type: 'ellipse', cx: 1200, cy: 300, rx: 150, ry: 200 }
+            shape: { type: 'ellipse', cx: 1200, cy: 300, rx: 150, ry: 200 },
           },
           {
             id: 'zone3',
-            shape: { type: 'ellipse', cx: 400, cy: 900, rx: 150, ry: 200 }
+            shape: { type: 'ellipse', cx: 400, cy: 900, rx: 150, ry: 200 },
           },
           {
             id: 'zone4',
-            shape: { type: 'ellipse', cx: 1200, cy: 900, rx: 150, ry: 200 }
-          }
+            shape: { type: 'ellipse', cx: 1200, cy: 900, rx: 150, ry: 200 },
+          },
         ],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(rectBoundary)
-      expect(boundary?.type).toBe('rect')
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(rectBoundary)
+      expect(boundaries[0]?.type).toBe('rect')
       expect(mapData.zones).toHaveLength(4)
     })
 
@@ -232,30 +235,31 @@ describe('World Boundary Acceptance', () => {
           { x: 1750, y: 1200 },
           { x: 250, y: 1200 },
           { x: 0, y: 1000 },
-          { x: 0, y: 200 }
-        ]
+          { x: 0, y: 200 },
+        ],
       }
 
       const mapData: MapData = {
         levelNumber: 8,
         widthMultiplier: 2.5,
         heightMultiplier: 2.0,
-        boundary: complexPolygon,
+        boundaries: [complexPolygon],
         zones: [
           { id: 'entrance', shape: { type: 'rect', x: 1000, y: 1000, width: 200, height: 150 } },
-          { id: 'corridor1', shape: { type: 'rect', x: 900, y: 700, width: 400, height: 100 } }
+          { id: 'corridor1', shape: { type: 'rect', x: 900, y: 700, width: 400, height: 100 } },
         ],
-        catSpawn: { x: 1100, y: 1100 }
+        catSpawn: { x: 1100, y: 1100 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(complexPolygon)
-      expect(boundary?.type).toBe('polygon')
-      if (boundary?.type === 'polygon') {
-        expect(boundary.points).toHaveLength(7)
-        expect(boundary.points[0]).toEqual({ x: 250, y: 0 })
-        expect(boundary.points[6]).toEqual({ x: 0, y: 200 })
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(complexPolygon)
+      expect(boundaries[0]?.type).toBe('polygon')
+      if (boundaries[0]?.type === 'polygon') {
+        expect(boundaries[0].points).toHaveLength(7)
+        expect(boundaries[0].points[0]).toEqual({ x: 250, y: 0 })
+        expect(boundaries[0].points[6]).toEqual({ x: 0, y: 200 })
       }
     })
 
@@ -265,23 +269,23 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const mapData: MapData = {
         levelNumber: 1,
         widthMultiplier: 2.0,
         heightMultiplier: 2.0,
-        boundary,
+        boundaries: [boundary],
         zones: [{ id: 'center', shape: boundary }],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const extractedBoundary = extractBoundary(mapData)
+      const extractedBoundaries = extractBoundaries(mapData)
 
-      // Verify boundary is the same reference as in mapData
-      expect(extractedBoundary).toBe(mapData.boundary)
-      expect(extractedBoundary).toBe(boundary)
+      // Verify boundaries array contains the boundary
+      expect(extractedBoundaries).toHaveLength(1)
+      expect(extractedBoundaries[0]).toBe(boundary)
     })
 
     it('should extract boundary from minimal MapData', () => {
@@ -290,21 +294,22 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 800,
-        height: 600
+        height: 600,
       }
 
       const mapData: MapData = {
         levelNumber: 1,
         widthMultiplier: 1.0,
         heightMultiplier: 1.0,
-        boundary: minimalBoundary,
+        boundaries: [minimalBoundary],
         zones: [],
-        catSpawn: { x: 400, y: 480 }
+        catSpawn: { x: 400, y: 480 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary).toBe(minimalBoundary)
+      expect(boundaries).toHaveLength(1)
+      expect(boundaries[0]).toBe(minimalBoundary)
       expect(mapData.zones).toHaveLength(0)
     })
   })
@@ -316,27 +321,27 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const mapData: MapData = {
         levelNumber: 1,
         widthMultiplier: 2.0,
         heightMultiplier: 2.0,
-        boundary: rectBoundary,
+        boundaries: [rectBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary?.type).toBe('rect')
-      if (boundary?.type === 'rect') {
+      expect(boundaries[0]?.type).toBe('rect')
+      if (boundaries[0]?.type === 'rect') {
         // TypeScript should narrow the type here
-        expect(boundary.width).toBeDefined()
-        expect(boundary.height).toBeDefined()
-        expect(boundary.x).toBeDefined()
-        expect(boundary.y).toBeDefined()
+        expect(boundaries[0].width).toBeDefined()
+        expect(boundaries[0].height).toBeDefined()
+        expect(boundaries[0].x).toBeDefined()
+        expect(boundaries[0].y).toBeDefined()
       }
     })
 
@@ -346,27 +351,27 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 700,
-        ry: 500
+        ry: 500,
       }
 
       const mapData: MapData = {
         levelNumber: 3,
         widthMultiplier: 1.5,
         heightMultiplier: 1.2,
-        boundary: ellipseBoundary,
+        boundaries: [ellipseBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 600 }
+        catSpawn: { x: 800, y: 600 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary?.type).toBe('ellipse')
-      if (boundary?.type === 'ellipse') {
+      expect(boundaries[0]?.type).toBe('ellipse')
+      if (boundaries[0]?.type === 'ellipse') {
         // TypeScript should narrow the type here
-        expect(boundary.cx).toBeDefined()
-        expect(boundary.cy).toBeDefined()
-        expect(boundary.rx).toBeDefined()
-        expect(boundary.ry).toBeDefined()
+        expect(boundaries[0].cx).toBeDefined()
+        expect(boundaries[0].cy).toBeDefined()
+        expect(boundaries[0].rx).toBeDefined()
+        expect(boundaries[0].ry).toBeDefined()
       }
     })
 
@@ -377,26 +382,26 @@ describe('World Boundary Acceptance', () => {
           { x: 100, y: 100 },
           { x: 1500, y: 100 },
           { x: 1500, y: 1100 },
-          { x: 100, y: 1100 }
-        ]
+          { x: 100, y: 1100 },
+        ],
       }
 
       const mapData: MapData = {
         levelNumber: 8,
         widthMultiplier: 2.5,
         heightMultiplier: 2.0,
-        boundary: polygonBoundary,
+        boundaries: [polygonBoundary],
         zones: [],
-        catSpawn: { x: 800, y: 1000 }
+        catSpawn: { x: 800, y: 1000 },
       }
 
-      const boundary = extractBoundary(mapData)
+      const boundaries = extractBoundaries(mapData)
 
-      expect(boundary?.type).toBe('polygon')
-      if (boundary?.type === 'polygon') {
+      expect(boundaries[0]?.type).toBe('polygon')
+      if (boundaries[0]?.type === 'polygon') {
         // TypeScript should narrow the type here
-        expect(boundary.points).toBeDefined()
-        expect(Array.isArray(boundary.points)).toBe(true)
+        expect(boundaries[0].points).toBeDefined()
+        expect(Array.isArray(boundaries[0].points)).toBe(true)
       }
     })
   })
@@ -418,7 +423,7 @@ describe('World Boundary Acceptance', () => {
         x: 50,
         y: 50,
         width: 1500,
-        height: 1100
+        height: 1100,
       }
 
       const bg = createBackgroundWithBoundary(rectBoundary)
@@ -436,7 +441,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 700,
-        ry: 500
+        ry: 500,
       }
 
       const bg = createBackgroundWithBoundary(ellipseBoundary)
@@ -455,8 +460,8 @@ describe('World Boundary Acceptance', () => {
           { x: 100, y: 100 },
           { x: 1500, y: 100 },
           { x: 1500, y: 1100 },
-          { x: 100, y: 1100 }
-        ]
+          { x: 100, y: 1100 },
+        ],
       }
 
       const bg = createBackgroundWithBoundary(polygonBoundary)
@@ -474,7 +479,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const bg = createBackgroundWithBoundary(rectBoundary)
@@ -489,7 +494,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 600,
-        ry: 600
+        ry: 600,
       }
 
       const bg = createBackgroundWithBoundary(circleBoundary)
@@ -508,8 +513,8 @@ describe('World Boundary Acceptance', () => {
           { x: 1750, y: 1200 },
           { x: 250, y: 1200 },
           { x: 0, y: 1000 },
-          { x: 0, y: 200 }
-        ]
+          { x: 0, y: 200 },
+        ],
       }
 
       const bg = createBackgroundWithBoundary(complexPolygon)
@@ -518,7 +523,7 @@ describe('World Boundary Acceptance', () => {
       // Should flatten all 7 points into 14 coordinates
       expect(calls[0]).toEqual({
         method: 'poly',
-        args: [[250, 0, 2000, 200, 2000, 1000, 1750, 1200, 250, 1200, 0, 1000, 0, 200]]
+        args: [[250, 0, 2000, 200, 2000, 1000, 1750, 1200, 250, 1200, 0, 1000, 0, 200]],
       })
     })
 
@@ -528,7 +533,7 @@ describe('World Boundary Acceptance', () => {
         x: 400,
         y: 300,
         width: 800,
-        height: 600
+        height: 600,
       }
 
       const bg = createBackgroundWithBoundary(smallRect)
@@ -543,7 +548,7 @@ describe('World Boundary Acceptance', () => {
         cx: 400,
         cy: 300,
         rx: 200,
-        ry: 150
+        ry: 150,
       }
 
       const bg = createBackgroundWithBoundary(smallEllipse)
@@ -558,8 +563,8 @@ describe('World Boundary Acceptance', () => {
         points: [
           { x: 800, y: 100 },
           { x: 1400, y: 1100 },
-          { x: 200, y: 1100 }
-        ]
+          { x: 200, y: 1100 },
+        ],
       }
 
       const bg = createBackgroundWithBoundary(triangle)
@@ -567,7 +572,7 @@ describe('World Boundary Acceptance', () => {
 
       expect(calls[0]).toEqual({
         method: 'poly',
-        args: [[800, 100, 1400, 1100, 200, 1100]]
+        args: [[800, 100, 1400, 1100, 200, 1100]],
       })
     })
 
@@ -577,7 +582,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const bg = createBackgroundWithBoundary(rectBoundary)
@@ -604,13 +609,7 @@ describe('World Boundary Acceptance', () => {
      * Helper to create edge graphics with boundary
      * This simulates the createEdges method logic
      */
-    function createEdgesWithBoundary(
-      boundary?: ZoneShape,
-      width = 1600,
-      height = 1200,
-      ew = 800,
-      eh = 600
-    ): MockGraphics {
+    function createEdgesWithBoundary(boundary?: ZoneShape, width = 1600, height = 1200, ew = 800, eh = 600): MockGraphics {
       const edges = new MockGraphics()
       const edgeColor = 0x113300
 
@@ -656,7 +655,7 @@ describe('World Boundary Acceptance', () => {
         x: 50,
         y: 50,
         width: 1500,
-        height: 1100
+        height: 1100,
       }
 
       const edges = createEdgesWithBoundary(rectBoundary, 1600, 1200, 800, 600)
@@ -676,7 +675,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 700,
-        ry: 500
+        ry: 500,
       }
 
       const edges = createEdgesWithBoundary(ellipseBoundary, 1600, 1200, 800, 600)
@@ -697,8 +696,8 @@ describe('World Boundary Acceptance', () => {
           { x: 100, y: 100 },
           { x: 1500, y: 100 },
           { x: 1500, y: 1100 },
-          { x: 100, y: 1100 }
-        ]
+          { x: 100, y: 1100 },
+        ],
       }
 
       const edges = createEdgesWithBoundary(polygonBoundary, 1600, 1200, 800, 600)
@@ -718,7 +717,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 600,
-        ry: 600
+        ry: 600,
       }
 
       const edges = createEdgesWithBoundary(circleBoundary, 1600, 1200, 800, 600)
@@ -741,8 +740,8 @@ describe('World Boundary Acceptance', () => {
           { x: 1750, y: 1200 },
           { x: 250, y: 1200 },
           { x: 0, y: 1000 },
-          { x: 0, y: 200 }
-        ]
+          { x: 0, y: 200 },
+        ],
       }
 
       const edges = createEdgesWithBoundary(complexPolygon, 2500, 2000, 800, 600)
@@ -754,7 +753,7 @@ describe('World Boundary Acceptance', () => {
       expect(calls[1]).toEqual({ method: 'fill', args: [0x113300] })
       expect(calls[2]).toEqual({
         method: 'poly',
-        args: [[250, 0, 2000, 200, 2000, 1000, 1750, 1200, 250, 1200, 0, 1000, 0, 200]]
+        args: [[250, 0, 2000, 200, 2000, 1000, 1750, 1200, 250, 1200, 0, 1000, 0, 200]],
       })
       expect(calls[3]).toEqual({ method: 'cut', args: [] })
     })
@@ -765,8 +764,8 @@ describe('World Boundary Acceptance', () => {
         points: [
           { x: 800, y: 100 },
           { x: 1400, y: 1100 },
-          { x: 200, y: 1100 }
-        ]
+          { x: 200, y: 1100 },
+        ],
       }
 
       const edges = createEdgesWithBoundary(triangle, 1600, 1200, 800, 600)
@@ -777,7 +776,7 @@ describe('World Boundary Acceptance', () => {
       expect(calls[1]).toEqual({ method: 'fill', args: [0x113300] })
       expect(calls[2]).toEqual({
         method: 'poly',
-        args: [[800, 100, 1400, 1100, 200, 1100]]
+        args: [[800, 100, 1400, 1100, 200, 1100]],
       })
       expect(calls[3]).toEqual({ method: 'cut', args: [] })
     })
@@ -788,7 +787,7 @@ describe('World Boundary Acceptance', () => {
         x: 400,
         y: 300,
         width: 800,
-        height: 600
+        height: 600,
       }
 
       const edges = createEdgesWithBoundary(smallRect, 1600, 1200, 800, 600)
@@ -807,7 +806,7 @@ describe('World Boundary Acceptance', () => {
         cx: 400,
         cy: 300,
         rx: 200,
-        ry: 150
+        ry: 150,
       }
 
       const edges = createEdgesWithBoundary(smallEllipse, 1600, 1200, 800, 600)
@@ -826,7 +825,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const edges1 = createEdgesWithBoundary(rectBoundary, 1600, 1200, 400, 300)
@@ -850,7 +849,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const edges = createEdgesWithBoundary(rectBoundary, 1600, 1200, 800, 600)
@@ -866,7 +865,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       const edges = createEdgesWithBoundary(fullWorldRect, 1600, 1200, 800, 600)
@@ -884,7 +883,7 @@ describe('World Boundary Acceptance', () => {
         x: 100,
         y: 100,
         width: 1400,
-        height: 1000
+        height: 1000,
       }
 
       const edges = createEdgesWithBoundary(offsetRect, 1600, 1200, 800, 600)
@@ -901,7 +900,7 @@ describe('World Boundary Acceptance', () => {
         cx: 1000,
         cy: 800,
         rx: 500,
-        ry: 300
+        ry: 300,
       }
 
       const edges = createEdgesWithBoundary(offCenterEllipse, 2000, 1500, 800, 600)
@@ -966,7 +965,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within world bounds
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBounds = pos.x >= 0 && pos.x <= worldWidth && pos.y >= 0 && pos.y <= worldHeight
         expect(inBounds).toBe(true)
       })
@@ -978,7 +977,7 @@ describe('World Boundary Acceptance', () => {
         x: 200,
         y: 150,
         width: 1200,
-        height: 900
+        height: 900,
       }
 
       // Simulate grass spawning with rejection sampling
@@ -1001,7 +1000,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within rect boundary
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, rectBoundary, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1013,7 +1012,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 700,
-        ry: 500
+        ry: 500,
       }
 
       // Simulate grass spawning with rejection sampling
@@ -1036,7 +1035,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within ellipse boundary
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, ellipseBoundary, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1046,11 +1045,11 @@ describe('World Boundary Acceptance', () => {
       const polygonBoundary: PolygonShape = {
         type: 'polygon',
         points: [
-          { x: 800, y: 100 },   // top
-          { x: 1400, y: 600 },  // right
-          { x: 800, y: 1100 },  // bottom
-          { x: 200, y: 600 }    // left
-        ]
+          { x: 800, y: 100 }, // top
+          { x: 1400, y: 600 }, // right
+          { x: 800, y: 1100 }, // bottom
+          { x: 200, y: 600 }, // left
+        ],
       }
 
       // Simulate grass spawning with rejection sampling
@@ -1073,7 +1072,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within polygon boundary
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, polygonBoundary, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1085,7 +1084,7 @@ describe('World Boundary Acceptance', () => {
         cx: 800,
         cy: 600,
         rx: 400,
-        ry: 400
+        ry: 400,
       }
 
       // Simulate grass spawning with rejection sampling
@@ -1108,7 +1107,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within circle boundary
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, circleBoundary, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1125,8 +1124,8 @@ describe('World Boundary Acceptance', () => {
           { x: 1200, y: 1200 },
           { x: 400, y: 1200 },
           { x: 0, y: 800 },
-          { x: 0, y: 400 }
-        ]
+          { x: 0, y: 400 },
+        ],
       }
 
       // Simulate grass spawning with rejection sampling
@@ -1149,7 +1148,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within complex polygon boundary
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, complexPolygon, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1161,7 +1160,7 @@ describe('World Boundary Acceptance', () => {
         x: 0,
         y: 0,
         width: 1600,
-        height: 1200
+        height: 1200,
       }
 
       // Simulate grass spawning
@@ -1184,7 +1183,7 @@ describe('World Boundary Acceptance', () => {
       }
 
       // All positions should be within full world rect
-      grassPositions.forEach(pos => {
+      grassPositions.forEach((pos) => {
         const inBoundary = isPointInBoundary(pos.x, pos.y, fullWorldRect, worldWidth, worldHeight)
         expect(inBoundary).toBe(true)
       })
@@ -1196,7 +1195,7 @@ describe('World Boundary Acceptance', () => {
         x: 100,
         y: 100,
         width: 400,
-        height: 300
+        height: 300,
       }
 
       // Points inside boundary
@@ -1216,7 +1215,7 @@ describe('World Boundary Acceptance', () => {
         cx: 400,
         cy: 300,
         rx: 200,
-        ry: 150
+        ry: 150,
       }
 
       // Points inside boundary
@@ -1236,8 +1235,8 @@ describe('World Boundary Acceptance', () => {
         points: [
           { x: 400, y: 100 },
           { x: 700, y: 500 },
-          { x: 100, y: 500 }
-        ]
+          { x: 100, y: 500 },
+        ],
       }
 
       // Points inside boundary

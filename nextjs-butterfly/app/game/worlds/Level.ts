@@ -1,6 +1,6 @@
 import { EManager } from '../entities/EManager'
 import { Rectangle, Application, GraphicsContext, Ticker } from 'pixi.js'
-import { BeeAnimation, Movement, Prison } from '../components/CTypes'
+import { BeeAnimation, EGraphics, Movement, Prison } from '../components/CTypes'
 import Bee from '../entities/Bee'
 import { movementSystem } from '../systems/movementSystem'
 import { gameState, updateGameState } from '../systems/gameState'
@@ -10,7 +10,7 @@ import Butterfly from '../entities/Butterfly'
 import Cat from '../entities/Cat'
 import Bush, { getGardener } from '../entities/Bush'
 import Hud from '../entities/Hud'
-import { getFlowerRandomXY, randomIndexArray, getFlowerXYInZone } from '../helpers'
+import { getFlowerRandomXY, getFlowerXYInZone, distributeAcrossZones } from '../helpers'
 import Bubble from '../entities/Bubble'
 import { AllAssets } from '@/app/page'
 import { audioEngine } from '../systems/AudioSystem'
@@ -34,12 +34,7 @@ export class Level {
   screen: Rectangle
   mapData?: MapData
 
-  constructor(
-    public app: Application,
-    public assets: AllAssets,
-    public config: LevelConfig,
-    mapData?: MapData
-  ) {
+  constructor(public app: Application, public assets: AllAssets, public config: LevelConfig, mapData?: MapData) {
     this.mapData = mapData
     const screenRatio = app.screen.width / app.screen.height
 
@@ -60,10 +55,18 @@ export class Level {
 
     this.screen = app.screen
     const { em, height, width } = this
+    
+    // Calculate world start position so the cat spawn point is centered on screen
+    const worldStartX = mapData ? -(mapData.catSpawn.x - this.screen.width / 2) : 0
+    const worldStartY = mapData ? -(mapData.catSpawn.y - this.screen.height / 2) : 0
+    
     this.world = new World(app, height, width, mapData)
+    // Set container position immediately to avoid jump on first frame
+    this.world.container.x = worldStartX
+    this.world.container.y = worldStartY
 
     const worldId = em.create('World')
-    em.addComponent(worldId, 'Movement', new Movement(0, 0, 1))
+    em.addComponent(worldId, 'Movement', new Movement(worldStartX, worldStartY, 1))
     em.addComponent(worldId, 'Graphics', this.world)
     this.worldId = worldId
 
@@ -72,10 +75,17 @@ export class Level {
     em.addComponent(hudId, 'Graphics', hud)
 
     const flowers = this.createFLowers(em, config.flowers)
-    const indexes = randomIndexArray(flowers.length)
+    const zoneCount = mapData?.zones.length ?? 1
 
     const butterflies: ButterflyData[] = createRandomButterflies(config)
     updateGameState({ inPrison: butterflies.length })
+
+    const beeFlowers = distributeAcrossZones(flowers, zoneCount, config.bees)
+    const butterflyFlowers = distributeAcrossZones(
+      flowers.filter((f) => !beeFlowers.includes(f)),
+      zoneCount,
+      butterflies.length
+    )
 
     // Calculate cat spawn position
     // If MapData is provided, use catSpawn position (already in world coordinates)
@@ -87,9 +97,8 @@ export class Level {
     em.addComponent(catId, 'Movement', new Movement(catSpawnX, catSpawnY, 1))
     em.addComponent(catId, 'Graphics', new Cat(this.world, { name: 'The Cat', animations: 'cat1.json' }))
 
-    for (let i = 0; i < config.bees; i++) {
+    for (const flowerId of beeFlowers) {
       const beeId = em.create('Bee')
-      const flowerId = flowers[indexes.pop()!]
       const beeXY = getFlowerRandomXY(flowerId, em)
 
       const beeM = new Movement(beeXY.x, beeXY.y, 1, 0, 2)
@@ -100,8 +109,9 @@ export class Level {
       em.addComponent(beeId, 'Animation', new BeeAnimation())
     }
 
-    for (const bData of butterflies) {
-      const flowerId = flowers[indexes.pop()!]
+    for (let i = 0; i < butterflies.length; i++) {
+      const bData = butterflies[i]
+      const flowerId = butterflyFlowers[i]
       const xy = getFlowerRandomXY(flowerId, em)
       const fm = em.getComponent<Movement>(flowerId, 'Movement')!
       const gardener = em.getComponent<Bush>(flowerId, 'Graphics')!.gardener
@@ -117,6 +127,10 @@ export class Level {
     }
 
     this.createClouds(em, 3, assets.cloudAssets)
+    
+    // Position all entities before game starts to avoid visual jump on first frame
+    this.initialPositioning()
+    
     gameState.levelGameLoop = this.gameLoop.bind(this)
   }
 
@@ -165,12 +179,12 @@ export class Level {
 
         for (let i = 0; i < zoneFlowerCount; i++) {
           const flowerId = em.create('Flower')
-          
+
           // Generate position within zone, avoiding cat safe zone
           let x: number, y: number
           let attempts = 0
           const maxAttempts = 50
-          
+
           do {
             const pos = getFlowerXYInZone(zone)
             x = pos.x
@@ -179,11 +193,7 @@ export class Level {
           } while (attempts < maxAttempts && this.isInCatSafeZone(x, y))
 
           em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-          em.addComponent(
-            flowerId,
-            'Graphics',
-            new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
-          )
+          em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
           flowers.push(flowerId)
         }
       }
@@ -193,11 +203,7 @@ export class Level {
         const flowerId = em.create('Flower')
         const { x, y } = this.getFlowerXYWithSafeZone()
         em.addComponent(flowerId, 'Movement', new Movement(x, y, 0.5 + Math.random() * 0.5))
-        em.addComponent(
-          flowerId,
-          'Graphics',
-          new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener)
-        )
+        em.addComponent(flowerId, 'Graphics', new Bush(this.world, x, y, this.assets.flowerAssets, this.assets.leafAssets, gardener))
         flowers.push(flowerId)
       }
     }
@@ -234,12 +240,28 @@ export class Level {
     return clouds
   }
 
+  /**
+   * Position all entities before game starts to avoid visual jump on first frame
+   */
+  private initialPositioning() {
+    const { em } = this
+    const relevantEntities = em.getEntitiesByComponents('Movement')
+    
+    for (const [id] of relevantEntities) {
+      const m = em.getComponent<Movement>(id, 'Movement')
+      const g = em.getComponent<EGraphics>(id, 'Graphics')
+      if (m && g) {
+        g.render(m)
+      }
+    }
+  }
+
   public gameLoop() {
     if (!this.em) {
       return
     }
-    const boundary = this.mapData?.boundary
-    movementSystem(this.em, this.width, this.height, this.screen, boundary)
+    const boundaries = this.mapData?.boundaries
+    movementSystem(this.em, this.width, this.height, this.screen, boundaries)
 
     const { showDialog, dialogState, setDialogState } = gameState
     if (!showDialog || !dialogState || !setDialogState) {

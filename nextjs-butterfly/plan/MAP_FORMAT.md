@@ -44,7 +44,7 @@ This creates a world 1.5x viewport width and 1.2x viewport height.
 
 ### BOUNDARY
 
-Defines the playable area boundary. Only one boundary per level.
+Defines playable area boundaries. **Multiple BOUNDARY directives are allowed** (up to 64 per level). When multiple boundaries are defined, the playable area is the **union** of all boundary shapes. This enables complex level layouts with interconnected rooms, corridors, and unique shapes.
 
 **Syntax:** `BOUNDARY <shape_type> <parameters>`
 
@@ -61,6 +61,13 @@ Defines the playable area boundary. Only one boundary per level.
 3. **polygon** - Polygon (3+ vertices)
    - Parameters: `x1 y1 x2 y2 x3 y3 ...`
    - Example: `BOUNDARY polygon 50% 10% 90% 90% 10% 90%`
+
+**Multiple Boundaries Example (Two Rooms with Corridor):**
+```
+BOUNDARY rect 5% 20% 35% 60%    # Left room
+BOUNDARY rect 38% 40% 24% 20%   # Corridor
+BOUNDARY rect 60% 20% 35% 60%   # Right room
+```
 
 ### ZONE
 
@@ -115,49 +122,23 @@ BOUNDARY rect 10% 50 80% 300      # Mixed (valid)
 - Empty lines are ignored
 - Leading/trailing whitespace is trimmed
 
-## Example Maps
-
-### Example 1: Simple Center Zone
+## Example Map - Simple Circular Arena
 
 ```
-# Level 1: Single center zone
+# Level 1: Circular arena
 LEVEL 1
 SIZE 1.0 1.0
-BOUNDARY rect 0 0 100% 100%
-ZONE center rect 30% 30% 40% 40%
-CAT_SPAWN 50% 80%
-```
-
-### Example 2: Two Side Zones
-
-```
-# Level 2: Left and right zones
-LEVEL 2
-SIZE 1.2 1.0
-BOUNDARY rect 5% 5% 90% 90%
-ZONE left ellipse 25% 50% 15% 30%
-ZONE right ellipse 75% 50% 15% 30%
-CAT_SPAWN 50% 50%
-```
-
-### Example 3: Triangle Pattern
-
-```
-# Level 3: Three zones in triangle
-LEVEL 3
-SIZE 1.5 1.2
 BOUNDARY ellipse 50% 50% 45% 45%
-ZONE top rect 40% 15% 20% 20%
-ZONE bottomleft rect 15% 65% 20% 20%
-ZONE bottomright rect 65% 65% 20% 20%
+ZONE center ellipse 50% 50% 25% 25%
 CAT_SPAWN 50% 50%
 ```
+
 
 ## Validation Rules
 
 1. Each level must have exactly one LEVEL directive
 2. Each level must have exactly one SIZE directive
-3. Each level must have exactly one BOUNDARY directive
+3. Each level must have **at least one** BOUNDARY directive (max 64)
 4. Each level must have exactly one CAT_SPAWN directive
 5. Each level must have at least one ZONE directive
 6. Zone IDs must be unique within a level
@@ -173,3 +154,4 @@ The parser should:
 - Skip invalid levels and continue parsing
 - Validate all numeric ranges
 - Check for required directives
+- Enforce maximum boundary count (64)

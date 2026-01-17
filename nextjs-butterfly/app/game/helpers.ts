@@ -166,3 +166,52 @@ export function isPointInPolygon(x: number, y: number, points: Array<{ x: number
   }
   return inside
 }
+
+function shuffleArray<T>(arr: T[]): void {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+}
+
+export function distributeAcrossZones<T>(items: T[], zoneCount: number, count: number): T[] {
+  if (zoneCount <= 1 || items.length === 0) {
+    const shuffled = [...items]
+    shuffleArray(shuffled)
+    return shuffled.slice(0, Math.min(count, items.length))
+  }
+
+  const itemsPerZone = Math.floor(items.length / zoneCount)
+  const itemsRemainder = items.length % zoneCount
+  const itemsByZone: T[][] = []
+
+  let offset = 0
+  for (let z = 0; z < zoneCount; z++) {
+    const zoneSize = itemsPerZone + (z < itemsRemainder ? 1 : 0)
+    const zoneItems = items.slice(offset, offset + zoneSize)
+    shuffleArray(zoneItems)
+    itemsByZone.push(zoneItems)
+    offset += zoneSize
+  }
+
+  const result: T[] = []
+  const zonePointers = new Array(zoneCount).fill(0)
+  let zoneIndex = 0
+
+  for (let i = 0; i < count && result.length < items.length; i++) {
+    let attempts = 0
+    while (zonePointers[zoneIndex] >= itemsByZone[zoneIndex].length && attempts < zoneCount) {
+      zoneIndex = (zoneIndex + 1) % zoneCount
+      attempts++
+    }
+
+    if (zonePointers[zoneIndex] < itemsByZone[zoneIndex].length) {
+      result.push(itemsByZone[zoneIndex][zonePointers[zoneIndex]])
+      zonePointers[zoneIndex]++
+    }
+
+    zoneIndex = (zoneIndex + 1) % zoneCount
+  }
+
+  return result
+}

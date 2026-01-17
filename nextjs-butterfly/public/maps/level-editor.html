@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butterfly Game Level Editor</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #canvas-container {
+            background-color: white;
+            border: 2px solid #333;
+            position: relative;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #editor-canvas {
+            cursor: crosshair;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .shape-item {
+            cursor: pointer;
+            padding: 4px 6px;
+            margin: 2px 0;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #f8f9fa;
+            font-size: 10px;
+        }
+        .shape-item:hover {
+            background-color: #e9ecef;
+        }
+        .shape-item.selected {
+            background-color: #cfe2ff;
+            border-color: #0d6efd;
+        }
+        .boundary-shape {
+            fill: rgba(100, 150, 255, 0.3);
+            stroke: #0066cc;
+            stroke-width: 2;
+        }
+        .zone-shape {
+            fill: rgba(100, 255, 100, 0.3);
+            stroke: #00cc00;
+            stroke-width: 2;
+        }
+        .cat-spawn {
+            fill: orange;
+            stroke: #ff6600;
+            stroke-width: 2;
+        }
+        .control-panel {
+            background-color: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 11px;
+        }
+        .control-panel h5 {
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .control-panel .form-label {
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+        .control-panel .form-control,
+        .control-panel .form-select {
+            font-size: 10px;
+            padding: 3px 6px;
+            height: auto;
+        }
+        .control-panel .btn {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+        .control-panel .mb-3 {
+            margin-bottom: 8px !important;
+        }
+        .control-panel .mb-2 {
+            margin-bottom: 4px !important;
+        }
+        .control-panel hr {
+            margin: 8px 0;
+        }
+        .accordion-header {
+            cursor: pointer;
+            user-select: none;
+            padding: 6px 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-header:hover {
+            background-color: #e9ecef;
+        }
+        .accordion-header h5 {
+            margin: 0;
+            font-size: 12px;
+        }
+        .accordion-arrow {
+            transition: transform 0.2s;
+            font-size: 10px;
+        }
+        .accordion-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+        .accordion-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .accordion-content.collapsed {
+            max-height: 0;
+        }
+        .btn-group-vertical .btn {
+            text-align: left;
+        }
+        .draw-shape-btn.active {
+            font-weight: bold;
+            border-width: 2px;
+        }
+        .draw-shape-btn.active.btn-outline-primary {
+            background-color: #cfe2ff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        .draw-shape-btn.active.btn-outline-success {
+            background-color: #d1e7dd;
+            border-color: #198754;
+            color: #198754;
+        }
+        .draw-shape-btn.active.btn-outline-warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #664d03;
+        }
+        #export-modal .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        #export-text {
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .info-badge {
+            font-size: 11px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mt-0 g-0">
+            <div class="col-12" style="background-color: #e9ecef; font-size: 11px; padding: 4px 8px; display: flex; align-items: center; gap: 12px;">
+            <input type="file" id="file-picker" accept=".txt" style="display: none;">
+            <button id="load-file-btn" class="btn btn-sm btn-secondary" style="font-size: 11px; padding: 2px 8px;">Load levels.txt</button>
+            <span id="file-status" style="color: #666;">No file loaded</span>
+            <span style="margin-left: auto;" id="world-info">Butterfly Game Level Editor | Viewport: 1920x1080 | World: 1920x1080 px</span>
+            </div>
+        </div>
+
+        <div class="row mt-3 g-0">
+            <!-- Left Panel: Controls -->
+            <div class="col-md-2">
+                <div class="control-panel">
+                    <div class="accordion-header" id="level-selection-header">
+                        <h5>Level Selection</h5>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content" id="level-selection-content">
+                        <div class="mb-3">
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                <button id="prev-level-btn" class="btn btn-sm btn-secondary" style="flex: 1;">◄ Prev</button>
+                                <span id="current-level-display" style="flex: 2; text-align: center; font-size: 10px; font-weight: 600;">No level</span>
+                                <button id="next-level-btn" class="btn btn-sm btn-secondary" style="flex: 1;">Next ►</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" style="display: none;">
+                            <label for="txt-input" class="form-label">Or Load from Text:</label>
+                            <textarea id="txt-input" class="form-control" rows="4" placeholder="Paste level text here..."></textarea>
+                            <button id="load-txt-btn" class="btn btn-primary btn-sm mt-2 w-100">Load Text</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="accordion-header" id="viewport-header">
+                        <h5>Viewport Reference</h5>
+                        <span class="accordion-arrow collapsed">▼</span>
+                    </div>
+                    <div class="accordion-content collapsed" id="viewport-content">
+                        <div class="mb-2">
+                            <label class="form-label">Width:</label>
+                            <input type="number" id="viewport-width" class="form-control form-control-sm" value="1920" step="100" min="800">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Height:</label>
+                            <input type="number" id="viewport-height" class="form-control form-control-sm" value="1080" step="100" min="600">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>Level Info</h5>
+                    <div class="mb-2">
+                        <label class="form-label">Level Number:</label>
+                        <input type="number" id="level-number" class="form-control" value="1" min="1">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Width Multiplier:</label>
+                        <input type="number" id="width-mult" class="form-control" value="1.0" step="0.1" min="0.5" max="3.0">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Height Multiplier:</label>
+                        <input type="number" id="height-mult" class="form-control" value="1.0" step="0.1" min="0.5" max="3.0">
+                    </div>
+                    <div class="mt-2" style="font-size: 11px; color: #666;">
+                        <div id="world-size-display">World: 1920 x 1080 px</div>
+                    </div>
+
+                    <hr>
+
+                    <h5>Draw Shapes</h5>
+                    <div class="btn-group-vertical w-100 mb-3">
+                        <button id="draw-boundary-rect-btn" class="btn btn-outline-primary draw-shape-btn" data-shape="boundary-rect">◻ Boundary Rectangle</button>
+                        <button id="draw-boundary-ellipse-btn" class="btn btn-outline-primary draw-shape-btn" data-shape="boundary-ellipse">⬭ Boundary Ellipse</button>
+                        <button id="draw-zone-rect-btn" class="btn btn-outline-success draw-shape-btn" data-shape="zone-rect">◻ Zone Rectangle</button>
+                        <button id="draw-zone-ellipse-btn" class="btn btn-outline-success draw-shape-btn" data-shape="zone-ellipse">⬭ Zone Ellipse</button>
+                        <button id="draw-cat-spawn-btn" class="btn btn-outline-warning draw-shape-btn" data-shape="cat-spawn">⭐ Cat Spawn</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Canvas -->
+            <div class="col-md-8">
+                <!-- main toolbar -->
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; padding: 8px; background-color: #f8f9fa; border-radius: 4px; font-size: 80%; justify-content: flex-start;">
+                    <button id="reload-btn" class="btn btn-secondary btn-sm" >Reload Last File</button>
+                    <button id="export-btn" class="btn btn-success btn-sm" >Export</button>
+                    <div style="margin-left: auto; display: flex; gap: 8px;">
+                        <button id="select-mode-btn" class="btn  btn-outline-primary btn-sm" title="Select Mode (Click to select shape)">🎯 Select</button>
+                        <button id="move-mode-btn" class="btn btn-outline-secondary btn-sm" title="Move Mode (Click to move selected shape)">✋ Move</button>
+                        <button id="draw-mode-btn" class="btn btn-outline-secondary btn-sm" title="Draw Mode (Click and drag to create a shape)">✏️ Draw</button>
+                    </div>
+                </div>
+                <div id="canvas-container">
+                    <svg id="editor-canvas" width="1920" height="1080"></svg>
+                </div>
+            </div>
+
+            <!-- Right Panel: Shape List -->
+            <div class="col-md-2">
+                <div class="control-panel">
+                    <div id="editing-panel" style="display: none; padding-bottom: 12px; border-bottom: 2px solid #dee2e6;">
+                        <h5 style="margin-bottom: 8px;">Editing</h5>
+                        <div id="editing-shape-details"></div>
+                    </div>
+                    <h5>Shapes in Level</h5>
+                    <div id="shape-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="export-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Exported Level Text</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="export-text"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="copy-status" style="font-size: 11px; color: #0f3d1a; visibility: hidden; font-weight: bold;">Copied to clipboard!</span>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="copy-export-btn" class="btn btn-primary">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="bootstrap.bundle.min.js"></script>
+    <script>
+        // State
+        let viewportWidth = 1920;
+        let viewportHeight = 1080;
+        let loadedLevels = [];
+        let currentLevelIndex = -1;
+        let fullFileContent = ''; // Store complete file content with comments
+        let headerContent = ''; // Store header comments before first level
+        let mouseMode = 'move'; // 'select', 'move', or 'draw'
+        let drawingState = {
+            isDrawing: false,
+            startX: 0,
+            startY: 0,
+            currentShape: 'boundary-rect'
+        };
+        let currentLevel = {
+            levelNumber: 1,
+            widthMult: 1.0,
+            heightMult: 1.0,
+            boundaries: [],
+            zones: [],
+            catSpawn: null
+        };
+        let selectedShapeId = null;
+        let nextShapeId = 1;
+
+        // DOM Elements
+        const canvas = document.getElementById('editor-canvas');
+        const canvasContainer = document.getElementById('canvas-container');
+        const shapeList = document.getElementById('shape-list');
+        const levelSelect = document.getElementById('level-select');
+        const txtInput = document.getElementById('txt-input');
+        const exportModal = new bootstrap.Modal(document.getElementById('export-modal'));
+
+        // Initialize
+        init();
+
+        function init() {
+            // File picker event listeners
+            const filePicker = document.getElementById('file-picker');
+            const loadFileBtn = document.getElementById('load-file-btn');
+            const fileStatus = document.getElementById('file-status');
+
+            loadFileBtn.addEventListener('click', () => {
+                filePicker.click();
+            });
+
+            filePicker.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const text = event.target.result;
+                        fullFileContent = text;
+                        // Save to localStorage
+                        localStorage.setItem('levelEditorContent', text);
+                        
+                        parseLevelsFile(text);
+                        fileStatus.textContent = `Loaded: ${file.name}`;
+                        fileStatus.style.color = '#28a745';
+                    };
+                    reader.onerror = () => {
+                        fileStatus.textContent = 'Error loading file';
+                        fileStatus.style.color = '#dc3545';
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // Reload button
+            document.getElementById('reload-btn').addEventListener('click', () => {
+                const savedContent = localStorage.getItem('levelEditorContent');
+                const savedLevelIndex = localStorage.getItem('levelEditorLevelIndex');
+                
+                if (savedContent) {
+                    fullFileContent = savedContent;
+                    parseLevelsFile(savedContent);
+                    
+                    // Restore last selected level if available
+                    if (savedLevelIndex !== null) {
+                        const index = parseInt(savedLevelIndex);
+                        if (index >= 0 && index < loadedLevels.length) {
+                            loadLevelByIndex(index);
+                        }
+                    }
+                    
+                    fileStatus.textContent = `Reloaded levels from local storage`;
+                    fileStatus.style.color = '#28a745';
+                } else {
+                    fileStatus.textContent = 'No saved file found';
+                    fileStatus.style.color = '#dc3545';
+                }
+            });
+
+            // Accordion toggles
+            setupAccordion('level-selection-header', 'level-selection-content');
+            setupAccordion('viewport-header', 'viewport-content');
+
+            // Mouse mode toggle buttons
+            document.getElementById('select-mode-btn').addEventListener('click', () => {
+                setMouseMode('select');
+            });
+            document.getElementById('move-mode-btn').addEventListener('click', () => {
+                setMouseMode('move');
+            });
+            document.getElementById('draw-mode-btn').addEventListener('click', () => {
+                setMouseMode('draw');
+            });
+
+            // Initialize mode
+            setMouseMode('move');
+
+            // Draw Shapes button listeners
+            document.querySelectorAll('.draw-shape-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const shapeType = btn.getAttribute('data-shape');
+                    drawingState.currentShape = shapeType;
+
+                    // Update button styling
+                    document.querySelectorAll('.draw-shape-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+
+                    // Activate draw mode
+                    setMouseMode('draw');
+                });
+            });
+
+            // Set initial draw button as active
+            document.getElementById('draw-boundary-rect-btn').classList.add('active');
+            document.getElementById('export-btn').addEventListener('click', exportLevel);
+            document.getElementById('load-txt-btn').addEventListener('click', loadFromText);
+            document.getElementById('copy-export-btn').addEventListener('click', copyExportText);
+            document.getElementById('prev-level-btn').addEventListener('click', () => {
+                if (currentLevelIndex > 0) {
+                    loadLevelByIndex(currentLevelIndex - 1);
+                }
+            });
+            document.getElementById('next-level-btn').addEventListener('click', () => {
+                if (currentLevelIndex < loadedLevels.length - 1) {
+                    loadLevelByIndex(currentLevelIndex + 1);
+                }
+            });
+            
+            document.getElementById('viewport-width').addEventListener('change', (e) => {
+                viewportWidth = parseInt(e.target.value);
+                updateCanvas({});
+            });
+            document.getElementById('viewport-height').addEventListener('change', (e) => {
+                viewportHeight = parseInt(e.target.value);
+                updateCanvas({});
+            });
+            document.getElementById('level-number').addEventListener('change', (e) => {
+                currentLevel.levelNumber = parseInt(e.target.value);
+            });
+            document.getElementById('width-mult').addEventListener('change', (e) => {
+                currentLevel.widthMult = parseFloat(e.target.value);
+                updateCanvas({});
+            });
+            document.getElementById('height-mult').addEventListener('change', (e) => {
+                currentLevel.heightMult = parseFloat(e.target.value);
+                updateCanvas({});
+            });
+
+            // Canvas click for selecting/moving shapes based on mode
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                if (mouseMode === 'select') {
+                    handleSelectClick(x, y);
+                } else if (mouseMode === 'move') {
+                    handleMoveClick(x, y);
+                } else if (mouseMode === 'draw') {
+                    handleDrawClick(x, y);
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (mouseMode === 'draw' && drawingState.isDrawing) {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    updateCanvas({ previewX: x, previewY: y });
+                }
+            });
+
+
+            // Arrow key listeners for moving selected shape
+            document.addEventListener('keydown', (e) => {
+                if (!selectedShapeId) return;
+                
+                const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+                const shape = allShapes.find(s => s.id === selectedShapeId);
+                if (!shape) return;
+
+                let moved = false;
+                
+                if (e.key === 'a') {
+                    if (shape.shape === 'rect') {
+                        shape.x = Math.max(0, shape.x - 1);
+                    } else if (shape.shape === 'ellipse') {
+                        shape.cx = Math.max(0, shape.cx - 1);
+                    }
+                    moved = true;
+                } else if (e.key === 'd') {
+                    if (shape.shape === 'rect') {
+                        shape.x = Math.min(100 - shape.width, shape.x + 1);
+                    } else if (shape.shape === 'ellipse') {
+                        shape.cx = Math.min(100, shape.cx + 1);
+                    }
+                    moved = true;
+                } else if (e.key === 'w') {
+                    if (shape.shape === 'rect') {
+                        shape.y = Math.max(0, shape.y - 1);
+                    } else if (shape.shape === 'ellipse') {
+                        shape.cy = Math.max(0, shape.cy - 1);
+                    }
+                    moved = true;
+                } else if (e.key === 's') {
+                    if (shape.shape === 'rect') {
+                        shape.y = Math.min(100 - shape.height, shape.y + 1);
+                    } else if (shape.shape === 'ellipse') {
+                        shape.cy = Math.min(100, shape.cy + 1);
+                    }
+                    moved = true;
+                }
+
+                if (moved) {
+                    e.preventDefault();
+                    updateCanvas({});
+                }
+            });
+        }
+
+        function setupAccordion(headerId, contentId) {
+            const header = document.getElementById(headerId);
+            const content = document.getElementById(contentId);
+            const arrow = header.querySelector('.accordion-arrow');
+
+            header.addEventListener('click', () => {
+                content.classList.toggle('collapsed');
+                arrow.classList.toggle('collapsed');
+            });
+        }
+
+        function setMouseMode(mode) {
+            mouseMode = mode;
+            drawingState.isDrawing = false; // Reset drawing on mode change
+            
+            const selectBtn = document.getElementById('select-mode-btn');
+            const moveBtn = document.getElementById('move-mode-btn');
+            const drawBtn = document.getElementById('draw-mode-btn');
+            
+            // Reset all buttons
+            selectBtn.classList.remove('btn-primary');
+            selectBtn.classList.add('btn-outline-primary');
+            moveBtn.classList.remove('btn-primary');
+            moveBtn.classList.add('btn-outline-secondary');
+            drawBtn.classList.remove('btn-primary');
+            drawBtn.classList.add('btn-outline-secondary');
+
+            if (mode === 'select') {
+                selectBtn.classList.remove('btn-outline-primary');
+                selectBtn.classList.add('btn-primary');
+                canvas.style.cursor = 'pointer';
+            } else if (mode === 'move') {
+                moveBtn.classList.remove('btn-outline-secondary');
+                moveBtn.classList.add('btn-primary');
+                canvas.style.cursor = selectedShapeId ? 'move' : 'default';
+            } else if (mode === 'draw') {
+                drawBtn.classList.remove('btn-outline-secondary');
+                drawBtn.classList.add('btn-primary');
+                canvas.style.cursor = 'crosshair';
+            }
+        }
+
+        function handleSelectClick(x, y) {
+            // Find shape at click position
+            const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+            
+            for (const shape of allShapes) {
+                if (isPointInShape(x, y, shape)) {
+                    selectShape(shape.id);
+                    return;
+                }
+            }
+            
+            // No shape found, deselect
+            selectedShapeId = null;
+            updateCanvas({});
+        }
+
+        function handleMoveClick(x, y) {
+            if (selectedShapeId) {
+                moveShapeCenter(selectedShapeId, x, y);
+            }
+        }
+
+        function handleDrawClick(x, y) {
+            if (!drawingState.isDrawing) {
+                // First click: start drawing
+                drawingState.isDrawing = true;
+                drawingState.startX = x;
+                drawingState.startY = y;
+            } else {
+                // Second click: finish drawing
+                const startX = drawingState.startX;
+                const startY = drawingState.startY;
+                const endX = x;
+                const endY = y;
+
+                const shapeType = drawingState.currentShape;
+                const [type, shape] = shapeType.split('-');
+
+                const newShape = {
+                    id: nextShapeId++,
+                    type: type,
+                    shape: shape
+                };
+
+                if (shape === 'rect') {
+                    newShape.x = Math.min(startX, endX);
+                    newShape.y = Math.min(startY, endY);
+                    newShape.width = Math.abs(startX - endX);
+                    newShape.height = Math.abs(startY - endY);
+                } else if (shape === 'ellipse') {
+                    newShape.cx = (startX + endX) / 2;
+                    newShape.cy = (startY + endY) / 2;
+                    newShape.rx = Math.abs(startX - endX) / 2;
+                    newShape.ry = Math.abs(startY - endY) / 2;
+                } else if (type === 'cat' && shape === 'spawn') {
+                    currentLevel.catSpawn = { x: endX, y: endY };
+                    drawingState.isDrawing = false;
+                    updateCanvas({});
+                    return;
+                }
+
+                if (type === 'boundary') {
+                    currentLevel.boundaries.push(newShape);
+                } else if (type === 'zone') {
+                    newShape.zoneId = `zone${currentLevel.zones.length + 1}`;
+                    currentLevel.zones.push(newShape);
+                }
+
+                drawingState.isDrawing = false;
+                updateCanvas({});
+            }
+        }
+
+
+        function isPointInShape(x, y, shape) {
+            if (shape.shape === 'rect') {
+                return x >= shape.x && x <= shape.x + shape.width &&
+                       y >= shape.y && y <= shape.y + shape.height;
+            } else if (shape.shape === 'ellipse') {
+                // Check if point is inside ellipse using standard ellipse equation
+                const dx = (x - shape.cx) / shape.rx;
+                const dy = (y - shape.cy) / shape.ry;
+                return (dx * dx + dy * dy) <= 1;
+            }
+            return false;
+        }
+
+        function parseLevelsFile(text) {
+            const lines = text.split('\n');
+            loadedLevels = [];
+            let currentLevelText = [];
+            let currentLevelNum = null;
+            let preContentLines = []; // Lines before any LEVEL directive (header comments)
+
+            for (let line of lines) {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('LEVEL ')) {
+                    if (currentLevelText.length > 0 && currentLevelNum) {
+                        loadedLevels.push({ num: currentLevelNum, text: currentLevelText.join('\n') });
+                    }
+                    currentLevelNum = parseInt(trimmed.split(' ')[1]);
+                    currentLevelText = [line];
+                } else if (currentLevelNum) {
+                    currentLevelText.push(line);
+                } else {
+                    // Lines before any level - store as header
+                    preContentLines.push(line);
+                }
+            }
+            if (currentLevelText.length > 0 && currentLevelNum) {
+                loadedLevels.push({ num: currentLevelNum, text: currentLevelText.join('\n') });
+            }
+
+            // Store header content separately
+            headerContent = preContentLines.join('\n');
+
+            // Auto-select first level
+            if (loadedLevels.length > 0) {
+                currentLevelIndex = 0;
+                loadLevelByIndex(0, 'reload');
+            }
+            updateLevelNavigation();
+        }
+
+        function loadLevel(levelNum) {
+            const index = loadedLevels.findIndex(l => l.num === levelNum);
+            if (index >= 0) {
+                loadLevelByIndex(index);
+            }
+        }
+
+        function loadLevelByIndex(index, mode = 'normal') {
+            if (index >= 0 && index < loadedLevels.length) {
+                // Save current level state before switching in normal mode
+                if (mode === 'normal' && currentLevelIndex >= 0 && currentLevelIndex < loadedLevels.length) {
+                    const currentLevelText = generateLevelText();
+                    loadedLevels[currentLevelIndex].text = currentLevelText;
+                }
+                
+                currentLevelIndex = index;
+                txtInput.value = loadedLevels[index].text;
+                loadFromText();
+                updateLevelNavigation();
+                // Save current level index to localStorage
+                localStorage.setItem('levelEditorLevelIndex', index.toString());
+            }
+        }
+
+        function updateLevelNavigation() {
+            const display = document.getElementById('current-level-display');
+            const prevBtn = document.getElementById('prev-level-btn');
+            const nextBtn = document.getElementById('next-level-btn');
+
+            if (loadedLevels.length === 0) {
+                display.textContent = 'No level';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+            } else {
+                display.textContent = `Level ${loadedLevels[currentLevelIndex].num} (${currentLevelIndex + 1}/${loadedLevels.length})`;
+                prevBtn.disabled = currentLevelIndex <= 0;
+                nextBtn.disabled = currentLevelIndex >= loadedLevels.length - 1;
+            }
+        }
+
+        function loadFromText() {
+            const text = txtInput.value;
+            const parsed = parseLevel(text);
+            if (parsed) {
+                currentLevel = parsed;
+                document.getElementById('level-number').value = parsed.levelNumber;
+                document.getElementById('width-mult').value = parsed.widthMult;
+                document.getElementById('height-mult').value = parsed.heightMult;
+                selectedShapeId = null;
+                updateCanvas({});
+                setMouseMode('select');
+            }
+        }
+
+        function parseLevel(text) {
+            const lines = text.split('\n');
+            const level = {
+                levelNumber: 1,
+                widthMult: 1.0,
+                heightMult: 1.0,
+                boundaries: [],
+                zones: [],
+                catSpawn: null
+            };
+
+            for (let line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) continue;
+
+                const parts = trimmed.split(/\s+/);
+                const directive = parts[0];
+
+                if (directive === 'LEVEL') {
+                    level.levelNumber = parseInt(parts[1]);
+                } else if (directive === 'SIZE') {
+                    level.widthMult = parseFloat(parts[1]);
+                    level.heightMult = parseFloat(parts[2]);
+                } else if (directive === 'BOUNDARY') {
+                    const shape = parseShape(parts.slice(1));
+                    if (shape) {
+                        shape.id = nextShapeId++;
+                        shape.type = 'boundary';
+                        level.boundaries.push(shape);
+                    }
+                } else if (directive === 'ZONE') {
+                    const zoneId = parts[1];
+                    const shape = parseShape(parts.slice(2));
+                    if (shape) {
+                        shape.id = nextShapeId++;
+                        shape.type = 'zone';
+                        shape.zoneId = zoneId;
+                        level.zones.push(shape);
+                    }
+                } else if (directive === 'CAT_SPAWN') {
+                    level.catSpawn = {
+                        x: parseCoord(parts[1]),
+                        y: parseCoord(parts[2])
+                    };
+                }
+            }
+
+            return level;
+        }
+
+        function parseShape(parts) {
+            const shapeType = parts[0];
+            if (shapeType === 'rect') {
+                return {
+                    shape: 'rect',
+                    x: parseCoord(parts[1]),
+                    y: parseCoord(parts[2]),
+                    width: parseCoord(parts[3]),
+                    height: parseCoord(parts[4])
+                };
+            } else if (shapeType === 'ellipse') {
+                return {
+                    shape: 'ellipse',
+                    cx: parseCoord(parts[1]),
+                    cy: parseCoord(parts[2]),
+                    rx: parseCoord(parts[3]),
+                    ry: parseCoord(parts[4])
+                };
+            }
+            return null;
+        }
+
+        function parseCoord(str) {
+            if (str.endsWith('%')) {
+                return parseFloat(str.slice(0, -1));
+            }
+            return parseFloat(str);
+        }
+
+        function addShape(type, shape) {
+            const newShape = {
+                id: nextShapeId++,
+                type: type,
+                shape: shape
+            };
+
+            if (shape === 'rect') {
+                newShape.x = 30;
+                newShape.y = 30;
+                newShape.width = 20;
+                newShape.height = 20;
+            } else if (shape === 'ellipse') {
+                newShape.cx = 50;
+                newShape.cy = 50;
+                newShape.rx = 15;
+                newShape.ry = 15;
+            }
+
+            if (type === 'boundary') {
+                currentLevel.boundaries.push(newShape);
+            } else if (type === 'zone') {
+                newShape.zoneId = `zone${currentLevel.zones.length + 1}`;
+                currentLevel.zones.push(newShape);
+            }
+
+            updateCanvas({});
+        }
+
+        function setCatSpawn() {
+            currentLevel.catSpawn = { x: 50, y: 50 };
+            updateCanvas({});
+        }
+
+        function clearAll() {
+            if (confirm('Clear all shapes?')) {
+                currentLevel.boundaries = [];
+                currentLevel.zones = [];
+                currentLevel.catSpawn = null;
+                selectedShapeId = null;
+                updateCanvas({});
+            }
+        }
+
+        function deleteShape(id) {
+            currentLevel.boundaries = currentLevel.boundaries.filter(s => s.id !== id);
+            currentLevel.zones = currentLevel.zones.filter(s => s.id !== id);
+            if (selectedShapeId === id) {
+                selectedShapeId = null;
+            }
+            updateCanvas({});
+            updateEditingPanel();
+        }
+
+        function selectShape(id) {
+            selectedShapeId = id;
+            setMouseMode('move'); // Automatically switch to move mode
+            updateCanvas({});
+            updateEditingPanel();
+        }
+
+        function moveShapeCenter(id, x, y) {
+            const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+            const shape = allShapes.find(s => s.id === id);
+            if (!shape) return;
+
+            if (shape.shape === 'rect') {
+                shape.x = x - shape.width / 2;
+                shape.y = y - shape.height / 2;
+            } else if (shape.shape === 'ellipse') {
+                shape.cx = x;
+                shape.cy = y;
+            }
+
+            updateCanvas({});
+        }
+
+        function updateShapeProperty(id, prop, value) {
+            const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+            const shape = allShapes.find(s => s.id === id);
+            if (shape) {
+                shape[prop] = parseFloat(value);
+                updateCanvas({});
+            }
+        }
+
+        function updateCanvas(previewCoords) {
+            // Clear canvas
+            canvas.innerHTML = '';
+
+            const worldWidth = viewportWidth * currentLevel.widthMult;
+            const worldHeight = viewportHeight * currentLevel.heightMult;
+
+            // Update world info display
+            document.getElementById('world-info').textContent = 
+                `Butterfly Game Level Editor | Viewport: ${viewportWidth}x${viewportHeight} | World: ${Math.round(worldWidth)}x${Math.round(worldHeight)} px`;
+            document.getElementById('world-size-display').textContent = 
+                `World: ${Math.round(worldWidth)} x ${Math.round(worldHeight)} px`;
+
+            // Set canvas viewBox to show entire world (coordinates are in world pixels)
+            canvas.setAttribute('viewBox', `0 0 ${worldWidth} ${worldHeight}`);
+            canvas.removeAttribute('width');
+            canvas.removeAttribute('height');
+
+            // Calculate available space more accurately
+            // Account for sidebars (2 cols each = ~16.67% each = 33.34% total)
+            // Canvas is 8 cols = ~66.67% of width
+            const availableWidth = (window.innerWidth * 0.667) - 40; // Subtract padding/margins
+            const availableHeight = window.innerHeight * 0.75;
+            const scale = Math.min(
+                availableWidth / worldWidth,
+                availableHeight / worldHeight,
+                1  // Don't scale up beyond actual size
+            );
+            
+            // Set container size to show entire world scaled down
+            const displayWidth = worldWidth * scale;
+            const displayHeight = worldHeight * scale;
+            canvasContainer.style.width = displayWidth + 'px';
+            canvasContainer.style.height = displayHeight + 'px';
+
+            // Draw preview shape
+            if (drawingState.isDrawing && previewCoords) {
+                const shapeType = drawingState.currentShape;
+                const [type, shape] = shapeType.split('-');
+
+                const tempShape = {};
+                if (shape === 'rect') {
+                    tempShape.shape = 'rect';
+                    tempShape.x = Math.min(drawingState.startX, previewCoords.previewX);
+                    tempShape.y = Math.min(drawingState.startY, previewCoords.previewY);
+                    tempShape.width = Math.abs(drawingState.startX - previewCoords.previewX);
+                    tempShape.height = Math.abs(drawingState.startY - previewCoords.previewY);
+                } else if (shape === 'ellipse') {
+                    tempShape.shape = 'ellipse';
+                    tempShape.cx = (drawingState.startX + previewCoords.previewX) / 2;
+                    tempShape.cy = (drawingState.startY + previewCoords.previewY) / 2;
+                    tempShape.rx = Math.abs(drawingState.startX - previewCoords.previewX) / 2;
+                    tempShape.ry = Math.abs(drawingState.startY - previewCoords.previewY) / 2;
+                }
+
+                if (tempShape.shape) {
+                    const className = type === 'boundary' ? 'boundary-shape' : 'zone-shape';
+                    drawShape(tempShape, className, worldWidth, worldHeight);
+                }
+            }
+
+            // Draw boundaries
+            currentLevel.boundaries.forEach(shape => {
+                drawShape(shape, 'boundary-shape', worldWidth, worldHeight);
+            });
+
+            // Draw zones
+            currentLevel.zones.forEach(shape => {
+                drawShape(shape, 'zone-shape', worldWidth, worldHeight);
+            });
+
+            // Draw cat spawn
+            if (currentLevel.catSpawn) {
+                const cx = (currentLevel.catSpawn.x / 100) * worldWidth;
+                const cy = (currentLevel.catSpawn.y / 100) * worldHeight;
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', cx);
+                circle.setAttribute('cy', cy);
+                circle.setAttribute('r', 20);
+                circle.setAttribute('class', 'cat-spawn');
+                canvas.appendChild(circle);
+            }
+
+            updateShapeList();
+            updateEditingPanel();
+        }
+
+        function drawShape(shape, className, worldWidth, worldHeight) {
+            let element;
+
+            if (shape.shape === 'rect') {
+                element = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                element.setAttribute('x', (shape.x / 100) * worldWidth);
+                element.setAttribute('y', (shape.y / 100) * worldHeight);
+                element.setAttribute('width', (shape.width / 100) * worldWidth);
+                element.setAttribute('height', (shape.height / 100) * worldHeight);
+            } else if (shape.shape === 'ellipse') {
+                element = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                element.setAttribute('cx', (shape.cx / 100) * worldWidth);
+                element.setAttribute('cy', (shape.cy / 100) * worldHeight);
+                element.setAttribute('rx', (shape.rx / 100) * worldWidth);
+                element.setAttribute('ry', (shape.ry / 100) * worldHeight);
+            }
+
+            if (element) {
+                element.setAttribute('class', className);
+                if (selectedShapeId === shape.id) {
+                    element.style.strokeWidth = '4';
+                    element.style.stroke = '#ff0000';
+                }
+                element.style.cursor = 'pointer';
+                element.addEventListener('click', (e) => {
+                    // In draw mode, let clicks pass through to the canvas handler
+                    if (mouseMode === 'draw') {
+                        return;
+                    }
+
+                    e.stopPropagation();
+
+                    // In select mode, select the clicked shape
+                    // In move mode, move the selected shape to the click position
+                    if (mouseMode === 'select') {
+                        selectShape(shape.id);
+                    } else if (mouseMode === 'move') {
+                        // In move mode, always move the selected shape to click position
+                        if (selectedShapeId) {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = ((e.clientX - rect.left) / rect.width) * 100;
+                            const y = ((e.clientY - rect.top) / rect.height) * 100;
+                            moveShapeCenter(selectedShapeId, x, y);
+                        } else {
+                            // No shape selected, select this one
+                            selectShape(shape.id);
+                        }
+                    }
+                });
+                canvas.appendChild(element);
+            }
+        }
+
+        function updateEditingPanel() {
+            const editingPanel = document.getElementById('editing-panel');
+            const editingShapeDetails = document.getElementById('editing-shape-details');
+
+            if (selectedShapeId === null) {
+                editingPanel.style.display = 'none';
+                return;
+            }
+
+            const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+            const shape = allShapes.find(s => s.id === selectedShapeId);
+
+            if (!shape) {
+                editingPanel.style.display = 'none';
+                return;
+            }
+
+            editingPanel.style.display = 'block';
+
+            let details = `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 8px;">
+                    <div><strong>${shape.type === 'zone' ? shape.zoneId : 'Boundary'}</strong> <span class="badge bg-secondary" style="font-size: 9px; padding: 2px 4px;">${shape.shape}</span></div>
+                    <button class="btn btn-sm btn-danger" onclick="deleteShape(${shape.id}); updateCanvas({});" style="padding: 2px 6px; font-size: 10px;">🗑 Delete</button>
+                </div>
+            `;
+
+            if (shape.shape === 'rect') {
+                details += `
+                    <div style="margin-bottom: 6px;">
+                        <strong style="font-size: 11px;">Position</strong>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">X:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'x', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.x.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'x', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">Y:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'y', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.y.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'y', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        <strong style="font-size: 11px;">Size</strong>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">W:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'width', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.width.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'width', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">H:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'height', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.height.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'height', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                    </div>
+                `;
+            } else if (shape.shape === 'ellipse') {
+                details += `
+                    <div style="margin-bottom: 6px;">
+                        <strong style="font-size: 11px;">Center</strong>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">X:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'cx', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.cx.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'cx', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">Y:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'cy', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.cy.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'cy', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        <strong style="font-size: 11px;">Radius</strong>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">X:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'rx', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.rx.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'rx', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                            <span style="font-size: 10px; width: 20px;">Y:</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'ry', -1)" style="padding: 4px 8px;">−</button>
+                            <span style="font-size: 11px; min-width: 40px; text-align: center;">${shape.ry.toFixed(1)}%</span>
+                            <button class="btn btn-sm btn-secondary" onclick="adjustShapeProperty(${shape.id}, 'ry', 1)" style="padding: 4px 8px;">+</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (shape.type === 'zone') {
+                details += `
+                    <div style="margin-top: 8px;">
+                        <strong style="font-size: 11px;">Zone ID</strong>
+                        <input type="text" value="${shape.zoneId}" style="width:100%; font-size: 11px; padding: 4px;" onchange="updateZoneId(${shape.id}, this.value)">
+                    </div>
+                `;
+            }
+
+            editingShapeDetails.innerHTML = details;
+        }
+
+        function updateShapeList() {
+            shapeList.innerHTML = '';
+
+            // Boundaries
+            if (currentLevel.boundaries.length > 0) {
+                const nonSelectedBoundaries = currentLevel.boundaries.filter(s => s.id !== selectedShapeId);
+                if (nonSelectedBoundaries.length > 0) {
+                    const header = document.createElement('h6');
+                    header.textContent = 'Boundaries';
+                    header.className = 'mt-2 text-primary';
+                    shapeList.appendChild(header);
+
+                    nonSelectedBoundaries.forEach(shape => {
+                        shapeList.appendChild(createShapeListItem(shape));
+                    });
+                }
+            }
+
+            // Zones
+            if (currentLevel.zones.length > 0) {
+                const nonSelectedZones = currentLevel.zones.filter(s => s.id !== selectedShapeId);
+                if (nonSelectedZones.length > 0) {
+                    const header = document.createElement('h6');
+                    header.textContent = 'Zones';
+                    header.className = 'mt-3 text-success';
+                    shapeList.appendChild(header);
+
+                    nonSelectedZones.forEach(shape => {
+                        shapeList.appendChild(createShapeListItem(shape));
+                    });
+                }
+            }
+
+            // Cat spawn
+            if (currentLevel.catSpawn) {
+                const header = document.createElement('h6');
+                header.textContent = 'Cat Spawn';
+                header.className = 'mt-3 text-warning';
+                shapeList.appendChild(header);
+
+                const item = document.createElement('div');
+                item.className = 'shape-item';
+                item.style.display = 'flex';
+                item.style.justifyContent = 'space-between';
+                item.style.alignItems = 'center';
+                item.innerHTML = `
+                    <span><strong>Cat Spawn</strong> ${currentLevel.catSpawn.x.toFixed(1)}%, ${currentLevel.catSpawn.y.toFixed(1)}%</span>
+                    <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); currentLevel.catSpawn = null; updateCanvas({});" style="padding: 2px 4px; font-size: 9px;">🗑</button>
+                `;
+                shapeList.appendChild(item);
+            }
+        }
+
+        function createShapeListItem(shape) {
+            const item = document.createElement('div');
+            item.className = 'shape-item';
+            item.onclick = (e) => {
+                e.stopPropagation();
+                selectShape(shape.id);
+            };
+
+            const details = `<strong>${shape.type === 'zone' ? shape.zoneId : 'Boundary'}</strong> <span class="badge bg-secondary" style="font-size: 9px; padding: 2px 4px;">${shape.shape}</span>`;
+
+            item.innerHTML = details;
+            return item;
+        }
+
+        function adjustShapeProperty(id, prop, delta) {
+            const allShapes = [...currentLevel.boundaries, ...currentLevel.zones];
+            const shape = allShapes.find(s => s.id === id);
+            if (shape) {
+                shape[prop] = Math.max(0, Math.min(100, parseFloat(shape[prop]) + delta));
+                updateCanvas({});
+            }
+        }
+
+        function updateZoneId(id, newId) {
+            const shape = currentLevel.zones.find(s => s.id === id);
+            if (shape) {
+                shape.zoneId = newId;
+                updateCanvas({});
+            }
+        }
+
+        function exportLevel() {
+            // First, update the current level in the full content
+            if (currentLevelIndex >= 0 && currentLevelIndex < loadedLevels.length) {
+                const currentLevelText = generateLevelText();
+                loadedLevels[currentLevelIndex].text = currentLevelText;
+            }
+
+            // Regenerate complete file content
+            let output = '';
+            
+            // Add header content (comments before first level)
+            if (headerContent && headerContent.trim()) {
+                output += headerContent + '\n';
+            }
+            
+            // Output all levels in order
+            loadedLevels.forEach((level, index) => {
+                output += level.text + '\n';
+            });
+
+            document.getElementById('export-text').textContent = output;
+            exportModal.show();
+        }
+
+        function generateLevelText() {
+            let text = `LEVEL ${currentLevel.levelNumber}\n`;
+            text += `SIZE ${currentLevel.widthMult.toFixed(1)} ${currentLevel.heightMult.toFixed(1)}\n`;
+
+            currentLevel.boundaries.forEach(shape => {
+                text += formatShape('BOUNDARY', shape) + '\n';
+            });
+
+            currentLevel.zones.forEach(shape => {
+                text += formatShape('ZONE', shape) + '\n';
+            });
+
+            if (currentLevel.catSpawn) {
+                text += `CAT_SPAWN ${currentLevel.catSpawn.x.toFixed(1)}% ${currentLevel.catSpawn.y.toFixed(1)}%`;
+            }
+
+            return text.trim();
+        }
+
+        function formatShape(directive, shape) {
+            let line = directive;
+            
+            if (directive === 'ZONE') {
+                line += ` ${shape.zoneId}`;
+            }
+
+            if (shape.shape === 'rect') {
+                line += ` rect ${shape.x.toFixed(1)}% ${shape.y.toFixed(1)}% ${shape.width.toFixed(1)}% ${shape.height.toFixed(1)}%`;
+            } else if (shape.shape === 'ellipse') {
+                line += ` ellipse ${shape.cx.toFixed(1)}% ${shape.cy.toFixed(1)}% ${shape.rx.toFixed(1)}% ${shape.ry.toFixed(1)}%`;
+            }
+
+            return line;
+        }
+
+        function copyExportText() {
+            const text = document.getElementById('export-text').textContent;
+            navigator.clipboard.writeText(text);
+
+            // save levels to localStorage
+            localStorage.setItem('levelEditorContent', text);
+
+            // Show "Copied!" message
+            const statusEl = document.getElementById('copy-status');
+            statusEl.style.visibility = 'visible';
+            
+            // Hide after 2 seconds
+            setTimeout(() => {
+                statusEl.style.visibility = 'hidden';
+            }, 2000);
+        }
+
+        // Make functions global for inline event handlers
+        window.deleteShape = deleteShape;
+        window.selectShape = selectShape;
+        window.updateShapeProperty = updateShapeProperty;
+        window.adjustShapeProperty = adjustShapeProperty;
+        window.updateZoneId = updateZoneId;
+        window.updateEditingPanel = updateEditingPanel;
+    </script>
+</body>
+</html>

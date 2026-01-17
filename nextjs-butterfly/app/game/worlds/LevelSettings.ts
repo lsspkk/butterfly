@@ -15,22 +15,42 @@ export type ButterflyData = {
   fromLevel: number
 }
 
-export const levelConfigList: LevelConfig[] = [
-  { level: 1, bees: 3, flowers: 10, butterflies: 3, beeMaxSpeed: 1, mapId: 1 },
-  { level: 2, bees: 5, flowers: 10, butterflies: 4, beeMaxSpeed: 2, mapId: 2 },
-  { level: 3, bees: 7, flowers: 15, butterflies: 5, beeMaxSpeed: 4, mapId: 3 },
-  { level: 4, bees: 9, flowers: 18, butterflies: 8, beeMaxSpeed: 6, mapId: 4 },
-  { level: 5, bees: 20, flowers: 25, butterflies: 5, beeMaxSpeed: 2, mapId: 5 },
-  { level: 6, bees: 22, flowers: 35, butterflies: 5, beeMaxSpeed: 3, mapId: 6 },
-  { level: 7, bees: 8, flowers: 35, butterflies: 10, beeMaxSpeed: 4, mapId: 7 },
-  { level: 8, bees: 16, flowers: 35, butterflies: 15, beeMaxSpeed: 5, mapId: 8 },
-]
+// Level configs are now loaded from /maps/level-content.json
+let levelConfigList: LevelConfig[] = []
+
+/**
+ * Load level configurations from JSON file
+ */
+export async function loadLevelConfigs(): Promise<void> {
+  if (levelConfigList.length > 0) {
+    return // Already loaded
+  }
+
+  try {
+    const response = await fetch('/maps/level-content.json')
+    if (!response.ok) {
+      throw new Error(`Failed to fetch level configs: ${response.status}`)
+    }
+    levelConfigList = await response.json()
+    console.log(`Loaded ${levelConfigList.length} level configs from level-content.json`)
+  } catch (error) {
+    console.error('Error loading level configs:', error)
+    throw error
+  }
+}
+
+/**
+ * Get the level config list. Must call loadLevelConfigs() first.
+ */
+export function getLevelConfigs(): LevelConfig[] {
+  return levelConfigList
+}
 
 /**
  * Get the map ID for a level config, falling back to level number if not specified
  */
 export const getMapIdForLevel = (config: LevelConfig): number => {
-  return config.mapId ?? config.level;
+  return config.mapId ?? config.level
 }
 
 export const createRandomButterflies = ({ level, butterflies }: LevelConfig): ButterflyData[] => {
