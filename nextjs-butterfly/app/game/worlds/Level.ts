@@ -56,11 +56,11 @@ export class Level {
 
     this.screen = app.screen
     const { em, height, width } = this
-    
+
     // Calculate world start position so the cat spawn point is centered on screen
     const worldStartX = mapData ? -(mapData.catSpawn.x - this.screen.width / 2) : 0
     const worldStartY = mapData ? -(mapData.catSpawn.y - this.screen.height / 2) : 0
-    
+
     this.world = new World(app, height, width, mapData)
     // Set container position immediately to avoid jump on first frame
     this.world.container.x = worldStartX
@@ -131,10 +131,10 @@ export class Level {
     }
 
     this.createClouds(em, 3, assets.cloudAssets)
-    
+
     // Position all entities before game starts to avoid visual jump on first frame
     this.initialPositioning()
-    
+
     gameState.levelGameLoop = this.gameLoop.bind(this)
   }
 
@@ -254,12 +254,7 @@ export class Level {
       const maxAttempts = 50
 
       do {
-        const pos = getRandomPointInBoundaries(
-          this.mapData?.boundaries,
-          this.width,
-          this.height,
-          100
-        )
+        const pos = getRandomPointInBoundaries(this.mapData?.boundaries, this.width, this.height, 100)
         x = pos.x
         y = pos.y
         attempts++
@@ -280,7 +275,7 @@ export class Level {
   private initialPositioning() {
     const { em } = this
     const relevantEntities = em.getEntitiesByComponents('Movement')
-    
+
     for (const [id] of relevantEntities) {
       const m = em.getComponent<Movement>(id, 'Movement')
       const g = em.getComponent<EGraphics>(id, 'Graphics')
