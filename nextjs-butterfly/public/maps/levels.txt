@@ -29,30 +29,31 @@
 # 10 flowers, 3 bees, 3 butterflies
 
 LEVEL 1
-SIZE 1.4 1.4
+SIZE 1.7 1.7
 BOUNDARY rect 32.4% 29.1% 20.0% 24.0%
-BOUNDARY rect 33.9% 12.8% 13.5% 16.9%
-BOUNDARY rect 45.3% 6.8% 30.3% 11.3%
+BOUNDARY rect 38.9% 4.8% 13.5% 24.9%
+BOUNDARY rect 45.0% 4.5% 30.3% 11.3%
 BOUNDARY rect 73.4% 4.4% 7.8% 48.3%
 BOUNDARY rect 69.1% 50.6% 16.1% 34.0%
-BOUNDARY rect 27.7% 67.7% 43.3% 20.6%
-BOUNDARY rect 22.6% 63.5% 6.2% 15.3%
-BOUNDARY rect 10.6% 56.4% 19.2% 9.5%
-BOUNDARY rect 5.3% 43.4% 6.7% 24.0%
-BOUNDARY rect 4.1% 37.1% 28.5% 14.8%
+BOUNDARY rect 27.7% 67.7% 57.3% 20.6%
+BOUNDARY rect 23.6% 63.5% 6.2% 24.3%
+BOUNDARY rect 10.6% 61.5% 19.2% 9.5%
+BOUNDARY rect 4.1% 47.3% 6.7% 24.0%
+BOUNDARY rect 4.0% 37.5% 28.5% 14.8%
+BOUNDARY rect 4.4% 66.3% 24.8% 22.0%
 ZONE zone1 rect 70.0% 53.9% 14.5% 28.2%
 CAT_SPAWN 50.0% 50.0%
 LEVEL 2
-SIZE 1.6 1.3
+SIZE 2.6 1.7
 BOUNDARY rect 5.0% 20.0% 35.0% 60.0%
 BOUNDARY rect 37.6% 20.8% 23.0% 15.0%
 BOUNDARY rect 60.0% 20.0% 35.0% 60.0%
 BOUNDARY rect 37.6% 65.3% 24.0% 15.0%
-ZONE leftroom rect 10.0% 25.0% 25.0% 50.0%
+ZONE leftroom rect 5.0% 30.0% 13.0% 50.0%
 ZONE rightroom rect 65.0% 25.0% 25.0% 50.0%
 CAT_SPAWN 22.0% 50.0%
 LEVEL 3
-SIZE 2.5 2.5
+SIZE 2.7 2.7
 BOUNDARY ellipse 27.8% 28.6% 22.0% 22.0%
 BOUNDARY ellipse 69.9% 33.4% 22.0% 22.0%
 BOUNDARY ellipse 25.3% 70.6% 22.0% 22.0%
@@ -64,7 +65,7 @@ ZONE sw ellipse 26.4% 67.4% 12.0% 12.0%
 ZONE se ellipse 71.3% 69.8% 12.0% 12.0%
 CAT_SPAWN 47.4% 51.2%
 LEVEL 4
-SIZE 1.5 1.5
+SIZE 2.2 2.2
 BOUNDARY rect 25.8% 1.9% 48.0% 93.0%
 BOUNDARY rect 5.1% 36.8% 90.0% 26.0%
 ZONE north rect 27.7% 7.8% 16.0% 20.0%
@@ -73,7 +74,7 @@ ZONE west rect 8.0% 42.0% 20.0% 16.0%
 ZONE east rect 72.0% 42.0% 20.0% 16.0%
 CAT_SPAWN 50.0% 50.0%
 LEVEL 5
-SIZE 1.8 1.4
+SIZE 2.2 2.2
 BOUNDARY rect 3.8% 8.8% 28.0% 78.0%
 BOUNDARY rect 28.0% 20.0% 44.0% 20.0%
 BOUNDARY rect 70.0% 10.0% 25.0% 30.0%
@@ -83,7 +84,7 @@ ZONE topright rect 73.0% 13.0% 18.0% 22.0%
 ZONE bottom rect 46.0% 70.0% 8.0% 18.0%
 CAT_SPAWN 18.0% 25.0%
 LEVEL 6
-SIZE 2.0 2.0
+SIZE 2.8 2.8
 BOUNDARY ellipse 30.0% 30.0% 25.0% 25.0%
 BOUNDARY rect 45.0% 30.0% 10.0% 40.0%
 BOUNDARY ellipse 70.0% 70.0% 25.0% 25.0%
@@ -92,7 +93,7 @@ ZONE bottomchamber ellipse 70.0% 70.0% 15.0% 15.0%
 ZONE corridor rect 46.0% 40.0% 8.0% 20.0%
 CAT_SPAWN 31.7% 11.2%
 LEVEL 7
-SIZE 2.0 2.0
+SIZE 2.8 2.8
 BOUNDARY ellipse 50.0% 50.0% 18.0% 18.0%
 BOUNDARY rect 50.0% 15.0% 8.0% 38.0%
 BOUNDARY ellipse 54.0% 12.0% 12.0% 10.0%
@@ -105,7 +106,7 @@ ZONE westarm ellipse 12.0% 64.0% 8.0% 8.0%
 ZONE southeastarm ellipse 66.0% 88.0% 8.0% 8.0%
 CAT_SPAWN 50.0% 50.0%
 LEVEL 8
-SIZE 2.5 2.0
+SIZE 3.0 2.9
 BOUNDARY rect 5.0% 5.0% 20.0% 25.0%
 BOUNDARY rect 10.0% 28.0% 10.0% 22.0%
 BOUNDARY rect 5.0% 48.0% 20.0% 25.0%
@@ -127,20 +128,20 @@ ZONE topright rect 77.0% 7.0% 16.0% 20.0%
 ZONE bottomright rect 77.0% 51.0% 16.0% 20.0%
 CAT_SPAWN 50.0% 38.0%
 LEVEL 9
-SIZE 2.5 2.0
+SIZE 3.0 3.0
 BOUNDARY rect 5.0% 35.0% 18.0% 30.0%
-BOUNDARY rect 21.7% 38.1% 12.0% 24.0%
+BOUNDARY rect 21.4% 36.3% 12.0% 27.0%
 BOUNDARY rect 27.0% 5.0% 18.0% 25.0%
 BOUNDARY rect 32.0% 28.0% 8.0% 16.0%
 BOUNDARY rect 27.0% 70.0% 18.0% 25.0%
 BOUNDARY rect 32.0% 56.0% 8.0% 16.0%
 BOUNDARY rect 38.0% 38.0% 24.0% 24.0%
-BOUNDARY rect 60.0% 42.0% 8.0% 16.0%
+BOUNDARY rect 59.7% 38.1% 8.0% 24.0%
 BOUNDARY rect 66.0% 5.0% 18.0% 25.0%
 BOUNDARY rect 65.4% 29.9% 8.0% 16.0%
 BOUNDARY rect 66.0% 70.0% 18.0% 25.0%
-BOUNDARY rect 64.8% 57.0% 8.0% 16.0%
-BOUNDARY rect 82.7% 18.0% 18.0% 65.0%
+BOUNDARY rect 64.8% 57.0% 9.0% 16.0%
+BOUNDARY rect 82.7% 5.0% 18.0% 90.0%
 ZONE west rect 7.0% 38.0% 14.0% 24.0%
 ZONE east rect 91.0% 38.0% 9.0% 24.0%
 ZONE northwest rect 29.0% 8.0% 14.0% 18.0%
@@ -149,10 +150,10 @@ ZONE southwest rect 29.0% 74.0% 14.0% 18.0%
 ZONE southeast rect 68.0% 74.0% 14.0% 18.0%
 CAT_SPAWN 50.0% 50.0%
 LEVEL 10
-SIZE 2.5 2.0
+SIZE 3.0 2.8
 BOUNDARY rect 5.0% 5.0% 22.0% 22.0%
 BOUNDARY rect 15.0% 25.0% 6.0% 20.0%
-BOUNDARY rect 5.0% 43.0% 22.0% 14.0%
+BOUNDARY rect 15.0% 43.0% 22.0% 14.0%
 BOUNDARY rect 15.0% 55.0% 6.0% 20.0%
 BOUNDARY rect 5.0% 73.0% 22.0% 22.0%
 BOUNDARY rect 25.0% 12.0% 20.0% 6.0%
@@ -171,7 +172,7 @@ BOUNDARY rect 82.0% 55.0% 6.0% 20.0%
 BOUNDARY rect 76.0% 73.0% 22.0% 22.0%
 ZONE topleftcorner rect 7.0% 7.0% 18.0% 18.0%
 ZONE bottomleftcorner rect 7.0% 75.0% 18.0% 18.0%
-ZONE leftmid rect 7.0% 45.0% 18.0% 10.0%
+ZONE leftmid rect 24.0% 45.0% 13.0% 10.0%
 ZONE toprightcorner rect 78.0% 7.0% 18.0% 18.0%
 ZONE bottomrightcorner rect 78.0% 75.0% 18.0% 18.0%
 ZONE rightmid rect 78.0% 45.0% 18.0% 10.0%
